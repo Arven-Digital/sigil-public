@@ -1,0 +1,10 @@
+# Sigil Protocol — AI Agent Wallet Security
+# https://sigil.codes/llms.txt
+
+> Open security protocol for AI agent wallets. 3-layer transaction validation. ERC-4337. Non-custodial.
+
+## Docs
+- Full reference: https://sigil.codes/llms.txt
+- Human docs: https://sigil.codes/docs
+- OpenClaw skill: https://clawhub.ai/skills/sigil-security
+- Source code: https://github.com/Arven-Digital/sigil-public
