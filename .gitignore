@@ -1,0 +1,21 @@
+node_modules/
+.next/
+dist/
+out/
+cache/
+.turbo/
+.env
+.env.local
+.env.production
+*.secret
+.secrets/
+
+# Foundry
+packages/contracts/lib/
+packages/contracts/out/
+packages/contracts/cache/
+
+# Build artifacts
+packages/contracts/broadcast/
+.turbo/
+dist/

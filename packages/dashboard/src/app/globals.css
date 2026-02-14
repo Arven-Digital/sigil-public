@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --neon: #00FF88;
+  --bg: #050505;
+  --fg: #EDEFF2;
+  --muted: rgba(255,255,255,0.4);
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+*:focus-visible {
+  outline: 1px solid var(--neon);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(0, 255, 136, 0.2);
+  color: white;
+}
+
+/* Neon green buttons always get black text */
+.btn-neon {
+  @apply px-4 py-2 rounded-lg font-medium text-sm transition-all;
+  background-color: var(--neon);
+  color: #050505;
+}
+.btn-neon:hover {
+  filter: brightness(1.1);
+  transform: scale(1.02);
+}
+.btn-neon:disabled {
+  opacity: 0.3;
+  transform: none;
+  filter: none;
+}
+
+/* Ghost button */
+.btn-ghost {
+  @apply px-4 py-2 rounded-lg font-medium text-sm transition-colors;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+}
+.btn-ghost:hover {
+  border-color: rgba(255,255,255,0.25);
+  color: white;
+}
+
+/* Card with consistent dark theme */
+.card-dark {
+  @apply rounded-xl p-5;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.card-dark:hover {
+  border-color: rgba(255,255,255,0.1);
+}
+
+/* Fade-in animation for sections */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.7s ease-out both;
+}
+
+.animate-delay-100 { animation-delay: 0.1s; }
+.animate-delay-200 { animation-delay: 0.2s; }
+.animate-delay-300 { animation-delay: 0.3s; }
+.animate-delay-400 { animation-delay: 0.4s; }
+
+/* Subtle glow for neon elements */
+.neon-glow {
+  text-shadow: 0 0 20px rgba(0, 255, 136, 0.3), 0 0 40px rgba(0, 255, 136, 0.1);
+}
+
+/* Gradient border card */
+.card-gradient {
+  position: relative;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 0.75rem;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.card-gradient:hover {
+  border-color: rgba(0, 255, 136, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Smooth number counter effect */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Grid pattern background */
+.bg-grid {
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+}

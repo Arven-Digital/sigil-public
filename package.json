@@ -1,0 +1,24 @@
+{
+  "name": "sigil-protocol",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Open security protocol for AI agent wallets",
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "test": "turbo test",
+    "lint": "turbo lint",
+    "clean": "turbo clean"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0",
+    "typescript": "^5.8.0"
+  },
+  "packageManager": "pnpm@10.28.2",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "pino-pretty": "^13.1.3"
+  }
+}
