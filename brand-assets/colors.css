@@ -1,0 +1,12 @@
+:root {
+  --sigil-bg-dark: #0B0F14;
+  --sigil-bg-light: #F5F7FA;
+  --sigil-fg-light: #EDEFF2;
+  --sigil-fg-dark: #0B0F14;
+  --sigil-muted: #A9B1BA;
+  --sigil-divider: #242B33;
+  --sigil-indigo: #5E6CFF;
+  --sigil-success: #1BC47D;
+  --sigil-warning: #F4A524;
+  --sigil-error: #F04452;
+}

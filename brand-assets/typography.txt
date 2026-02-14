@@ -1,0 +1,7 @@
+SIGIL Typography
+- Headings + UI: Inter (weights: 400, 500, 600, 700)
+- Code / hashes / numbers: JetBrains Mono (weights: 400, 500)
+
+Loading recommendation (web):
+- Inter: 400/500/600/700
+- JetBrains Mono: 400/500
