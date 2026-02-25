@@ -66,7 +66,7 @@ export default function PricingPage() {
             <span className="font-display text-[22px] tracking-[0.25em] uppercase">SIGIL</span>
           </Link>
           <Link
-            href="/onboarding"
+            href="/login"
             className="px-4 py-1.5 rounded-md text-[#050505] font-medium text-sm transition-all hover:brightness-110"
             style={{ backgroundColor: NEON }}
           >
@@ -125,7 +125,7 @@ export default function PricingPage() {
           </div>
 
           <Link
-            href="/onboarding"
+            href="/login"
             className="inline-flex px-8 py-3.5 rounded-lg text-[#050505] font-semibold text-[15px] transition-all hover:brightness-110 hover:scale-[1.02]"
             style={{ backgroundColor: NEON }}
           >
@@ -221,7 +221,7 @@ export default function PricingPage() {
         <div className="rounded-xl border border-white/5 bg-white/[0.02] p-8 mt-8">
           <h2 className="text-xl font-bold mb-4">🔐 Non-custodial by design</h2>
           <p className="text-[13px] text-white/40 leading-relaxed mb-4">
-            Your owner key, agent key, session keys, and recovery guardians are generated and stored entirely on your side. We never see, store, or have access to any of your private keys.
+            Your Origin Wallet key, Agent Wallet key, session keys, and recovery guardians are generated and stored entirely on your side. We never see, store, or have access to any of your private keys.
           </p>
           <p className="text-[13px] text-white/40 leading-relaxed">
             The only key we operate is the <strong className="text-white/70">Guardian co-signer</strong> — a validation key that can only co-sign transactions <em>after</em> they pass all three security layers. It cannot initiate transactions, move funds, change ownership, or act unilaterally. If our servers go offline, your wallet still works — emergency controls are owner-only on-chain functions.
@@ -232,7 +232,7 @@ export default function PricingPage() {
         <div className="text-center mt-16">
           <p className="text-white/30 text-sm mb-6">Ready to secure your agent&apos;s wallet?</p>
           <Link
-            href="/onboarding"
+            href="/login"
             className="inline-flex px-8 py-3.5 rounded-lg text-[#050505] font-semibold text-[15px] transition-all hover:brightness-110 hover:scale-[1.02]"
             style={{ backgroundColor: NEON }}
           >

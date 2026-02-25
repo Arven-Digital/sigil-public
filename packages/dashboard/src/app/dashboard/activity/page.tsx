@@ -1,8 +1,9 @@
 "use client";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { useTransactions } from "@/lib/hooks";
 import { useWallet } from "@/lib/wallet";
-import { mockTransactions, Transaction } from "@/lib/mock";
+import { Transaction } from "@/lib/types";
+import { getStoredAccount } from "@/lib/contracts";
 import Card from "@/components/Card";
 import VerdictBadge from "@/components/VerdictBadge";
 
@@ -17,12 +18,44 @@ function LoadingSpinner() {
 const PAGE_SIZE = 10;
 
 export default function ActivityPage() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const [page, setPage] = useState(1);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const { address } = useWallet();
-  const { data: txData, error, isLoading, isDemoMode } = useTransactions(address, page, PAGE_SIZE);
+  const { address, chainId, isConnected, isAuthenticated, needsSignIn, signIn, isAuthenticating } = useWallet();
+  const accountAddress = mounted && chainId ? getStoredAccount(chainId) : null;
+  const { data: txData, error, isLoading } = useTransactions(isAuthenticated ? (accountAddress || undefined) : undefined, page, PAGE_SIZE);
 
-  const allTxs: Transaction[] = isDemoMode ? mockTransactions : (txData?.transactions || txData || []);
+  if (mounted && !isConnected) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Activity Feed</h1>
+        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-8 text-center space-y-4">
+          <p className="text-white/40">Connect your wallet to view transaction history</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (mounted && needsSignIn) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Activity Feed</h1>
+        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-8 text-center space-y-4">
+          <p className="text-white/40">Sign in with your wallet to view transaction history</p>
+          <button
+            onClick={signIn}
+            disabled={isAuthenticating}
+            className="px-6 py-2.5 bg-[#00FF88] text-[#050505] rounded-lg text-sm font-medium hover:bg-[#00FF88]/80 disabled:opacity-50 transition-colors"
+          >
+            {isAuthenticating ? "Signing…" : "Sign In (SIWE)"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const allTxs: Transaction[] = txData?.transactions || txData || [];
   const start = (page - 1) * PAGE_SIZE;
   const txs = allTxs.slice(start, start + PAGE_SIZE);
   const totalPages = Math.max(1, Math.ceil(allTxs.length / PAGE_SIZE));
@@ -31,20 +64,14 @@ export default function ActivityPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Activity Feed</h1>
 
-      {isDemoMode && (
-        <div className="p-3 bg-[#00FF88]/10 border border-[#00FF88]/20 rounded-lg text-sm text-[#00FF88]">
-          📋 Showing demo data — connect your wallet for live data
-        </div>
-      )}
-
-      {!isDemoMode && error && (
+      {error && (
         <div className="p-3 bg-[#F04452]/10 border border-[#F04452]/30 rounded-lg text-sm text-[#F04452]">
           ⚠ Failed to load transactions: {error.message || "API unreachable"}
         </div>
       )}
 
       <Card>
-        {!isDemoMode && isLoading ? (
+        {isLoading ? (
           <div className="flex items-center gap-2 py-8 justify-center">
             <LoadingSpinner /> <span className="text-sm text-white/40">Loading transactions…</span>
           </div>
@@ -75,12 +102,12 @@ export default function ActivityPage() {
                         <td className="py-2">{tx.value}</td>
                         <td className="py-2 text-xs text-white/40">{tx.function}</td>
                         <td className="py-2"><VerdictBadge verdict={tx.verdict} /></td>
-                        <td className="py-2 text-xs">{tx.riskScore.toFixed(2)}</td>
+                        <td className="py-2 text-xs">{(tx.riskScore ?? 0).toFixed(2)}</td>
                         <td className="py-2 text-xs text-white/40">
                           {new Date(tx.timestamp).toLocaleString()}
                         </td>
                       </tr>
-                      {expanded === tx.id && tx.layers && (
+                      {expanded === tx.id && tx.layers?.layer1 && (
                         <tr key={tx.id + "-detail"} className="bg-[#050505]/50">
                           <td colSpan={6} className="p-4">
                             <div className="grid grid-cols-3 gap-4 text-xs">
@@ -112,7 +139,6 @@ export default function ActivityPage() {
               </table>
             </div>
 
-            {/* Pagination */}
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5">
               <button
                 onClick={() => setPage(Math.max(1, page - 1))}

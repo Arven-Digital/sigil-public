@@ -46,10 +46,10 @@ async function authenticate(): Promise<string> {
   return authToken!;
 }
 
-async function apiCall(path: string, options?: RequestInit & { body?: any }): Promise<any> {
+async function apiCall(path: string, options?: { method?: string; headers?: Record<string, string>; body?: any }): Promise<any> {
   const token = await authenticate();
   const res = await fetch(`${API_URL}${path}`, {
-    ...options,
+    method: options?.method || "GET",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -63,7 +63,7 @@ async function apiCall(path: string, options?: RequestInit & { body?: any }): Pr
     authToken = null;
     const newToken = await authenticate();
     const retry = await fetch(`${API_URL}${path}`, {
-      ...options,
+      method: options?.method || "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${newToken}`,
@@ -206,11 +206,9 @@ async function handleTool(name: string, args: Record<string, any>): Promise<stri
             sender: addr,
             nonce: "0x0",
             callData: args.data || "0x",
-            callGasLimit: "200000",
-            verificationGasLimit: "200000",
+            accountGasLimits: "0x000000000000000000000000000309400000000000000000000000000007a120", // verificationGasLimit=200000, callGasLimit=500000
             preVerificationGas: "50000",
-            maxFeePerGas: "25000000000",
-            maxPriorityFeePerGas: "1500000000",
+            gasFees: "0x00000000000000000000000059682f000000000000000000000000174876e800", // maxPriorityFeePerGas=1.5gwei, maxFeePerGas=100gwei
             signature: "0x",
           },
         },

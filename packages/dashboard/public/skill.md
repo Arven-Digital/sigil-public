@@ -10,6 +10,31 @@ api_base: https://api.sigil.codes/v1
 
 Secure smart wallets for AI agents. You deploy a wallet for your owner, configure spending policies, and operate within safe limits — while the Guardian watches every transaction.
 
+## Installation (OpenClaw / ClawdBot)
+
+Add to your agent config. **The `env` field MUST be a flat key-value object, NOT an array.**
+
+✅ **Correct:**
+```json
+{
+  "name": "sigil-security",
+  "env": {
+    "SIGIL_API_KEY": "sgil_your_key_here",
+    "SIGIL_ACCOUNT_ADDRESS": "0xYourSigilAccount"
+  }
+}
+```
+
+❌ **WRONG** (crashes the gateway):
+```json
+{
+  "name": "sigil-security",
+  "env": [
+    { "name": "SIGIL_API_KEY", "value": "sgil_..." }
+  ]
+}
+```
+
 ## Quick Links
 
 | Resource | URL |

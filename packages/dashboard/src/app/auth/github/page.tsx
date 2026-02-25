@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.sigil.codes/v1";
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "https://api.sigil.codes/v1").trim();
 
 function GitHubCallbackInner() {
   const searchParams = useSearchParams();
@@ -48,12 +48,12 @@ function GitHubCallbackInner() {
         setMessage("GitHub connected! Redirecting...");
         // Store GitHub info for the session
         if (data.github_username) {
-          localStorage.setItem("sigil-github", JSON.stringify({
+          sessionStorage.setItem("sigil-github", JSON.stringify({
             username: data.github_username,
             id: data.github_id,
           }));
         }
-        setTimeout(() => router.push("/onboarding"), 1500);
+        setTimeout(() => router.push("/login"), 1500);
       })
       .catch(err => {
         setStatus("error");
@@ -73,7 +73,7 @@ function GitHubCallbackInner() {
         <p className="text-white/40">{message}</p>
         {status === "error" && (
           <button
-            onClick={() => router.push("/onboarding")}
+            onClick={() => router.push("/login")}
             className="mt-6 px-6 py-2 bg-[#00FF88] rounded-lg text-[#050505] font-medium"
           >
             Back to Onboarding

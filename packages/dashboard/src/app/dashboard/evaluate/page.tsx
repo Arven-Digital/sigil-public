@@ -1,19 +1,60 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useChainId } from "wagmi";
 import { parseEther, encodeFunctionData } from "viem";
 import { useWallet } from "@/lib/wallet";
+import { useViewChain } from "@/lib/view-chain";
 import { getStoredAccount, getNativeToken } from "@/lib/contracts";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.sigil.codes/v1";
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "https://api.sigil.codes/v1").trim();
 
-const COMMON_FUNCTIONS = [
-  { label: "Native Transfer (no data)", value: "" },
-  { label: "ERC20 transfer(address,uint256)", value: "0xa9059cbb" },
-  { label: "ERC20 approve(address,uint256)", value: "0x095ea7b3" },
-  { label: "Uniswap swapExactTokensForTokens", value: "0x38ed1739" },
-  { label: "Custom (enter hex)", value: "custom" },
+const FUNCTION_CATEGORIES = [
+  {
+    category: "Common",
+    items: [
+      { label: "Native Transfer (no data)", value: "", desc: "Send native tokens directly" },
+    ],
+  },
+  {
+    category: "ERC-20",
+    items: [
+      { label: "transfer(address,uint256)", value: "0xa9059cbb", desc: "Send tokens to address" },
+      { label: "approve(address,uint256)", value: "0x095ea7b3", desc: "Approve spender allowance" },
+      { label: "transferFrom(address,address,uint256)", value: "0x23b872dd", desc: "Transfer on behalf of Origin Wallet" },
+    ],
+  },
+  {
+    category: "ERC-721",
+    items: [
+      { label: "safeTransferFrom(address,address,uint256)", value: "0x42842e0e", desc: "Transfer NFT safely" },
+      { label: "setApprovalForAll(address,bool)", value: "0xa22cb465", desc: "Approve all NFTs for operator" },
+    ],
+  },
+  {
+    category: "DEX / Swap",
+    items: [
+      { label: "swapExactTokensForTokens", value: "0x38ed1739", desc: "Swap exact input amount" },
+      { label: "swapExactETHForTokens", value: "0x7ff36ab5", desc: "Swap native → tokens" },
+      { label: "swapExactTokensForETH", value: "0x18cbafe5", desc: "Swap tokens → native" },
+      { label: "exactInputSingle (V3)", value: "0x414bf389", desc: "Uniswap V3 single-hop swap" },
+    ],
+  },
+  {
+    category: "Lending",
+    items: [
+      { label: "supply(address,uint256,address,uint16)", value: "0x617ba037", desc: "Supply to lending pool" },
+      { label: "borrow(address,uint256,uint256,uint16,address)", value: "0xa415bcad", desc: "Borrow from pool" },
+      { label: "repay(address,uint256,uint256,address)", value: "0x573ade81", desc: "Repay borrowed amount" },
+    ],
+  },
+  {
+    category: "Staking / Wrapping",
+    items: [
+      { label: "stake(uint256)", value: "0xa694fc3a", desc: "Stake tokens" },
+      { label: "deposit() — wrap native", value: "0xd0e30db0", desc: "Wrap to WAVAX/WETH" },
+      { label: "withdraw(uint256) — unwrap", value: "0x2e1a7d4d", desc: "Unwrap to native" },
+    ],
+  },
 ];
 
 type LayerResult = {
@@ -113,8 +154,9 @@ export default function EvaluatePage() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const { address, isAuthenticated } = useWallet();
-  const chainId = useChainId();
+  const { address, isAuthenticated, needsSignIn, signIn } = useWallet();
+  const [signingIn, setSigningIn] = useState(false);
+  const { viewChainId: chainId } = useViewChain();
   const accountAddress = mounted ? getStoredAccount(chainId) : null;
 
   const [target, setTarget] = useState("");
@@ -124,8 +166,12 @@ export default function EvaluatePage() {
   const [evaluating, setEvaluating] = useState(false);
   const [result, setResult] = useState<EvalResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [executing, setExecuting] = useState(false);
+  const [execTxHash, setExecTxHash] = useState<string | null>(null);
+  const [execError, setExecError] = useState<string | null>(null);
 
   const callData = fnSelector === "custom" ? customData : fnSelector || "0x";
+  const isApproved = result?.verdict === "APPROVE";
 
   async function handleEvaluate() {
     if (!target || !accountAddress) return;
@@ -160,11 +206,9 @@ export default function EvaluatePage() {
         sender: accountAddress,
         nonce: "0x0",
         callData: encodedCallData,
-        callGasLimit: "0x7A120",            // 500k — generous for complex calls
-        verificationGasLimit: "0x30000",    // 192k — sufficient for multi-sig validation
+        accountGasLimits: "0x00000000000000000000000000030000000000000000000000000000007a120", // vgl=192k, cgl=500k
         preVerificationGas: "0x10000",      // 64k — standard
-        maxFeePerGas: "0x174876E800",       // 100 gwei — handles most congestion
-        maxPriorityFeePerGas: "0x77359400", // 2 gwei — reasonable priority
+        gasFees: "0x00000000000000000000000077359400000000000000000000000174876e800", // prio=2gwei, max=100gwei
         signature: "0x",
       };
 
@@ -192,11 +236,13 @@ export default function EvaluatePage() {
           gasEstimate: l.gasEstimate,
         };
       };
+      const verdict = data.verdict === 'APPROVED' ? 'APPROVE' : data.verdict === 'REJECTED' ? 'REJECT' : 'ESCALATE';
+      const isRejected = verdict === 'REJECT';
       setResult({
-        verdict: data.verdict === 'APPROVED' ? 'APPROVE' : data.verdict === 'REJECTED' ? 'REJECT' : 'ESCALATE',
+        verdict,
         layer1: mapLayer(data.layers?.layer1) || { pass: false, reason: 'No response' },
-        layer2: mapLayer(data.layers?.layer2) || { pass: true, reason: 'Not evaluated' },
-        layer3: { ...(mapLayer(data.layers?.layer3) || { pass: true, reason: 'Not evaluated' }), score: data.layers?.layer3?.score ?? 0 },
+        layer2: mapLayer(data.layers?.layer2) || { pass: !isRejected, reason: isRejected ? 'Skipped — blocked by earlier layer' : 'Not evaluated' },
+        layer3: { ...(mapLayer(data.layers?.layer3) || { pass: !isRejected, reason: isRejected ? 'Skipped — blocked by earlier layer' : 'Not evaluated' }), score: data.layers?.layer3?.score ?? 0 },
         guidance: data.guidance,
       });
     } catch (err) {
@@ -216,9 +262,20 @@ export default function EvaluatePage() {
         <p className="text-sm text-white/40 mt-1">Test how the Guardian evaluates a transaction through all 3 security layers.</p>
       </div>
 
+      {needsSignIn && (
+        <div className="p-4 bg-[#F4A524]/10 border border-[#F4A524]/30 rounded-xl text-sm flex items-center justify-between">
+          <span className="text-[#F4A524]">🔐 Sign in with your wallet to evaluate transactions</span>
+          <button
+            onClick={async () => { setSigningIn(true); try { await signIn(); } catch {} setSigningIn(false); }}
+            disabled={signingIn}
+            className="px-4 py-1.5 bg-[#00FF88] text-[#050505] rounded-lg text-xs font-medium hover:brightness-110 disabled:opacity-50"
+          >{signingIn ? "Signing..." : "Sign In"}</button>
+        </div>
+      )}
+
       {!accountAddress && (
         <div className="p-4 bg-[#00FF88]/10 border border-[#00FF88]/20 rounded-xl text-sm">
-          <span className="text-[#00FF88]">ℹ️ No Sigil account found on this chain. </span>
+          <span className="text-[#00FF88]">ℹ️ No Sigil Wallet found on this chain. </span>
           <a href="/onboarding" className="text-[#00FF88] underline hover:no-underline">Deploy one first →</a>
         </div>
       )}
@@ -230,13 +287,24 @@ export default function EvaluatePage() {
 
           <div>
             <label className="text-xs text-white/40 block mb-1">Target Address</label>
-            <input
-              type="text"
-              value={target}
-              onChange={e => setTarget(e.target.value)}
-              placeholder="0x..."
-              className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2.5 text-sm font-mono focus:border-[#00FF88] outline-none"
-            />
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={target}
+                onChange={e => setTarget(e.target.value)}
+                onPaste={e => { e.preventDefault(); setTarget(e.clipboardData.getData('text').trim()); }}
+                placeholder="0x..."
+                autoComplete="off"
+                spellCheck={false}
+                className="flex-1 bg-[#050505] border border-white/5 rounded-lg px-3 py-2.5 text-sm font-mono focus:border-[#00FF88] outline-none"
+              />
+              <button
+                type="button"
+                onClick={async () => { try { const t = await navigator.clipboard.readText(); setTarget(t.trim()); } catch {} }}
+                className="px-3 py-2.5 bg-white/5 border border-white/5 rounded-lg text-xs text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+                title="Paste from clipboard"
+              >📋</button>
+            </div>
           </div>
 
           <div>
@@ -257,9 +325,16 @@ export default function EvaluatePage() {
               onChange={e => setFnSelector(e.target.value)}
               className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2.5 text-sm focus:border-[#00FF88] outline-none"
             >
-              {COMMON_FUNCTIONS.map(f => (
-                <option key={f.value} value={f.value}>{f.label}</option>
+              {FUNCTION_CATEGORIES.map(cat => (
+                <optgroup key={cat.category} label={cat.category}>
+                  {cat.items.map(f => (
+                    <option key={`${cat.category}-${f.value}`} value={f.value}>
+                      {f.label}{f.desc ? ` — ${f.desc}` : ""}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
+              <option value="custom">Custom (enter hex)</option>
             </select>
           </div>
 
@@ -279,7 +354,7 @@ export default function EvaluatePage() {
           <button
             onClick={handleEvaluate}
             disabled={!target || evaluating}
-            className="w-full py-3 bg-[#00FF88] hover:brightness-110 text-[#050505] disabled:bg-gray-700 disabled:text-gray-500 text-[#050505] rounded-xl font-medium transition-colors"
+            className="w-full py-3 bg-[#00FF88] hover:brightness-110 text-[#050505] disabled:bg-gray-700 disabled:text-gray-500 rounded-xl font-medium transition-colors"
           >
             {evaluating ? (
               <span className="flex items-center justify-center gap-2">
@@ -329,8 +404,92 @@ export default function EvaluatePage() {
               <div className="text-xs text-gray-400 mt-1">
                 {result.verdict === "APPROVE" && "Transaction passes all security layers"}
                 {result.verdict === "REJECT" && "Transaction blocked by security policy"}
-                {result.verdict === "ESCALATE" && "Requires guardian or owner approval"}
+                {result.verdict === "ESCALATE" && "Requires guardian or Origin Wallet approval"}
               </div>
+            </div>
+          )}
+
+          {/* Execute Transaction Button */}
+          {result?.verdict && (
+            <div className="space-y-2">
+              <button
+                onClick={async () => {
+                  if (!accountAddress || !target) return;
+                  setExecuting(true);
+                  setExecError(null);
+                  setExecTxHash(null);
+                  try {
+                    const provider = (window as any).ethereum;
+                    if (!provider) throw new Error("No wallet found — install MetaMask or another Web3 wallet");
+
+                    const valueWei = value ? parseEther(value) : BigInt(0);
+                    const innerData = (callData && callData !== "0x") ? callData as `0x${string}` : "0x" as `0x${string}`;
+                    const encodedCallData = encodeFunctionData({
+                      abi: [{
+                        name: "execute",
+                        type: "function",
+                        inputs: [
+                          { name: "target", type: "address" },
+                          { name: "value", type: "uint256" },
+                          { name: "data", type: "bytes" },
+                        ],
+                        outputs: [],
+                        stateMutability: "nonpayable",
+                      }],
+                      functionName: "execute",
+                      args: [target as `0x${string}`, valueWei, innerData],
+                    });
+
+                    // Owner calls SigilAccount.execute() directly
+                    // value is 0 — the inner value comes from the Sigil account's balance
+                    const hash = await provider.request({
+                      method: "eth_sendTransaction",
+                      params: [{
+                        from: address,
+                        to: accountAddress,
+                        data: encodedCallData,
+                        value: "0x0",
+                      }],
+                    });
+                    setExecTxHash(hash);
+                  } catch (err: any) {
+                    if (err?.code === 4001) {
+                      setExecError("Transaction rejected by user");
+                    } else {
+                      setExecError(err instanceof Error ? err.message : JSON.stringify(err));
+                    }
+                  } finally {
+                    setExecuting(false);
+                  }
+                }}
+                disabled={!isApproved || executing}
+                className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 ${
+                  isApproved
+                    ? "bg-[#00FF88] hover:brightness-110 text-[#050505] cursor-pointer"
+                    : "bg-gray-800 text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                {executing ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="animate-spin h-4 w-4 border-2 border-[#050505] border-t-transparent rounded-full" />
+                    Sending...
+                  </span>
+                ) : isApproved ? "⚡ Execute Transaction" : "🔒 Evaluate first to unlock"}
+              </button>
+              {!isApproved && result.verdict !== "APPROVE" && (
+                <p className="text-xs text-center text-white/30">Transaction must pass all 3 security layers before execution</p>
+              )}
+              {execTxHash && (
+                <div className="rounded-xl border border-[#00FF88]/30 bg-[#00FF88]/5 p-4 text-center space-y-1">
+                  <p className="text-sm font-medium text-[#00FF88]">✅ Transaction Sent!</p>
+                  <p className="text-xs font-mono text-white/60 break-all">{execTxHash}</p>
+                </div>
+              )}
+              {execError && (
+                <div className="rounded-xl border border-[#F04452]/30 bg-[#F04452]/5 p-3 text-sm text-[#F04452]">
+                  ⚠ {execError}
+                </div>
+              )}
             </div>
           )}
 

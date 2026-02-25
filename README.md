@@ -76,14 +76,14 @@ If all three layers pass, the Guardian co-signs. If any layer flags the transact
 
 | Package | Description |
 |---------|-------------|
-| [`packages/contracts`](packages/contracts) | Solidity smart contracts (Foundry, deployed on 4 chains) |
+| [`packages/dashboard`](packages/dashboard) | Next.js dashboard + landing page (sigil.codes) |
+| [`packages/api`](packages/api) | Fastify REST API with SIWE auth |
+| [`packages/guardian`](packages/guardian) | 3-layer transaction validation service |
 | [`packages/sdk`](packages/sdk) | TypeScript SDK for agents |
 | [`packages/eliza-plugin`](packages/eliza-plugin) | Eliza AI framework plugin (13 actions) |
 | [`packages/mcp`](packages/mcp) | MCP (Model Context Protocol) server |
+| [`packages/contracts`](packages/contracts) | Solidity smart contracts (deployed) |
 | [`packages/skill`](packages/skill) | [OpenClaw](https://openclaw.ai) agent skill — install via ClawdHub |
-| [`packages/dashboard`](packages/dashboard) | Next.js dashboard + landing page (sigil.codes) |
-
-> **Note:** The Guardian service and API backend are hosted infrastructure and not included in this repository. All client libraries communicate with the Guardian via `https://api.sigil.codes`.
 
 ## Quick Start
 
@@ -123,7 +123,7 @@ if (result.verdict === 'APPROVED') {
 Install the Sigil skill from [ClawdHub](https://clawdhub.com):
 
 ```bash
-clawdhub install sigil-wallet
+clawdhub install sigil-security
 ```
 
 Your OpenClaw agent instantly gets secure wallet management — deploy accounts, evaluate transactions, manage session keys, freeze/unfreeze, and more. All through the 3-layer Guardian pipeline.
@@ -170,8 +170,8 @@ See [full API documentation](https://sigil.codes/docs) for complete reference.
 - **Non-custodial** — Your keys never touch our servers
 - **Guardian validates, never initiates** — Cannot move funds or act alone
 - **Owner override** — Emergency freeze, withdraw, key rotation all work without Sigil servers
-- **Extensively audited** — Multiple rounds of internal security audits + formal verification (Halmos/Z3)
-- **558 contract tests** across 32 test suites, 0 failures
+- **11+ audit rounds** — Internal security audits covering contracts, API, auth, rate limiting
+- **Infrastructure hardened** — UFW firewall, localhost binding, Caddy with security headers, Redis-backed rate limiting
 
 ## Pricing
 
@@ -204,13 +204,15 @@ pnpm dev
 ```
 sigil-protocol/
 ├── packages/
-│   ├── contracts/    # Solidity smart contracts (Foundry)
+│   ├── dashboard/    # Next.js frontend (Vercel)
+│   ├── api/          # Fastify REST API
+│   ├── guardian/      # Transaction validation service
 │   ├── sdk/          # TypeScript SDK
 │   ├── eliza-plugin/ # Eliza framework plugin
 │   ├── mcp/          # MCP server
-│   ├── skill/        # OpenClaw agent skill
-│   └── dashboard/    # Next.js frontend (sigil.codes)
-├── docs/             # Architecture & research docs
+│   ├── contracts/    # Solidity smart contracts
+│   └── skill/        # Agent skill definition
+├── docs/             # Internal documentation
 └── brand-assets/     # Logo, colors, fonts
 ```
 

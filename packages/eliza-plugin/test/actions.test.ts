@@ -30,11 +30,9 @@ function createMockSdk(overrides: Record<string, any> = {}) {
       sender: '0x1234567890123456789012345678901234567890',
       nonce: '0x1',
       callData: '0x',
-      callGasLimit: '0x186A0',
-      verificationGasLimit: '0x186A0',
+      accountGasLimits: '0x000000000000000000000000000186a00000000000000000000000000007a120',
       preVerificationGas: '0x5208',
-      maxFeePerGas: '0x6FC23AC00',
-      maxPriorityFeePerGas: '0x3B9ACA00',
+      gasFees: '0x0000000000000000000000003b9aca0000000000000000000000006fc23ac00',
       signature: '0xsig',
     }),
     getAccount: vi.fn().mockResolvedValue({

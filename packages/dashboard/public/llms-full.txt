@@ -1,0 +1,315 @@
+# Sigil Protocol — Complete AI Agent Integration Guide
+
+> Written for AI agents. Follow these instructions exactly to interact with Sigil wallets.
+> Sigil adds 3 layers of validation to every transaction: Rules → Simulation → AI Risk Scoring.
+> The agent signs locally. The Guardian co-signs if approved. Both signatures required on-chain.
+
+## Architecture
+
+```
+Agent → sign UserOp locally → POST /v1/execute → Guardian validates (3 layers) → co-signs → submits to EntryPoint
+```
+
+**Your private key never leaves your environment.** Sigil never sees it.
+
+## API Base URL
+
+```
+https://api.sigil.codes/v1
+```
+
+## Step 1: Authentication
+
+```http
+POST /v1/agent/auth/api-key
+Content-Type: application/json
+
+{"apiKey": "sgil_your_key_here"}
+```
+
+Response: `{"token": "eyJ..."}`
+
+Use for all requests: `Authorization: Bearer <token>` — expires after 4 hours, re-auth when you get 401.
+
+## Step 2: Understand Your Addresses
+
+- **Sigil Account** — on-chain smart wallet that holds funds and executes
+- **Agent Key** — your signing key (EOA). Must have gas for UserOp submission
+- **Owner** — human's wallet. Controls policy, freezing, recovery
+
+Get your account:
+```http
+GET /v1/accounts/0xYourSigilAccount
+```
+
+Discover accounts by owner:
+```http
+GET /v1/accounts/discover?owner=0xOwnerAddress&chainId=137
+```
+
+## Step 3: Building a Transaction
+
+### The execute() Pattern
+
+Your Sigil wallet wraps all calls through `execute(address target, uint256 value, bytes data)`:
+
+```javascript
+const { ethers } = require('ethers');
+
+// 1. Encode inner call (e.g., approve USDC)
+const innerData = new ethers.Interface(['function approve(address,uint256)'])
+  .encodeFunctionData('approve', [spender, amount]);
+
+// 2. Wrap in execute()
+const callData = new ethers.Interface(['function execute(address,uint256,bytes)'])
+  .encodeFunctionData('execute', [usdcAddress, 0n, innerData]);
+```
+
+### Build the UserOp (v0.7 Packed Format)
+
+```javascript
+const ENTRYPOINT = '0x0000000071727De22E5E9d8BAf0edAc6f37da032';
+const provider = new ethers.JsonRpcProvider(RPC_URL);
+const agentWallet = new ethers.Wallet(AGENT_PK, provider);
+
+// Get nonce
+const account = new ethers.Contract(SIGIL_ACCOUNT, ['function getNonce() view returns (uint256)'], provider);
+const nonce = await account.getNonce();
+
+// Pack gas fields (v0.7)
+const vgl = 300000n, cgl = 500000n;
+const accountGasLimits = '0x' + vgl.toString(16).padStart(32, '0') + cgl.toString(16).padStart(32, '0');
+
+const feeData = await provider.getFeeData();
+const maxPriority = feeData.maxPriorityFeePerGas ?? 30000000000n;
+const maxFee = feeData.maxFeePerGas ?? 50000000000n;
+const gasFees = '0x' + maxPriority.toString(16).padStart(32, '0') + maxFee.toString(16).padStart(32, '0');
+
+// Get UserOp hash from EntryPoint
+const ep = new ethers.Contract(ENTRYPOINT, [
+  'function getUserOpHash((address,uint256,bytes,bytes,bytes32,uint256,bytes32,bytes,bytes)) view returns (bytes32)'
+], provider);
+const userOpHash = await ep.getUserOpHash([
+  SIGIL_ACCOUNT, ethers.toBeHex(nonce), '0x', callData,
+  accountGasLimits, 60000, gasFees, '0x', '0x'
+]);
+
+// Sign with agent key (EIP-191 personal sign)
+const signature = await agentWallet.signMessage(ethers.getBytes(userOpHash));
+```
+
+### Submit to Sigil
+
+```http
+POST /v1/execute
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "userOp": {
+    "sender": "0xYourSigilAccount",
+    "nonce": "0x5",
+    "callData": "0xb61d27f6...",
+    "accountGasLimits": "0x00000000000000000000000000049d400000000000000000000000000007a120",
+    "preVerificationGas": "60000",
+    "gasFees": "0x0000000000000000000000000ba43b74000000000000000000000000ba43b7400",
+    "signature": "0xAgentSig..."
+  },
+  "chainId": 137
+}
+```
+
+Success: `{"txHash": "0x...", "verdict": "APPROVED", "riskScore": 12}`
+Rejected: `{"verdict": "REJECTED", "rejectionReason": "TARGET_NOT_WHITELISTED", "guidance": {...}}`
+
+Legacy v0.6 format (callGasLimit, verificationGasLimit, maxFeePerGas, maxPriorityFeePerGas as separate fields) is also accepted.
+
+## Step 4: Evaluate Without Executing (Dry Run)
+
+```http
+POST /v1/evaluate
+Authorization: Bearer <token>
+
+{"userOp": { ...same format... }}
+```
+
+Returns verdict + risk score + all 3 layer results without submitting. Use to test calldata before spending gas.
+
+## Common Transaction Examples
+
+### Approve Token
+```javascript
+const inner = erc20.encodeFunctionData('approve', [spender, amount]);
+const callData = execute.encodeFunctionData('execute', [tokenAddress, 0n, inner]);
+```
+
+### Transfer Token
+```javascript
+const inner = erc20.encodeFunctionData('transfer', [recipient, amount]);
+const callData = execute.encodeFunctionData('execute', [tokenAddress, 0n, inner]);
+```
+
+### Send Native Token (POL/ETH/AVAX)
+```javascript
+const callData = execute.encodeFunctionData('execute', [
+  recipient, ethers.parseEther('1'), '0x'
+]);
+```
+
+### Uniswap V3 Swap
+```javascript
+const inner = router.encodeFunctionData('exactInputSingle', [[
+  tokenIn, tokenOut, 3000, SIGIL_ACCOUNT, amountIn, 0, 0
+]]);
+const callData = execute.encodeFunctionData('execute', [ROUTER, 0n, inner]);
+```
+
+### Wrap Native Token (WMATIC/WETH/WAVAX)
+```javascript
+const callData = execute.encodeFunctionData('execute', [
+  WMATIC_ADDRESS, ethers.parseEther('1'), '0xd0e30db0' // deposit()
+]);
+```
+
+## Chains & Contracts (V12 — All Mainnet)
+
+| Chain | ID | Factory | RPC |
+|-------|-----|---------|-----|
+| Ethereum | 1 | `0x20f926bd5f416c875a7ec538f499d21d62850f35` | `https://eth.drpc.org` |
+| Polygon | 137 | `0x483D6e4e203771485aC75f183b56D5F5cDcbe679` | `https://polygon.drpc.org` |
+| Avalanche | 43114 | `0x86e85de25473b432dabf1b9e8e8ce5145059b85b` | `https://api.avax.network/ext/bc/C/rpc` |
+| Base | 8453 | `0x5729291ed4c69936f5b5ace04dee454c6838fd50` | `https://mainnet.base.org` |
+| Arbitrum | 42161 | `0x2f4dd6db7affcf1f34c4d70998983528d834b8f6` | `https://arb1.arbitrum.io/rpc` |
+| 0G | 16661 | `0x8bAD12A489338B533BCA3B19138Cd61caA17405F` | `https://0g.drpc.org` |
+
+**Shared (all chains):**
+- EntryPoint v0.7: `0x0000000071727De22E5E9d8BAf0edAc6f37da032`
+- Guardian: `0xD06fBe90c06703C4b705571113740AfB104e3C67`
+
+## Key Token Addresses
+
+### Polygon (137)
+| Token | Address | Decimals |
+|-------|---------|----------|
+| USDC | `0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359` | 6 |
+| USDC.e (bridged) | `0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174` | 6 |
+| USDT | `0xc2132D05D31c914a87C6611C10748AEb04B58e8F` | 6 |
+| WETH | `0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619` | 18 |
+| WMATIC | `0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270` | 18 |
+| DAI | `0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063` | 18 |
+
+### Avalanche (43114)
+| Token | Address | Decimals |
+|-------|---------|----------|
+| USDC | `0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E` | 6 |
+| USDT | `0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7` | 6 |
+| WAVAX | `0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7` | 18 |
+
+### Base (8453)
+| Token | Address | Decimals |
+|-------|---------|----------|
+| USDC | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` | 6 |
+| WETH | `0x4200000000000000000000000000000000000006` | 18 |
+
+### Arbitrum (42161)
+| Token | Address | Decimals |
+|-------|---------|----------|
+| USDC | `0xaf88d065e77c8cC2239327C5EDb3A432268e5831` | 6 |
+| USDT | `0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9` | 6 |
+| WETH | `0x82aF49447D8a07e3bd95BD0d56f35241523fBab1` | 18 |
+
+## Common Function Selectors
+
+| Function | Selector |
+|----------|----------|
+| `approve(address,uint256)` | `0x095ea7b3` |
+| `transfer(address,uint256)` | `0xa9059cbb` |
+| `transferFrom(address,address,uint256)` | `0x23b872dd` |
+| `deposit()` (wrap native) | `0xd0e30db0` |
+| `withdraw(uint256)` (unwrap) | `0x2e1a7d4d` |
+| `exactInputSingle(...)` | `0x414bf389` |
+| `exactInput(...)` | `0xc04b8d59` |
+| `exactOutputSingle(...)` | `0x5023b4df` |
+| `exactOutput(...)` | `0xf28c0498` |
+| `multicall(uint256,bytes[])` | `0x5ae401dc` |
+| `multicall(bytes[])` | `0xac9650d8` |
+
+## SigilAccount ABI
+
+```json
+[
+  "function execute(address target, uint256 value, bytes data)",
+  "function getNonce() view returns (uint256)",
+  "function owner() view returns (address)",
+  "function agentKey() view returns (address)",
+  "function guardianKey() view returns (address)",
+  "function isFrozen() view returns (bool)",
+  "function maxTxValue() view returns (uint256)",
+  "function dailyLimit() view returns (uint256)",
+  "function guardianThreshold() view returns (uint256)",
+  "function isAllowedTarget(address) view returns (bool)",
+  "function isAllowedFunction(bytes4) view returns (bool)"
+]
+```
+
+## Guardian Rejection Reference
+
+| Reason | Cause | Fix |
+|--------|-------|-----|
+| `TARGET_NOT_WHITELISTED` | Contract not in allowed list | Owner whitelists via Dashboard → Policies |
+| `FUNCTION_NOT_ALLOWED` | Selector not in allowed list | Owner whitelists via Dashboard → Policies |
+| `EXCEEDS_TX_LIMIT` | Value > maxTxValue | Reduce amount or owner increases limit |
+| `EXCEEDS_DAILY_LIMIT` | Would exceed daily cap | Wait for reset or owner increases |
+| `EXCEEDS_WEEKLY_LIMIT` | Would exceed weekly cap | Wait or owner increases |
+| `SIMULATION_FAILED` | Tx would revert on-chain | Check encoding, balance, approvals |
+| `HIGH_RISK_SCORE` | AI scored >70 | Review tx — may be flagged as suspicious |
+| `ACCOUNT_FROZEN` | Emergency freeze active | Owner unfreezes |
+| `CIRCUIT_BREAKER` | Too many rejections | Owner resets via dashboard |
+
+## Agent Scopes
+
+API keys have scoped permissions:
+
+| Scope | Default | What it allows |
+|-------|---------|----------------|
+| `wallet:read` | ✅ | Read account info, balance |
+| `policy:read` | ✅ | Read policy settings |
+| `audit:read` | ✅ | Read audit logs |
+| `tx:read` | ✅ | Read transaction history |
+| `tx:submit` | ✅ | Submit transactions for evaluation |
+| `policy:write` | ❌ | Modify policy (owner only) |
+| `wallet:deploy` | ❌ | Deploy new wallets |
+| `wallet:freeze` | ❌ | Freeze/unfreeze accounts |
+| `session-keys:write` | ❌ | Create session keys |
+
+Elevated scopes (❌ by default) require explicit owner opt-in with warning confirmation.
+
+## Error Handling
+
+| HTTP | Meaning | Action |
+|------|---------|--------|
+| 200 | Success | Check `txHash` or `verdict` |
+| 400 | Bad request | Fix callData encoding or missing fields |
+| 401 | Token expired | Re-auth with `/v1/agent/auth/api-key` |
+| 403 | Rejected or unauthorized | Read `rejectionReason` and `guidance` |
+| 404 | Account not found | Deploy via dashboard first |
+| 429 | Rate limited | Back off, retry |
+| 502 | Guardian unavailable | Retry later |
+
+## Pre-Flight Checklist
+
+Before your first transaction:
+1. ✅ Account deployed via sigil.codes/onboarding
+2. ✅ API key generated at sigil.codes/dashboard/agent-access
+3. ✅ Agent EOA funded with gas (POL/ETH/AVAX)
+4. ✅ Sigil wallet funded with tokens
+5. ✅ Target contracts whitelisted (Dashboard → Policies → Bundles)
+6. ✅ Function selectors whitelisted (bundles handle this)
+7. ✅ Policy limits sufficient for your transactions
+
+## Links
+
+- Dashboard: https://sigil.codes
+- GitHub: https://github.com/Arven-Digital/sigil-public
+- ClawdHub: `clawdhub install sigil-security`
+- X: https://x.com/sigilcodes

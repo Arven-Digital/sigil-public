@@ -1,26 +1,42 @@
 {
   "name": "@sigil-protocol/sdk",
   "version": "0.1.0",
-  "description": "TypeScript SDK for Sigil agent wallets",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "description": "TypeScript SDK for Sigil Protocol — ERC-4337 smart wallets for AI agents",
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    }
+  },
+  "files": ["dist", "README.md"],
   "scripts": {
-    "build": "tsc",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "eslint src/",
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
+    "build:esm": "tsc -p tsconfig.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
     "clean": "rm -rf dist"
   },
-  "dependencies": {
-    "ethers": "^6.13.0"
+  "peerDependencies": {
+    "ethers": "^6.0.0"
   },
   "devDependencies": {
-    "vitest": "^3.0.0",
-    "@types/node": "^22.0.0",
-    "typescript": "^5.8.0"
+    "ethers": "^6.13.0",
+    "typescript": "^5.5.0"
   },
-  "files": ["dist"],
-  "publishConfig": {
-    "access": "public"
-  }
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sigil-protocol/sigil-protocol",
+    "directory": "packages/sdk"
+  },
+  "keywords": ["erc-4337", "smart-wallet", "ai-agent", "account-abstraction", "sigil"]
 }

@@ -2,8 +2,7 @@
 import { useState, useEffect } from "react";
 import { useUpgradeStatus, useUpgradeHistory } from "@/lib/hooks";
 import { useWallet } from "@/lib/wallet";
-import { mockUpgradeStatus, mockUpgradeHistory } from "@/lib/mock";
-import { api, DEMO_ADDRESS } from "@/lib/api";
+import { api } from "@/lib/api";
 import Card from "@/components/Card";
 
 function shortenAddr(a: string) {
@@ -38,12 +37,12 @@ function Countdown({ executeAfter }: { executeAfter: number }) {
 
 export default function UpgradesPage() {
   const { address } = useWallet();
-  const { data: upgrade, error: upgradeError, isLoading: upgradeLoading, mutate: mutateUpgrade, isDemoMode } = useUpgradeStatus(address);
+  const { data: upgrade, error: upgradeError, isLoading: upgradeLoading, mutate: mutateUpgrade } = useUpgradeStatus(address);
   const { data: history, error: historyError } = useUpgradeHistory(address);
-  const addr = address || DEMO_ADDRESS;
+  const addr = address || "";
 
-  const upgradeStatus = isDemoMode ? mockUpgradeStatus : upgrade;
-  const upgradeHistory = isDemoMode ? mockUpgradeHistory : (history || []);
+  const upgradeStatus = upgrade;
+  const upgradeHistory = history || [];
   const hasPending = upgradeStatus?.pendingImplementation && upgradeStatus.pendingImplementation !== "0x0000000000000000000000000000000000000000";
 
   const [newImpl, setNewImpl] = useState("");
@@ -92,16 +91,10 @@ export default function UpgradesPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">⬆️ Upgrade Management</h1>
       <p className="text-sm text-white/40">
-        Manage UUPS proxy upgrades for your account implementation.
+        Manage UUPS proxy upgrades for your Sigil Wallet implementation.
       </p>
 
-      {isDemoMode && (
-        <div className="p-3 bg-[#00FF88]/10 border border-[#00FF88]/20 rounded-lg text-sm text-[#00FF88]">
-          📋 Demo mode — showing sample data. Connect your wallet for live data.
-        </div>
-      )}
-
-      {!isDemoMode && upgradeError && (
+      {upgradeError && (
         <div className="p-3 bg-[#F04452]/10 border border-[#F04452]/30 rounded-lg text-sm text-[#F04452]">
           ⚠ Failed to load upgrade status: {upgradeError.message || "API unreachable"}
         </div>
@@ -113,7 +106,7 @@ export default function UpgradesPage() {
         </div>
       )}
 
-      {!isDemoMode && upgradeLoading && (
+      {upgradeLoading && (
         <div className="flex items-center gap-2 py-4">
           <LoadingSpinner /> <span className="text-sm text-white/40">Loading upgrade status…</span>
         </div>
@@ -156,7 +149,7 @@ export default function UpgradesPage() {
           <div className="mt-4 pt-3 border-t border-[#F4A524]/20">
             <button
               onClick={handleCancelUpgrade}
-              disabled={cancelLoading || isDemoMode}
+              disabled={cancelLoading || !address}
               className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors ${
                 cancelConfirm
                   ? "bg-[#F04452] text-white animate-pulse"
@@ -185,7 +178,7 @@ export default function UpgradesPage() {
             />
             <button
               onClick={handleRequestUpgrade}
-              disabled={!newImpl || requestLoading || isDemoMode}
+              disabled={!newImpl || requestLoading || !address}
               className="px-4 py-2 bg-[#00FF88]/10 text-[#00FF88] border border-[#00FF88]/20 rounded-lg text-sm font-medium hover:bg-[#00FF88] hover:text-[#050505] transition-colors disabled:opacity-30"
             >
               {requestLoading ? <LoadingSpinner /> : "Request Upgrade"}

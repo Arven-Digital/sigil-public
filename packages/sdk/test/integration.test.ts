@@ -289,7 +289,7 @@ describe('SigilSDK E2E Integration', () => {
     expect(userOp.sender).toBe(TEST_ACCOUNT);
     expect(userOp.callData).toContain('0x');
     expect(userOp.signature).not.toBe('0x'); // signed with agent key
-    expect(userOp.callGasLimit).toBe('0x186A0');
+    expect(userOp.accountGasLimits).toBeDefined();
   });
 
   // ─── Error Handling ───

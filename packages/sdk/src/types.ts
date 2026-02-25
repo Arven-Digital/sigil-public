@@ -1,36 +1,26 @@
-/**
- * Core types for Sigil SDK
- */
-
 export interface SigilConfig {
-  apiUrl: string;
-  apiKey?: string;
-  agentKey?: string;
-  /** Owner private key — required for admin operations (recovery, upgrades, policy changes).
-   *  These call the contract directly (not via UserOps) since the policy engine blocks self-calls. */
-  ownerKey?: string;
+  apiKey: string;
   accountAddress: string;
-  /** Chain ID for UserOp hash computation (default: 1) */
-  chainId?: number;
-  /** Max retries for API calls (default: 3) */
-  maxRetries?: number;
-  /** Base delay in ms for exponential backoff (default: 1000) */
-  retryBaseDelay?: number;
+  agentPrivateKey: string;
+  chainId: number;
+  apiUrl?: string;
 }
 
-export interface TransactionParams {
-  target: string;
-  value: bigint | string;
-  data?: string;
-  /** Optional gas overrides (L6 fix) */
-  callGasLimit?: string;
-  verificationGasLimit?: string;
-  preVerificationGas?: string;
-  maxFeePerGas?: string;
-  maxPriorityFeePerGas?: string;
+// ERC-4337 v0.7 packed format (preferred)
+export interface UserOpV7 {
+  sender: string;
+  nonce: string;
+  callData: string;
+  accountGasLimits: string; // packed: verificationGasLimit (16 bytes) || callGasLimit (16 bytes)
+  preVerificationGas: string;
+  gasFees: string; // packed: maxPriorityFeePerGas (16 bytes) || maxFeePerGas (16 bytes)
+  signature: string;
+  initCode?: string;
+  paymasterAndData?: string;
 }
 
-export interface UserOperation {
+// ERC-4337 v0.6 individual format (legacy compatibility)
+export interface UserOpV6 {
   sender: string;
   nonce: string;
   callData: string;
@@ -40,164 +30,56 @@ export interface UserOperation {
   maxFeePerGas: string;
   maxPriorityFeePerGas: string;
   signature: string;
+  initCode?: string;
+  paymasterAndData?: string;
 }
 
-export interface EvaluationResult {
-  verdict: 'APPROVED' | 'REJECTED';
+// Accept either format
+export type UserOp = UserOpV7 | UserOpV6;
+
+export interface TxResult {
+  txHash: string;
+  verdict: string;
   riskScore: number;
-  guardianSignature?: string;
-  rejectionReason?: string;
-  layers: {
-    layer1: { result: string; checks?: any[] };
-    layer2?: { result: string; reason?: string };
-    layer3?: { result: string; score?: number; reasoning?: string };
-  };
   evaluationMs: number;
+}
+
+export interface EvalResult {
+  verdict: string;
+  riskScore: number;
+  rejectionReason?: string;
+  guidance?: string;
+  guardianSignature?: string;
+  layers?: {
+    layer1?: { result: string; checks?: unknown[] };
+    layer2?: { result: string; reason?: string };
+    layer3?: { result: string; reasoning?: string; confidence?: number };
+  };
 }
 
 export interface AccountInfo {
   address: string;
+  chain_id: number;
   owner: string;
   agent_key: string;
-  guardian_key: string;
-  chain_id: number;
   is_frozen: boolean;
   is_degraded: boolean;
   tier: string;
-  policy: PolicyInfo;
-  stats: { totalTransactions: number; blockedTransactions: number };
+  created_at: string;
 }
 
 export interface PolicyInfo {
   max_tx_value: string;
   daily_limit: string;
   weekly_limit: string;
+  guardian_threshold: string;
+  owner_threshold: string;
   allowed_targets: string[];
   allowed_functions: string[];
   blocked_addresses: string[];
-  version: number;
+  timelock_duration: number;
 }
 
-export interface UpdatePolicyParams {
-  maxTxValue?: string;
-  dailyLimit?: string;
-  weeklyLimit?: string;
-  allowedTargets?: string[];
-  allowedFunctions?: string[];
-  blockedAddresses?: string[];
-  updatedBy: string;
-}
-
-export interface TransactionListParams {
-  limit?: number;
-  offset?: number;
-  verdict?: 'APPROVED' | 'REJECTED' | 'PENDING';
-}
-
-export interface TransactionListResult {
-  transactions: any[];
-  count: number;
-}
-
-export interface FreezeResult {
-  success: boolean;
-  frozenAt: string;
-}
-
-export interface RotateKeyResult {
-  success: boolean;
-  newAgentKey: string;
-}
-
-// ─── Social Recovery Types ───
-
-export interface RecoveryConfig {
-  threshold: number;
-  guardianCount: number;
-  delay: number;
-  guardians: string[];
-}
-
-export interface RecoveryRequest {
-  newOwner: string;
-  supportCount: number;
-  executeAfter: number;
-  executed: boolean;
-  cancelled: boolean;
-  epoch: number;
-}
-
-export type RecoveryStatus = 'pending' | 'ready' | 'executed' | 'cancelled';
-
-// ─── Upgrade Types ───
-
-export interface UpgradeStatus {
-  pendingImplementation: string;
-  requestedAt: number;
-  executeAfter: number;
-}
-
-// ─── Session Key Types ───
-
-export interface SessionKeyConfig {
-  key: string;
-  validAfter?: number;         // Unix timestamp (0 = now)
-  validUntil: number;          // Unix timestamp
-  spendLimit: bigint | string; // Total spend limit
-  maxTxValue?: bigint | string; // Per-tx limit (0 = use account default)
-  cooldown?: number;           // Min seconds between txs (0 = no limit)
-  allowAllTargets?: boolean;   // Use account whitelist vs session-specific
-}
-
-export interface SessionKeyInfo {
-  sessionId: number;
-  key: string;
-  validAfter: number;
-  validUntil: number;
-  spendLimit: string;
-  spent: string;
-  maxTxValue: string;
-  cooldown: number;
-  lastUsedAt: number;
-  allowAllTargets: boolean;
-  revoked: boolean;
-  isActive: boolean;
-}
-
-// ─── Token Allowance Policy Types ───
-
-export interface TokenPolicyConfig {
-  token: string;           // ERC-20 token address
-  maxApproval: bigint | string;       // Max approve amount per call
-  dailyTransferLimit: bigint | string; // Max daily transfer total (0 = unlimited)
-}
-
-export interface TokenPolicyInfo {
+export interface AuthResponse {
   token: string;
-  maxApproval: string;
-  dailyTransferLimit: string;
-  dailyTransferred: string;
-  exists: boolean;
-}
-
-// ─── Strategy Templates ───
-
-export interface StrategyTemplate {
-  name: string;
-  description: string;
-  maxTxValue: string;          // In wei
-  dailyLimit: string;          // In wei
-  guardianThreshold: string;   // In wei
-  ownerThreshold: string;      // In wei (type(uint256).max = disabled)
-  suggestedSessionCooldown: number;  // Seconds
-  suggestedSessionDuration: number;  // Seconds
-  suggestedSessionSpendLimit: string; // In wei
-}
-
-export interface SessionKeyCreateResult {
-  sessionId: number;
-  key: string;
-  validAfter: number;
-  validUntil: number;
-  txHash: string;
 }
