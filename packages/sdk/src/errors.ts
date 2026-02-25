@@ -1,83 +1,47 @@
-/**
- * Structured error classes for Sigil SDK
- */
-
 export class SigilError extends Error {
-  constructor(message: string) {
+  public readonly statusCode?: number;
+  public readonly rejectionReason?: string;
+  public readonly riskScore?: number;
+  public readonly guidance?: string;
+  public readonly code: string;
+
+  constructor(
+    message: string,
+    opts: {
+      code?: string;
+      statusCode?: number;
+      rejectionReason?: string;
+      riskScore?: number;
+      guidance?: string;
+    } = {},
+  ) {
     super(message);
     this.name = 'SigilError';
+    this.code = opts.code ?? 'UNKNOWN';
+    this.statusCode = opts.statusCode;
+    this.rejectionReason = opts.rejectionReason;
+    this.riskScore = opts.riskScore;
+    this.guidance = opts.guidance;
   }
-}
 
-export class SigilAPIError extends SigilError {
-  public statusCode: number;
-  public path: string;
-  constructor(
-    message: string,
-    statusCode: number,
-    path: string
-  ) {
-    // R15: Don't include path in error message (info leakage) — store separately
-    super(`Sigil API Error (${statusCode}): ${message}`);
-    this.name = 'SigilAPIError';
-    this.statusCode = statusCode;
-    this.path = path;
+  static fromApiResponse(status: number, body: Record<string, unknown>): SigilError {
+    return new SigilError(
+      (body.message as string) ?? (body.error as string) ?? `API error ${status}`,
+      {
+        code: (body.code as string) ?? 'API_ERROR',
+        statusCode: status,
+        rejectionReason: body.rejectionReason as string | undefined,
+        riskScore: body.riskScore as number | undefined,
+        guidance: body.guidance as string | undefined,
+      },
+    );
   }
-}
 
-export class AuthError extends SigilError {
-  constructor(message: string = 'Authentication failed') {
-    super(message);
-    this.name = 'AuthError';
+  static nonceError(msg: string): SigilError {
+    return new SigilError(msg, { code: 'NONCE_ERROR' });
   }
-}
 
-export class EvaluationError extends SigilError {
-  constructor(
-    message: string,
-    public riskScore: number,
-    public layers?: Record<string, any>
-  ) {
-    super(`Evaluation failed (risk: ${riskScore}): ${message}`);
-    this.name = 'EvaluationError';
-  }
-}
-
-export class SigilRejectionError extends SigilError {
-  constructor(
-    message: string,
-    public riskScore: number,
-    public result: any
-  ) {
-    super(`Transaction Rejected (risk: ${riskScore}): ${message}`);
-    this.name = 'SigilRejectionError';
-  }
-}
-
-export class NetworkError extends SigilError {
-  constructor(message: string, public cause?: Error) {
-    super(`Network error: ${message}`);
-    this.name = 'NetworkError';
-  }
-}
-
-export class FrozenAccountError extends SigilError {
-  constructor(address: string) {
-    super(`Account ${address} is frozen`);
-    this.name = 'FrozenAccountError';
-  }
-}
-
-export class RecoveryError extends SigilError {
-  constructor(message: string) {
-    super(`Recovery error: ${message}`);
-    this.name = 'RecoveryError';
-  }
-}
-
-export class UpgradeError extends SigilError {
-  constructor(message: string) {
-    super(`Upgrade error: ${message}`);
-    this.name = 'UpgradeError';
+  static authError(msg: string): SigilError {
+    return new SigilError(msg, { code: 'AUTH_ERROR' });
   }
 }

@@ -2,8 +2,7 @@
 import { useState } from "react";
 import { useRecoveryConfig, useActiveRecoveries } from "@/lib/hooks";
 import { useWallet } from "@/lib/wallet";
-import { mockRecoveryConfig, mockActiveRecoveries } from "@/lib/mock";
-import { api, DEMO_ADDRESS } from "@/lib/api";
+import { api } from "@/lib/api";
 import Card from "@/components/Card";
 
 function shortenAddr(a: string) {
@@ -34,12 +33,12 @@ function formatCountdown(executeAfter: number): string {
 
 export default function RecoveryPage() {
   const { address, isConnected } = useWallet();
-  const { data: config, error: configError, isLoading: configLoading, mutate: mutateConfig, isDemoMode } = useRecoveryConfig(address);
+  const { data: config, error: configError, isLoading: configLoading, mutate: mutateConfig } = useRecoveryConfig(address);
   const { data: recoveries, error: recError, mutate: mutateRecoveries } = useActiveRecoveries(address);
-  const addr = address || DEMO_ADDRESS;
+  const addr = address || "";
 
-  const recoveryConfig = isDemoMode ? mockRecoveryConfig : config;
-  const activeRecoveries = isDemoMode ? mockActiveRecoveries : (recoveries || []);
+  const recoveryConfig = config;
+  const activeRecoveries = recoveries || [];
 
   const [newGuardian, setNewGuardian] = useState("");
   const [addLoading, setAddLoading] = useState(false);
@@ -141,16 +140,12 @@ export default function RecoveryPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">🛡️ Recovery Management</h1>
       <p className="text-sm text-white/40">
-        Manage guardians for social recovery. If you lose access to your owner key, guardians can recover your account.
+        Manage guardians for social recovery. If you lose access to your Origin Wallet key, guardians can recover your Sigil Wallet.
       </p>
 
-      {isDemoMode && (
-        <div className="p-3 bg-[#00FF88]/10 border border-[#00FF88]/20 rounded-lg text-sm text-[#00FF88]">
-          📋 Demo mode — showing sample data. Connect your wallet for live data.
-        </div>
-      )}
 
-      {!isDemoMode && configError && (
+
+      {configError && (
         <div className="p-3 bg-[#F04452]/10 border border-[#F04452]/30 rounded-lg text-sm text-[#F04452]">
           ⚠ Failed to load recovery config: {configError.message || "API unreachable"}
         </div>
@@ -162,7 +157,7 @@ export default function RecoveryPage() {
         </div>
       )}
 
-      {!isDemoMode && configLoading && (
+      {configLoading && (
         <div className="flex items-center gap-2 py-4">
           <LoadingSpinner /> <span className="text-sm text-white/40">Loading recovery config…</span>
         </div>
@@ -196,7 +191,7 @@ export default function RecoveryPage() {
                 <span className="font-mono text-xs text-white/40 hidden md:inline">{g}</span>
                 <button
                   onClick={() => handleRemoveGuardian(g)}
-                  disabled={removeLoading === g || isDemoMode}
+                  disabled={removeLoading === g || !address}
                   className={`px-3 py-1 text-xs rounded-lg transition-colors ${
                     removeConfirm === g
                       ? "bg-[#F04452] text-white animate-pulse"
@@ -225,7 +220,7 @@ export default function RecoveryPage() {
             />
             <button
               onClick={handleAddGuardian}
-              disabled={!newGuardian || addLoading || isDemoMode}
+              disabled={!newGuardian || addLoading || !address}
               className="px-4 py-2 bg-[#00FF88]/10 text-[#00FF88] border border-[#00FF88]/20 rounded-lg text-sm font-medium hover:bg-[#00FF88] hover:text-[#050505] transition-colors disabled:opacity-30"
             >
               {addLoading ? <LoadingSpinner /> : "Add"}
@@ -253,7 +248,7 @@ export default function RecoveryPage() {
             </select>
             <button
               onClick={handleSetThreshold}
-              disabled={!threshold || thresholdLoading || isDemoMode}
+              disabled={!threshold || thresholdLoading || !address}
               className="px-4 py-2 bg-[#00FF88]/10 text-[#00FF88] border border-[#00FF88]/20 rounded-lg text-sm font-medium hover:bg-[#00FF88] hover:text-[#050505] transition-colors disabled:opacity-30"
             >
               {thresholdLoading ? <LoadingSpinner /> : "Update"}
@@ -279,7 +274,7 @@ export default function RecoveryPage() {
             </div>
             <button
               onClick={handleSetDelay}
-              disabled={!delayHours || delayLoading || isDemoMode}
+              disabled={!delayHours || delayLoading || !address}
               className="px-4 py-2 bg-[#00FF88]/10 text-[#00FF88] border border-[#00FF88]/20 rounded-lg text-sm font-medium hover:bg-[#00FF88] hover:text-[#050505] transition-colors disabled:opacity-30"
             >
               {delayLoading ? <LoadingSpinner /> : "Update"}
@@ -304,7 +299,7 @@ export default function RecoveryPage() {
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                     <div>
-                      <div className="text-xs text-white/40">New Owner</div>
+                      <div className="text-xs text-white/40">New Origin Wallet</div>
                       <div className="font-mono text-xs">{shortenAddr(r.newOwner)}</div>
                     </div>
                     <div>
@@ -318,7 +313,7 @@ export default function RecoveryPage() {
                     <div className="flex items-end">
                       <button
                         onClick={() => handleCancelRecovery(r.id)}
-                        disabled={cancelLoading === r.id || isDemoMode}
+                        disabled={cancelLoading === r.id || !address}
                         className={`px-3 py-1 text-xs rounded-lg transition-colors ${
                           cancelConfirm === r.id
                             ? "bg-[#F04452] text-white animate-pulse"

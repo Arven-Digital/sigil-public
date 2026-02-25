@@ -10,10 +10,7 @@ export function middleware(request: NextRequest) {
     if (pathname === "/") {
       return NextResponse.redirect(new URL("/login", request.url));
     }
-    // Block landing-only routes on app subdomain
-    if (pathname === "/onboarding") {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
+    // Onboarding (deploy flow) is allowed on app subdomain
   }
 
   // sigil.codes (no subdomain) → landing page

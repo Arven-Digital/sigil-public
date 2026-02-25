@@ -9,6 +9,7 @@ const TEST_NEW_OWNER = '0x' + 'c'.repeat(40);
 const TEST_IMPL = '0x' + 'd'.repeat(40);
 const TEST_RECOVERY_ID = '0x' + 'f'.repeat(64);
 const TEST_AGENT_KEY = ethers.Wallet.createRandom().privateKey;
+const TEST_OWNER_KEY = ethers.Wallet.createRandom().privateKey;
 
 let rpcServer: http.Server | null = null;
 let rpcPort = 0;
@@ -97,8 +98,15 @@ describe('Recovery Methods', () => {
   });
 
   describe('without provider', () => {
-    it('addRecoveryGuardian throws without provider', async () => {
-      await expect(sdk.addRecoveryGuardian(TEST_GUARDIAN)).rejects.toThrow(NetworkError);
+    // M3 fix: Admin operations now require owner key first, then provider
+    it('addRecoveryGuardian throws without owner key', async () => {
+      const sdkNoOwner = new SigilSDK({
+        apiUrl: 'http://localhost:9999',
+        agentKey: TEST_AGENT_KEY,
+        accountAddress: TEST_ACCOUNT,
+        chainId: 1,
+      });
+      await expect(sdkNoOwner.addRecoveryGuardian(TEST_GUARDIAN)).rejects.toThrow('Owner key required');
     });
 
     it('getRecoveryConfig throws without provider', async () => {
@@ -148,64 +156,52 @@ describe('Recovery Methods', () => {
     });
   });
 
-  describe('with provider (UserOp building)', () => {
+  describe('with provider (direct contract calls - M3 fix)', () => {
     beforeEach(async () => {
       const port = await startRpcServer();
       sdk.setProvider(`http://127.0.0.1:${port}`);
     });
 
-    it('addRecoveryGuardian builds a UserOperation', async () => {
-      const userOp = await sdk.addRecoveryGuardian(TEST_GUARDIAN);
-      expect(userOp.sender).toBe(TEST_ACCOUNT);
-      expect(userOp.callData).toContain('b61d27f6'); // execute selector
-      expect(userOp.signature).not.toBe('0x');
+    // M3 fix: These methods now use direct contract calls via owner wallet
+    // They return transaction hashes instead of UserOps
+    it('requires owner key for addRecoveryGuardian', async () => {
+      await expect(sdk.addRecoveryGuardian(TEST_GUARDIAN)).rejects.toThrow('Owner key required');
     });
 
-    it('removeRecoveryGuardian builds a UserOperation', async () => {
-      const userOp = await sdk.removeRecoveryGuardian(TEST_GUARDIAN);
-      expect(userOp.sender).toBe(TEST_ACCOUNT);
-      expect(userOp.signature).not.toBe('0x');
+    it('requires owner key for removeRecoveryGuardian', async () => {
+      await expect(sdk.removeRecoveryGuardian(TEST_GUARDIAN)).rejects.toThrow('Owner key required');
     });
 
-    it('setRecoveryThreshold builds a UserOperation', async () => {
-      const userOp = await sdk.setRecoveryThreshold(3);
-      expect(userOp.sender).toBe(TEST_ACCOUNT);
+    it('requires owner key for setRecoveryThreshold', async () => {
+      await expect(sdk.setRecoveryThreshold(3)).rejects.toThrow('Owner key required');
     });
 
-    it('setRecoveryDelay builds a UserOperation with valid delay', async () => {
-      const userOp = await sdk.setRecoveryDelay(172800);
-      expect(userOp.sender).toBe(TEST_ACCOUNT);
+    it('requires owner key for setRecoveryDelay', async () => {
+      await expect(sdk.setRecoveryDelay(172800)).rejects.toThrow('Owner key required');
     });
 
-    it('initiateRecovery builds a UserOperation', async () => {
-      const userOp = await sdk.initiateRecovery(TEST_NEW_OWNER);
-      expect(userOp.sender).toBe(TEST_ACCOUNT);
+    it('requires owner key for initiateRecovery', async () => {
+      await expect(sdk.initiateRecovery(TEST_NEW_OWNER)).rejects.toThrow('Owner key required');
     });
 
-    it('supportRecovery builds a UserOperation', async () => {
-      const userOp = await sdk.supportRecovery(TEST_RECOVERY_ID);
-      expect(userOp.sender).toBe(TEST_ACCOUNT);
+    it('requires owner key for supportRecovery', async () => {
+      await expect(sdk.supportRecovery(TEST_RECOVERY_ID)).rejects.toThrow('Owner key required');
     });
 
-    it('executeRecovery builds a UserOperation', async () => {
-      const userOp = await sdk.executeRecovery(TEST_RECOVERY_ID);
-      expect(userOp.sender).toBe(TEST_ACCOUNT);
+    it('requires owner key for executeRecovery', async () => {
+      await expect(sdk.executeRecovery(TEST_RECOVERY_ID)).rejects.toThrow('Owner key required');
     });
 
-    it('cancelRecovery builds a UserOperation', async () => {
-      const userOp = await sdk.cancelRecovery(TEST_RECOVERY_ID);
-      expect(userOp.sender).toBe(TEST_ACCOUNT);
+    it('requires owner key for cancelRecovery', async () => {
+      await expect(sdk.cancelRecovery(TEST_RECOVERY_ID)).rejects.toThrow('Owner key required');
     });
 
-    it('requestUpgrade builds a UserOperation', async () => {
-      const userOp = await sdk.requestUpgrade(TEST_IMPL);
-      expect(userOp.sender).toBe(TEST_ACCOUNT);
-      expect(userOp.signature).not.toBe('0x');
+    it('requires owner key for requestUpgrade', async () => {
+      await expect(sdk.requestUpgrade(TEST_IMPL)).rejects.toThrow('Owner key required');
     });
 
-    it('cancelUpgrade builds a UserOperation', async () => {
-      const userOp = await sdk.cancelUpgrade();
-      expect(userOp.sender).toBe(TEST_ACCOUNT);
+    it('requires owner key for cancelUpgrade', async () => {
+      await expect(sdk.cancelUpgrade()).rejects.toThrow('Owner key required');
     });
   });
 
@@ -239,8 +235,8 @@ describe('Recovery Methods', () => {
       const abiCoder = ethers.AbiCoder.defaultAbiCoder();
       const port = await startRpcServer(() => {
         return abiCoder.encode(
-          ['address', 'uint256', 'uint256', 'bool', 'bool'],
-          [TEST_NEW_OWNER, 1, 0, false, false]
+          ['address', 'uint256', 'uint256', 'bool', 'bool', 'uint256'],
+          [TEST_NEW_OWNER, 1, 0, false, false, 1]
         );
       });
       sdk.setProvider(`http://127.0.0.1:${port}`);
@@ -248,6 +244,7 @@ describe('Recovery Methods', () => {
       const result = await sdk.getRecoveryStatus(TEST_RECOVERY_ID);
       expect(result.status).toBe('pending');
       expect(result.newOwner.toLowerCase()).toBe(TEST_NEW_OWNER.toLowerCase());
+      expect(result.epoch).toBe(1);
     });
 
     it('returns cancelled status', async () => {
@@ -255,14 +252,15 @@ describe('Recovery Methods', () => {
       await stopRpcServer();
       const port = await startRpcServer(() => {
         return abiCoder.encode(
-          ['address', 'uint256', 'uint256', 'bool', 'bool'],
-          [TEST_NEW_OWNER, 1, 0, false, true]
+          ['address', 'uint256', 'uint256', 'bool', 'bool', 'uint256'],
+          [TEST_NEW_OWNER, 1, 0, false, true, 1]
         );
       });
       sdk.setProvider(`http://127.0.0.1:${port}`);
 
       const result = await sdk.getRecoveryStatus(TEST_RECOVERY_ID);
       expect(result.status).toBe('cancelled');
+      expect(result.epoch).toBe(1);
     });
 
     it('returns executed status', async () => {
@@ -270,14 +268,15 @@ describe('Recovery Methods', () => {
       await stopRpcServer();
       const port = await startRpcServer(() => {
         return abiCoder.encode(
-          ['address', 'uint256', 'uint256', 'bool', 'bool'],
-          [TEST_NEW_OWNER, 2, 1000, true, false]
+          ['address', 'uint256', 'uint256', 'bool', 'bool', 'uint256'],
+          [TEST_NEW_OWNER, 2, 1000, true, false, 2]
         );
       });
       sdk.setProvider(`http://127.0.0.1:${port}`);
 
       const result = await sdk.getRecoveryStatus(TEST_RECOVERY_ID);
       expect(result.status).toBe('executed');
+      expect(result.epoch).toBe(2);
     });
 
     it('returns ready status when delay elapsed', async () => {
@@ -286,14 +285,15 @@ describe('Recovery Methods', () => {
       await stopRpcServer();
       const port = await startRpcServer(() => {
         return abiCoder.encode(
-          ['address', 'uint256', 'uint256', 'bool', 'bool'],
-          [TEST_NEW_OWNER, 2, pastTime, false, false]
+          ['address', 'uint256', 'uint256', 'bool', 'bool', 'uint256'],
+          [TEST_NEW_OWNER, 2, pastTime, false, false, 1]
         );
       });
       sdk.setProvider(`http://127.0.0.1:${port}`);
 
       const result = await sdk.getRecoveryStatus(TEST_RECOVERY_ID);
       expect(result.status).toBe('ready');
+      expect(result.epoch).toBe(1);
     });
   });
 });

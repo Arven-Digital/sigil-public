@@ -1,246 +1,76 @@
 # Sigil Protocol
 
-> Open security protocol for AI agent wallets. 3-layer transaction validation before Guardian co-signs.
+> Smart wallet security for AI agents. 3-layer Guardian validation on 6 EVM chains.
+> **Full integration guide: https://sigil.codes/llms-full.txt**
 
-## Overview
+## Quick Start
 
-Sigil provides ERC-4337 smart accounts with a 3-layer Guardian validation pipeline:
-- Layer 1: Deterministic rules (spending limits, whitelists, velocity)
-- Layer 2: Transaction simulation (dry-run, detect reverts/drain)
-- Layer 3: AI risk scoring (LLM scores 0-100, threshold 70)
+1. Auth: `POST /v1/agent/auth/api-key` → `{"apiKey": "sgil_..."}` → get JWT (4h TTL)
+2. All requests: `Authorization: Bearer <jwt>`
+3. Build callData: ABI-encode `execute(target, value, innerCallData)` — selector `0xb61d27f6`
+4. Sign UserOp hash with agent private key (EIP-191 personal sign)
+5. Submit: `POST /v1/execute` with `{userOp, chainId}`
 
-All three layers must pass before the Guardian co-signs.
+## API Base: `https://api.sigil.codes/v1`
 
-## API Base URL
+## ERC-4337 v0.7 UserOp Format
 
-https://api.sigil.codes/v1
-
-## Authentication
-
-Two methods:
-
-### API Key (recommended for agents)
-```
-POST /v1/agent/auth/api-key
-Content-Type: application/json
-
-{"apiKey": "sgil_your_key_here"}
-
-Response: {"token": "eyJ..."}
-```
-Use token as: `Authorization: Bearer <token>` (4h TTL, re-auth when expired)
-
-### SIWE (for owners)
-```
-GET /v1/auth/nonce
-POST /v1/auth/siwe  (body: {message, signature})
-```
-
-## Core Endpoints
-
-### Evaluate Transaction (most important)
-```
-POST /v1/evaluate
-Authorization: Bearer <token>
-Content-Type: application/json
-
+```json
 {
-  "userOp": {
-    "sender": "0xYourAccount",
-    "nonce": "0x0",
-    "callData": "0x...",
-    "callGasLimit": "200000",
-    "verificationGasLimit": "200000",
-    "preVerificationGas": "50000",
-    "maxFeePerGas": "25000000000",
-    "maxPriorityFeePerGas": "1500000000",
-    "signature": "0x"
-  }
-}
-
-Response:
-{
-  "verdict": "APPROVE" | "REJECT" | "ESCALATE",
-  "riskScore": 0-100,
-  "guardianSignature": "0x...",  // only if APPROVE
-  "guidance": {"reason": "...", "suggestion": "..."},  // only if REJECT
-  "layers": {
-    "layer1": {"pass": true, "details": "..."},
-    "layer2": {"pass": true, "details": "..."},
-    "layer3": {"pass": true, "score": 15}
-  }
+  "sender": "0xYourSigilAccount",
+  "nonce": "0x0",
+  "callData": "0x...",
+  "accountGasLimits": "0x00000000000000000000000000049d400000000000000000000000000007a120",
+  "preVerificationGas": "60000",
+  "gasFees": "0x0000000000000000000000000ba43b74000000000000000000000000ba43b7400",
+  "signature": "0xAgentSignature..."
 }
 ```
 
-### Get Account Info
-```
-GET /v1/agent/wallets/0xYourWallet
-Authorization: Bearer <token>
+`accountGasLimits` = verificationGasLimit (16 bytes) || callGasLimit (16 bytes)
+`gasFees` = maxPriorityFeePerGas (16 bytes) || maxFeePerGas (16 bytes)
 
-Response: balance, policy, session keys, daily spend, frozen state
-```
+Legacy v0.6 format (individual fields) also accepted for backwards compatibility.
 
-### Create Session Key (recommended over full agent key)
-```
-POST /v1/agent/wallets/:addr/session-keys
-Authorization: Bearer <token>
+## Chains & Factories (V12)
 
-{"key": "0xEphemeralKey", "validForHours": 24, "spendLimit": "100000000000000000"}
-```
+| Chain | ID | Factory |
+|-------|-----|---------|
+| Ethereum | 1 | `0x20f926bd5f416c875a7ec538f499d21d62850f35` |
+| Polygon | 137 | `0x483D6e4e203771485aC75f183b56D5F5cDcbe679` |
+| Avalanche | 43114 | `0x86e85de25473b432dabf1b9e8e8ce5145059b85b` |
+| Base | 8453 | `0x5729291ed4c69936f5b5ace04dee454c6838fd50` |
+| Arbitrum | 42161 | `0x2f4dd6db7affcf1f34c4d70998983528d834b8f6` |
+| 0G | 16661 | `0x8bAD12A489338B533BCA3B19138Cd61caA17405F` |
 
-### Update Policy
-```
-PUT /v1/agent/wallets/:addr/policy
-Authorization: Bearer <token>
+EntryPoint (v0.7): `0x0000000071727De22E5E9d8BAf0edAc6f37da032` (all chains)
+Guardian: `0xD06fBe90c06703C4b705571113740AfB104e3C67`
 
-{"maxTxValue": "200000000000000000", "dailyLimit": "2000000000000000000"}
-```
+## Key Endpoints
 
-### Whitelist Targets
-```
-POST /v1/agent/wallets/:addr/targets
-Authorization: Bearer <token>
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST | `/v1/agent/auth/api-key` | Authenticate with API key |
+| POST | `/v1/evaluate` | Evaluate UserOp (dry run) |
+| POST | `/v1/execute` | Evaluate + co-sign + submit |
+| GET | `/v1/accounts/:addr` | Account info |
+| GET | `/v1/accounts/discover?owner=0x...&chainId=N` | Find wallets by owner |
+| PUT | `/v1/accounts/:addr/policy` | Update policy (owner only) |
+| GET | `/v1/transactions?account=0x...` | Transaction history |
 
-{"targets": ["0xContract"], "allowed": true}
-```
+## Guardian Rejection Reasons
 
-### Token Policies
-```
-POST /v1/agent/wallets/:addr/token-policies
-Authorization: Bearer <token>
-
-{"token": "0xUSDC", "maxApproval": "1000000000", "dailyTransferLimit": "5000000000"}
-```
-
-### Emergency Freeze
-```
-POST /v1/accounts/:addr/freeze
-Authorization: Bearer <owner_token>
-
-{"reason": "Suspicious activity"}
-```
-
-### Unfreeze
-```
-POST /v1/accounts/:addr/unfreeze
-Authorization: Bearer <owner_token>
-```
-
-### Audit Log
-```
-GET /v1/audit?account=0xYourWallet&limit=50
-Authorization: Bearer <token>
-```
-
-## Contract Addresses
-
-### Avalanche C-Chain (43114)
-Factory: 0x2f4dd6db7affcf1f34c4d70998983528d834b8f6
-Implementation: 0x8f8662AC70fdf8C8102f5E206FBb08b0B13E6d8E
-
-### Base (8453)
-Factory: 0x45b20a5F37b9740401a29BD70D636a77B18a510D
-Implementation: 0xEf12aA6361Ca80CCF5D79152e73d6Ca6a190F87e
-
-### Arbitrum One (42161)
-Factory: 0x20f926bd5f416c875a7ec538f499d21d62850f35
-Implementation: 0x625E2E03b9910B6816DF43A3080b2C2D743C2bd9
-
-### 0G Mainnet (16661)
-Factory: 0x20f926bd5f416c875a7ec538f499d21d62850f35
-Implementation: 0x625E2E03b9910B6816DF43A3080b2C2D743C2bd9
-
-### Shared
-EntryPoint (v0.7): 0x0000000071727De22E5E9d8BAf0edAc6f37da032
-Guardian: 0xD06fBe90c06703C4b705571113740AfB104e3C67
-
-## Key Permission Model
-
-| Action | Agent Key | Owner (SIWE) | Session Key |
-|--------|-----------|--------------|-------------|
-| Evaluate transactions | YES | YES | YES |
-| Check wallet status | YES | YES | YES |
-| View audit logs | YES | YES | NO |
-| Update policy | NO | YES | NO |
-| Freeze account | NO | YES | NO |
-| Rotate keys | NO | YES | NO |
-| Emergency withdraw | NO | YES (on-chain) | NO |
-
-## SDK
-
-```typescript
-import { SigilSDK } from '@sigil-protocol/sdk';
-
-const sigil = new SigilSDK({
-  apiUrl: 'https://api.sigil.codes',
-  accountAddress: '0xYourAccount',
-  agentKey: '0xAgentPrivateKey',
-  chainId: 43114,
-});
-
-// Evaluate
-const result = await sigil.evaluateTransaction({to, value, data});
-
-// Session keys
-await sigil.createSessionKey({key, validForHours: 24, spendLimit: '0.1'});
-
-// Status
-const account = await sigil.getAccount();
-```
-
-## OpenClaw Skill
-
-Install: `clawdhub install sigil-security`
-Required env: SIGIL_API_KEY, SIGIL_ACCOUNT_ADDRESS
-
-## Eliza Plugin
-
-```typescript
-import { sigilPlugin } from '@sigil-protocol/eliza';
-// 13 actions: send, evaluate, freeze, unfreeze, rotateKey,
-// createSessionKey, updatePolicy, addTarget, removeTarget,
-// getStatus, getHistory, transferToken, getBalance
-```
-
-## MCP Server
-
-Source: https://github.com/Arven-Digital/sigil-public/tree/main/packages/mcp
-Tools: get_account_info, evaluate_transaction, create_session_key, freeze_account, unfreeze_account, update_policy, get_transaction_history, rotate_agent_key, get_protection_status
-
-## Strategy Templates
-
-| Template | Max Tx | Daily Limit | Guardian Threshold |
-|----------|--------|-------------|-------------------|
-| Conservative | 0.1 AVAX | 0.5 AVAX | 0.05 AVAX |
-| Moderate | 0.5 AVAX | 2 AVAX | 0.2 AVAX |
-| Aggressive | 2 AVAX | 10 AVAX | 1 AVAX |
-| DeFi Agent | 0.3 AVAX | 5 AVAX | 0.1 AVAX |
-| NFT Agent | 1 AVAX | 3 AVAX | 0.5 AVAX |
-
-(Values scale proportionally for ETH and A0GI chains)
-
-## Error Handling
-
-- 401: Token expired → re-authenticate with API key
-- 403: Insufficient permissions → check key type (agent vs owner)
-- 409: Account frozen → owner must unfreeze first
-- 429: Rate limited → exponential backoff
-- REJECT verdict: Read guidance.reason and guidance.suggestion
-
-## Best Practices
-
-1. Use session keys for daily operations (time-limited, spend-capped)
-2. Start with Conservative strategy, increase limits after pattern works
-3. Whitelist targets explicitly before interacting
-4. Cap token approvals (maxApproval in token policies)
-5. When rejected, read the guidance field — Guardian explains why and how to fix
-6. Monitor audit logs for unexpected activity
-7. Prefer ephemeral session keys over full agent key
+| Reason | Fix |
+|--------|-----|
+| TARGET_NOT_WHITELISTED | Owner whitelists target in Dashboard → Policies |
+| FUNCTION_NOT_ALLOWED | Owner whitelists function selector |
+| EXCEEDS_TX_LIMIT | Reduce value or increase maxTxValue |
+| EXCEEDS_DAILY_LIMIT | Wait for reset or increase limit |
+| SIMULATION_FAILED | Check calldata encoding, token balance, approvals |
+| HIGH_RISK_SCORE | Review transaction — Guardian AI flagged it |
 
 ## Links
 
-- Website: https://sigil.codes
-- API: https://api.sigil.codes
+- Dashboard: https://sigil.codes
 - GitHub: https://github.com/Arven-Digital/sigil-public
-- ClawdHub: https://clawhub.ai/skills/sigil-security
 - X: https://x.com/sigilcodes

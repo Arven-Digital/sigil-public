@@ -1,5 +1,5 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.sigil.codes/v1";
-export const DEMO_ADDRESS = "0x1234567890abcdef1234567890abcdef12345678";
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "https://api.sigil.codes/v1").trim();
+// DEMO_ADDRESS removed — real addresses only
 
 const SESSION_KEY = "sigil-siwe-session";
 
@@ -49,7 +49,7 @@ async function ensureAuth(): Promise<void> {
         }
       } catch (err) {
         // R12: Log refresh failure for debugging — server will reject on next call
-        console.warn('[Sigil] Cookie refresh failed:', err);
+        if (process.env.NODE_ENV === 'development') console.warn('[Sigil] Cookie refresh failed:', err);
       }
     }
     return;
@@ -77,10 +77,11 @@ async function fetchAPI(path: string, options?: RequestInit) {
 export const api = {
   health: () => fetchAPI("/health"),
   getAccount: (address: string) => fetchAPI(`/accounts/${address}`),
+  discoverAccounts: (owner: string, chainId?: number) => fetchAPI(`/accounts/discover?owner=${owner}${chainId ? `&chainId=${chainId}` : ''}`, { credentials: 'omit' }),
   createAccount: (data: unknown) =>
     fetchAPI("/accounts", { method: "POST", body: JSON.stringify(data) }),
   getTransactions: (account: string, page = 1, limit = 20) =>
-    fetchAPI(`/transactions?account=${account}&page=${page}&limit=${limit}`),
+    fetchAPI(`/transactions?account=${account}&limit=${limit}&offset=${(page - 1) * limit}`),
   updatePolicy: (address: string, policy: unknown) =>
     fetchAPI(`/accounts/${address}/policy`, {
       method: "PUT",

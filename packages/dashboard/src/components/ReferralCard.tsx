@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.sigil.codes/v1";
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "https://api.sigil.codes/v1").trim();
 
 interface ReferralData {
   code: string;

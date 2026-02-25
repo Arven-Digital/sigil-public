@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.sigil.codes/v1";
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "https://api.sigil.codes/v1").trim();
 
 interface RegistrationStatus {
   total_registered: number;
@@ -69,7 +69,7 @@ export default function RegistrationBanner() {
 
             <div className="flex items-center gap-4">
               <Link
-                href="/onboarding"
+                href="/login"
                 className="px-6 py-3 bg-[#00FF88] hover:brightness-110 text-[#050505] rounded-xl font-medium transition-all hover:scale-[1.02]"
               >
                 {free_spots_remaining > 0 ? "Claim Your Spot →" : "Get Started →"}

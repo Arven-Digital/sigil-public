@@ -4,8 +4,14 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function parseMarkdown(md: string): string {
-  return md
+  // Escape HTML entities first to prevent XSS, then apply markdown formatting
+  const escaped = escapeHtml(md);
+  return escaped
     .replace(/^### (.+)$/gm, '<h3 class="text-xl font-semibold text-white mt-8 mb-3">$1</h3>')
     .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-bold text-white mt-10 mb-4">$1</h2>')
     .replace(/^# (.+)$/gm, '<h1 class="text-3xl font-bold text-white mt-6 mb-2">$1</h1>')

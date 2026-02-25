@@ -5,7 +5,7 @@ import { SiweMessage } from "siwe";
 import { setCookieMode } from "./api";
 
 // R9: Use env-configurable API URL instead of hardcoded
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://api.sigil.codes/v1";
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "https://api.sigil.codes/v1").trim();
 
 interface GoogleUser {
   id: string;
@@ -18,6 +18,7 @@ interface GoogleUser {
 
 interface WalletContextType {
   address: string | undefined;
+  chainId: number | undefined;
   isConnected: boolean;
   isAuthenticated: boolean;
   isAuthenticating: boolean;
@@ -30,6 +31,7 @@ interface WalletContextType {
 
 const WalletContext = createContext<WalletContextType>({
   address: undefined,
+  chainId: undefined,
   isConnected: false,
   isAuthenticated: false,
   isAuthenticating: false,
@@ -151,7 +153,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         statement: "Sign in to Sigil Protocol Dashboard",
         uri: window.location.origin,
         version: "1",
-        chainId: chain.id,
+        chainId: 1, // SIWE standard: always Ethereum mainnet
         nonce,
         issuedAt: new Date().toISOString(),
       });
@@ -182,7 +184,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unknown error";
       setAuthError(`Sign-in failed: ${msg}`);
-      console.error("SIWE sign-in failed:", msg);
+      // SIWE sign-in failed - error message set in state
     } finally {
       setIsAuthenticating(false);
     }
@@ -214,7 +216,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const needsSignIn = isConnected && !!address && !isAuthenticated && !isAuthenticating;
 
   return (
-    <WalletContext.Provider value={{ address, isConnected, isAuthenticated, isAuthenticating, needsSignIn, authError, googleUser, signIn, signOut }}>
+    <WalletContext.Provider value={{ address, chainId: chain?.id, isConnected, isAuthenticated, isAuthenticating, needsSignIn, authError, googleUser, signIn, signOut }}>
       {children}
     </WalletContext.Provider>
   );

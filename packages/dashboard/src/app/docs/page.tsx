@@ -13,22 +13,54 @@ const SECTIONS = [
     content: `
 ## Quick Start
 
-### 1. Deploy a Sigil Account
+### 1. Deploy a Sigil Wallet
 
-Visit [sigil.codes/onboarding](/onboarding) to deploy your smart account:
+Visit [sigil.codes/login](/login) to deploy your Sigil Wallet:
 
 1. **Connect Wallet** — MetaMask, WalletConnect, or any EVM wallet
-2. **Sign In with Ethereum** — Proves wallet ownership
-3. **Choose Strategy** — Conservative, Moderate, Aggressive, DeFi Agent, or NFT Agent
-4. **Select Chain** — Avalanche, Base, Arbitrum, or 0G Mainnet
-5. **Generate Agent Key** — Save the private key securely
+2. **Sign In with Ethereum** — Proves Origin Wallet ownership
+3. **Choose Chain** — Polygon, Avalanche, Base, Arbitrum, or 0G Mainnet
+4. **Choose Strategy** — Conservative, Moderate, Aggressive, DeFi Agent, or NFT Agent
+5. **Generate Agent Wallet Key** — Save the private key! It is shown **only once**.
 6. **Deploy** — One-time fee, no subscriptions
 
-### 2. Fund Your Account
+### 2. Fund Your Wallets
 
-Send native tokens (AVAX, ETH, or A0GI) to your deployed Sigil account address.
+Your setup has **two wallets** that both need funding:
 
-### 3. Integrate Your Agent
+| Wallet | What to send | Why |
+|--------|-------------|-----|
+| **Sigil Wallet** (smart account) | Native tokens + trading tokens (USDC, etc.) | This is where your funds live. All agent transactions execute from this address. |
+| **Agent Wallet** (EOA) | Small amount of native token ($2-5 worth) | Your agent needs gas to submit UserOps to the network. Without gas here, nothing works. |
+
+Both addresses are shown in the post-deploy checklist and on the dashboard.
+
+### 3. Share the Agent Private Key with Your AI
+
+⚠️ **This is the most important step.** Your AI agent needs the private key from Step 5 to sign transactions locally. Without it, the agent can authenticate but **cannot execute any trades**.
+
+Add these to your agent's environment or config file:
+
+\`\`\`bash
+# Agent signs transactions locally with this key
+SIGIL_AGENT_PRIVATE_KEY=0x_your_agent_private_key_from_step_5
+
+# API key for Guardian authentication (generate at Agent Access page)
+SIGIL_API_KEY=sgil_your_api_key
+
+# Your Sigil smart wallet address
+SIGIL_WALLET_ADDRESS=0xYourSigilWallet
+
+# Chain ID
+SIGIL_CHAIN_ID=137
+
+# API endpoint
+SIGIL_API_URL=https://api.sigil.codes
+\`\`\`
+
+**Security note:** The agent key can ONLY submit transactions for Guardian approval. Even if compromised, the Guardian's 3-layer pipeline protects your funds. You can revoke the agent key instantly from the dashboard.
+
+### 4. Integrate Your Agent
 
 \`\`\`typescript
 import { SigilSDK } from '@sigil-protocol/sdk';
@@ -52,11 +84,11 @@ const result = await sigil.evaluateTransaction({
 
 if (result.verdict === 'APPROVED') {
   // Transaction is safe — submit it
-  console.log('Guardian approved, signature:', result.guardianSignature);
+  // Guardian approved, signature available in result.guardianSignature
 }
 \`\`\`
 
-### 4. Or Use the Eliza Plugin
+### 5. Or Use the Eliza Plugin
 
 \`\`\`typescript
 import { sigilPlugin } from '@sigil-protocol/eliza';
@@ -103,13 +135,13 @@ const sigil = new SigilSDK({
 });
 \`\`\`
 
-### Account Management
+### Wallet Management
 
 \`\`\`typescript
-// Get account info (balance, policy, stats)
+// Get wallet info (balance, policy, stats)
 const account = await sigil.getAccount();
 
-// Register a new account after deployment
+// Register a new wallet after deployment
 await sigil.registerAccount({
   owner: '0xOwnerAddress',
   agentKey: '0xAgentAddress',
@@ -168,13 +200,13 @@ await sigil.createSessionKey({
 ### Emergency Controls
 
 \`\`\`typescript
-// Freeze the account — blocks all transactions
+// Freeze the Sigil Wallet — blocks all transactions
 await sigil.freeze('Suspicious activity detected');
 
 // Unfreeze
 await sigil.unfreeze();
 
-// Rotate agent key
+// Rotate Agent Wallet key
 await sigil.rotateAgentKey('0xNewAgentKeyAddress');
 \`\`\`
 
@@ -187,12 +219,10 @@ try {
   await sigil.evaluateTransaction(tx);
 } catch (error) {
   if (error instanceof SigilRejectionError) {
-    console.log('Rejected:', error.reason);
-    console.log('Suggestion:', error.suggestion);
-    console.log('Failed layer:', error.layer);
+    // Transaction rejected: error.reason, suggestion: error.suggestion, layer: error.layer
   }
   if (error instanceof FrozenAccountError) {
-    console.log('Account is frozen — contact owner');
+    // Account is frozen — contact owner
   }
 }
 \`\`\`
@@ -237,7 +267,7 @@ agent.registerPlugin(plugin);
 | \`SIGIL_UNFREEZE\` | Unfreeze the account |
 | \`SIGIL_STATUS\` | Get account status and balance |
 | \`SIGIL_HISTORY\` | Get transaction history |
-| \`SIGIL_ROTATE_KEY\` | Rotate the agent key |
+| \`SIGIL_ROTATE_KEY\` | Rotate the Agent Wallet key |
 | \`SIGIL_CREATE_SESSION_KEY\` | Create a time-limited session key |
 | \`SIGIL_UPDATE_POLICY\` | Update spending policies |
 | \`SIGIL_ADD_TARGET\` | Add to target whitelist |
@@ -312,11 +342,11 @@ POST /v1/agent/auth/api-key
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | POST | \`/v1/accounts\` | SIWE | Register a deployed account |
-| GET | \`/v1/accounts/:address\` | Optional | Get account info (public: minimal, owner: full) |
+| GET | \`/v1/accounts/:address\` | Optional | Get wallet info (public: minimal, owner: full) |
 | PUT | \`/v1/accounts/:address/policy\` | SIWE | Update spending policy |
 | POST | \`/v1/accounts/:address/freeze\` | SIWE | Freeze account |
 | POST | \`/v1/accounts/:address/unfreeze\` | SIWE | Unfreeze account |
-| POST | \`/v1/accounts/:address/rotate-key\` | SIWE | Rotate agent key |
+| POST | \`/v1/accounts/:address/rotate-key\` | SIWE | Rotate Agent Wallet key |
 
 #### Transaction Evaluation
 
@@ -333,7 +363,7 @@ POST /v1/agent/auth/api-key
 | POST | \`/v1/agent/setup\` | Agent | Run guided setup |
 | POST | \`/v1/agent/wallets/register\` | Agent | Register deployed wallet |
 
-#### Agent Key Management
+#### Agent Wallet Management
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
@@ -403,20 +433,16 @@ Sigil Protocol uses an ERC-4337 compatible smart account with a factory deployme
 
 ### Contract Addresses
 
-#### Mainnet Deployments (V10)
+#### Mainnet Deployments (V12)
 
 | Chain | Factory | Chain ID |
 |-------|---------|----------|
-| **Avalanche C-Chain** | \`0x2f4dd6db7affcf1f34c4d70998983528d834b8f6\` | 43114 |
-| **Base** | \`0x45b20a5F37b9740401a29BD70D636a77B18a510D\` | 8453 |
-| **Arbitrum One** | \`0x20f926bd5f416c875a7ec538f499d21d62850f35\` | 42161 |
-| **0G Mainnet** | \`0x20f926bd5f416c875a7ec538f499d21d62850f35\` | 16661 |
-
-#### Testnet
-
-| Chain | Factory | Chain ID |
-|-------|---------|----------|
-| **Avalanche Fuji** | \`0x86E85dE25473b432dabf1B9E8e8CE5145059b85b\` | 43113 |
+| **Ethereum** | \`0x20f926bd5f416c875a7ec538f499d21d62850f35\` | 1 |
+| **Polygon** | \`0x483D6e4e203771485aC75f183b56D5F5cDcbe679\` | 137 |
+| **Avalanche** | \`0x86e85de25473b432dabf1b9e8e8ce5145059b85b\` | 43114 |
+| **Base** | \`0x5729291ed4c69936f5b5ace04dee454c6838fd50\` | 8453 |
+| **Arbitrum One** | \`0x2f4dd6db7affcf1f34c4d70998983528d834b8f6\` | 42161 |
+| **0G Mainnet** | \`0x8bAD12A489338B533BCA3B19138Cd61caA17405F\` | 16661 |
 
 #### Shared
 
@@ -459,7 +485,7 @@ Sigil Protocol uses an ERC-4337 compatible smart account with a factory deployme
 | Role | Can Do | Cannot Do |
 |------|--------|-----------|
 | **Owner** | Everything — freeze, unfreeze, withdraw, rotate keys, upgrade, set policy | N/A |
-| **Agent Key** | Submit transactions for evaluation | Freeze, withdraw, rotate keys, upgrade |
+| **Agent Wallet** | Submit transactions for evaluation | Freeze, withdraw, rotate keys, upgrade |
 | **Guardian** | Co-sign approved transactions | Initiate tx, move funds, change policy |
 | **Session Key** | Submit transactions within scope | Anything beyond scope/time/spend limits |
 
@@ -482,7 +508,7 @@ Sigil Protocol uses an ERC-4337 compatible smart account with a factory deployme
 
 Sigil Protocol is fundamentally non-custodial:
 
-- **Your keys stay with you** — Owner key, agent key, session keys, and recovery guardians are generated and stored entirely on your side
+- **Your keys stay with you** — Origin Wallet key, Agent Wallet key, session keys, and recovery guardians are generated and stored entirely on your side
 - **Guardian validates, never initiates** — The only key we operate is the Guardian co-signer, which can only approve transactions after they pass all 3 security layers
 - **Owner always has override** — Emergency freeze, withdrawal, and key rotation are owner-only on-chain functions that work even if Sigil servers are offline
 
@@ -603,7 +629,7 @@ export default function DocsPage() {
               GitHub ↗
             </a>
             <Link
-              href="/onboarding"
+              href="/login"
               className="px-4 py-1.5 rounded-md text-[#050505] font-medium text-sm transition-all hover:brightness-110"
               style={{ backgroundColor: NEON }}
             >

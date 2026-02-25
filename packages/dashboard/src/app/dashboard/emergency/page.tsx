@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useChainId, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { useWallet } from "@/lib/wallet";
+import { useViewChain } from "@/lib/view-chain";
 import { getStoredAccount, SIGIL_ACCOUNT_ABI } from "@/lib/contracts";
 import Card from "@/components/Card";
 
@@ -15,7 +16,7 @@ export default function EmergencyPage() {
   useEffect(() => setMounted(true), []);
 
   const { address, isConnected } = useWallet();
-  const chainId = useChainId();
+  const { viewChainId: chainId } = useViewChain();
   const accountAddress = mounted ? getStoredAccount(chainId) : null;
   const hasAccount = !!accountAddress;
 
@@ -47,13 +48,13 @@ export default function EmergencyPage() {
 
   // Handle tx confirmations
   useEffect(() => {
-    if (freezeSuccess) { setSuccessMsg("Account frozen successfully"); refetchFrozen(); }
+    if (freezeSuccess) { setSuccessMsg("Wallet frozen successfully"); refetchFrozen(); }
   }, [freezeSuccess, refetchFrozen]);
   useEffect(() => {
-    if (unfreezeSuccess) { setSuccessMsg("Account unfrozen successfully"); refetchFrozen(); }
+    if (unfreezeSuccess) { setSuccessMsg("Wallet unfrozen successfully"); refetchFrozen(); }
   }, [unfreezeSuccess, refetchFrozen]);
   useEffect(() => {
-    if (rotateSuccess) { setSuccessMsg("Agent key rotated successfully"); setNewAgentKey(""); }
+    if (rotateSuccess) { setSuccessMsg("Agent Wallet rotated successfully"); setNewAgentKey(""); }
   }, [rotateSuccess]);
   useEffect(() => {
     if (withdrawSuccess) { setSuccessMsg("Emergency withdrawal completed"); }
@@ -136,9 +137,9 @@ export default function EmergencyPage() {
       <p className="text-sm text-white/40">These actions interact directly with your smart contract. Use with caution.</p>
 
       {isDemo && (
-        <div className="p-3 bg-[#00FF88]/10 border border-[#00FF88]/20 rounded-lg text-sm text-[#00FF88]">
-          📋 {!isConnected ? "Demo mode — connect wallet to use emergency controls." : "No Sigil account found on this chain."}{" "}
-          {!hasAccount && isConnected && <a href="/onboarding" className="underline">Deploy one →</a>}
+        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-8 text-center">
+          <p className="text-white/40">{!isConnected ? "Connect wallet to access emergency controls" : "No Sigil Wallet found on this chain"}</p>
+          {!hasAccount && isConnected && <a href="/onboarding" className="inline-block mt-3 px-6 py-2.5 bg-[#00FF88] text-[#050505] rounded-lg text-sm font-medium hover:brightness-110">Deploy Wallet →</a>}
         </div>
       )}
 
@@ -156,7 +157,7 @@ export default function EmergencyPage() {
       )}
 
       {/* Freeze/Unfreeze */}
-      <Card title="Account Freeze">
+      <Card title="Wallet Freeze">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm">
@@ -166,7 +167,7 @@ export default function EmergencyPage() {
               </span>
             </p>
             <p className="text-xs text-white/40 mt-1">
-              {frozen ? "Account is frozen. All transactions are blocked." : "Freezing will immediately block all agent transactions."}
+              {frozen ? "Wallet is frozen. All transactions are blocked." : "Freezing will immediately block all agent transactions."}
             </p>
           </div>
           <button
@@ -184,20 +185,20 @@ export default function EmergencyPage() {
               ? <span className="flex items-center gap-2"><LoadingSpinner /> Processing…</span>
               : confirmAction === "freeze"
               ? "Click again to confirm"
-              : frozen ? "Unfreeze Account" : "Freeze Account"}
+              : frozen ? "Unfreeze Wallet" : "Freeze Wallet"}
           </button>
         </div>
       </Card>
 
-      {/* Rotate Agent Key */}
-      <Card title="Rotate Agent Key">
-        <p className="text-xs text-white/40 mb-3">Replace the current agent signing key. The old key is immediately invalidated on-chain.</p>
+      {/* Rotate Agent Wallet */}
+      <Card title="Rotate Agent Wallet">
+        <p className="text-xs text-white/40 mb-3">Replace the current Agent Wallet signing key. The old key is immediately invalidated on-chain.</p>
         <div className="flex gap-3">
           <input
             type="text"
             value={newAgentKey}
             onChange={e => setNewAgentKey(e.target.value)}
-            placeholder="New agent public key (0x...)"
+            placeholder="New Agent Wallet address (0x...)"
             disabled={isDemo}
             className="flex-1 bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm font-mono focus:border-[#00FF88] outline-none disabled:opacity-50"
           />
@@ -219,9 +220,9 @@ export default function EmergencyPage() {
 
       {/* Emergency Withdraw */}
       <Card title="Emergency Withdraw">
-        <p className="text-xs text-white/40 mb-3">Withdraw <strong>ALL funds</strong> to a safe address. Owner-only contract call.</p>
+        <p className="text-xs text-white/40 mb-3">Withdraw <strong>ALL funds</strong> to a safe address. Origin Wallet-only contract call.</p>
         <div className="p-3 bg-[#F04452]/5 border border-[#F04452]/20 rounded-lg mb-3">
-          <p className="text-xs text-[#F04452]">⚠ This withdraws the entire account balance. There is no partial withdrawal.</p>
+          <p className="text-xs text-[#F04452]">⚠ This withdraws the entire wallet balance. There is no partial withdrawal.</p>
         </div>
         <div className="space-y-3">
           <div>

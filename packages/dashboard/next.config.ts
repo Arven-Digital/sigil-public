@@ -23,11 +23,11 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline'", // R: unsafe-eval removed — RainbowKit v2+ doesn't need it
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // M1: MetaMask SDK SES requires eval; wallet inject scripts require unsafe-inline. Nonce-based CSP blocked by RainbowKit/WalletConnect inline injection.
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https:",
               "font-src 'self' data:",
-              "connect-src 'self' https://api.sigil.codes https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org https://api.avax.network https://api.avax-test.network https://rpc.ankr.com https://*.web3modal.org https://pulse.walletconnect.org",
+              "connect-src 'self' https://sigil.codes https://app.sigil.codes https://api.sigil.codes https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org https://api.avax.network https://api.avax-test.network https://*.publicnode.com https://*.drpc.org https://rpc.ankr.com https://*.web3modal.org https://pulse.walletconnect.org https://polygon-rpc.com https://mainnet.base.org https://arb1.arbitrum.io https://evmrpc.0g.ai https://api.web3modal.org https://*.kaspersky-labs.com",
               "frame-src 'self' https://*.walletconnect.com https://*.walletconnect.org",
             ].join("; "),
           },

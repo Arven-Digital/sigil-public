@@ -3,11 +3,12 @@
 import { useState, useRef, useEffect } from "react";
 
 const CHAINS = [
-  { id: 43114, name: "Avalanche C-Chain", color: "#E84142", enabled: true },
+  { id: 1, name: "Ethereum", color: "#627EEA", enabled: true },
+  { id: 137, name: "Polygon", color: "#8247E5", enabled: true },
+  { id: 43114, name: "Avalanche", color: "#E84142", enabled: true },
   { id: 8453, name: "Base", color: "#0052FF", enabled: true },
   { id: 42161, name: "Arbitrum", color: "#28A0F0", enabled: true },
   { id: 16661, name: "0G Mainnet", color: "#00D4AA", enabled: true },
-  { id: 43113, name: "Avalanche Fuji", color: "#F4A524", enabled: true },
 ] as const;
 
 interface ChainSelectorProps {

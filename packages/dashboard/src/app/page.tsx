@@ -6,10 +6,12 @@ const NEON = "#00FF88";
 
 // Chain deployment fees (native token amounts)
 const CHAIN_FEES = [
-  { chain: "Avalanche", token: "AVAX", deployFee: "0.2", icon: "🔺" },
-  { chain: "Base", token: "ETH", deployFee: "0.00006", icon: "🔵" },
-  { chain: "Arbitrum", token: "ETH", deployFee: "0.00006", icon: "🔷" },
-  { chain: "0G Mainnet", token: "A0GI", deployFee: "2.0", icon: "⚡" },
+  { chain: "Ethereum", token: "ETH", deployFee: "0.003", icon: "🔷" },
+  { chain: "Polygon", token: "POL", deployFee: "10", icon: "🟣" },
+  { chain: "Avalanche", token: "AVAX", deployFee: "0.5", icon: "🔺" },
+  { chain: "Base", token: "ETH", deployFee: "0.003", icon: "🔵" },
+  { chain: "Arbitrum", token: "ETH", deployFee: "0.003", icon: "⚪" },
+  { chain: "0G Mainnet", token: "A0GI", deployFee: "1.0", icon: "⚡" },
 ];
 
 export default function LandingPage() {
@@ -27,7 +29,8 @@ export default function LandingPage() {
             <a href="#security" className="hover:text-white transition-colors">Security</a>
             <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
             <Link href="/docs" className="hover:text-white transition-colors">Docs</Link>
-            <a href="https://github.com/Arven-Digital/sigil-protocol" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">GitHub</a>
+            <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
+            <a href="https://github.com/Arven-Digital/sigil-public" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">GitHub</a>
             <Link
               href="/login"
               className="px-4 py-1.5 rounded-md text-black font-medium transition-all hover:brightness-110"
@@ -62,12 +65,14 @@ export default function LandingPage() {
             style={{ borderColor: `${NEON}30`, color: NEON, backgroundColor: `${NEON}08` }}
           >
             <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: NEON }} />
-            Live on 4 Chains
+            Live on 6 Chains
           </div>
 
           {/* Chain logos */}
           <div className="flex items-center justify-center gap-4 mb-8">
             {[
+              { src: "/chains/ethereum.svg", name: "Ethereum" },
+              { src: "/chains/polygon.svg", name: "Polygon" },
               { src: "/chains/avalanche.svg", name: "Avalanche" },
               { src: "/chains/base.svg", name: "Base" },
               { src: "/chains/arbitrum.svg", name: "Arbitrum" },
@@ -92,7 +97,7 @@ export default function LandingPage() {
 
           <div className="flex items-center justify-center gap-3 animate-fade-in-up animate-delay-200">
             <Link
-              href="/onboarding"
+              href="/login"
               className="px-7 py-3.5 rounded-lg text-black font-semibold text-[15px] transition-all hover:brightness-110 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(0,255,136,0.3)]"
               style={{ backgroundColor: NEON }}
             >
@@ -109,7 +114,7 @@ export default function LandingPage() {
           {/* Trust metrics */}
           <div className="mt-16 flex items-center justify-center gap-8 text-[13px] text-white/25 animate-fade-in-up animate-delay-300">
             <div className="text-center">
-              <div className="text-2xl font-bold text-white/60 font-mono">4</div>
+              <div className="text-2xl font-bold text-white/60 font-mono">6</div>
               <div>Chains Live</div>
             </div>
             <div className="w-px h-8 bg-white/10" />
@@ -137,25 +142,25 @@ export default function LandingPage() {
           <SectionHeader
             tag="How It Works"
             title="Secure your agent in 60 seconds"
-            desc="Connect, configure, deploy. Your AI agent gets a secured smart account with policy guardrails built in."
+            desc="Connect, configure, deploy. Your AI agent gets a secured Sigil Wallet with policy guardrails built in."
           />
 
           <div className="grid md:grid-cols-3 gap-4 mt-14">
             {[
               {
                 step: "01",
-                title: "Connect & Authenticate",
-                desc: "Connect with MetaMask, WalletConnect, or any EVM wallet. Sign in with Ethereum to prove ownership.",
+                title: "Deploy Your Sigil Wallet",
+                desc: "Connect your wallet and deploy an ERC-4337 Sigil Wallet. This is the on-chain wallet that holds your funds and executes transactions.",
               },
               {
                 step: "02",
-                title: "Choose Strategy & Chain",
-                desc: "Pick from 5 pre-built strategy templates — Conservative to Aggressive — with chain-aware limits. Deploy on Avalanche, Base, Arbitrum, or 0G.",
+                title: "Set Policies & Fund It",
+                desc: "Pick a strategy template with spending limits, target whitelists, and token policies. Fund the Sigil Wallet — this is where your agent's budget lives.",
               },
               {
                 step: "03",
-                title: "Deploy & Go",
-                desc: "Your ERC-4337 smart account deploys via CREATE2. Hand your agent a session key. Guardian starts validating immediately.",
+                title: "Generate Agent API Key",
+                desc: "Create an API key for your agent — this is for authentication only, not a wallet. Your agent submits transactions through the Guardian API; the Sigil account executes them.",
               },
             ].map((s, i) => (
               <div key={s.step} className={`card-gradient p-6 animate-fade-in-up animate-delay-${(i + 1) * 100}`}>
@@ -175,16 +180,56 @@ export default function LandingPage() {
               <span className="text-[11px] text-white/20 ml-2 font-mono">OpenClaw / Eliza / Any Agent</span>
             </div>
             <pre className="text-[12px] font-mono text-white/60 leading-relaxed overflow-x-auto">
-{`// OpenClaw — install the skill
-clawdhub install sigil-wallet
+{`// OpenClaw — one command, verified on ClawdHub
+clawdhub install sigil-security
 
-// Eliza — npm plugin
+// Eliza — npm plugin (13 actions)
 import { sigilPlugin } from '@sigil-protocol/eliza';
 
-// Any framework — MCP or REST API
-npx sigil-mcp  // stdio MCP server
-// or POST https://api.sigil.codes/v1/evaluate`}
+// Any framework — TypeScript SDK
+import { SigilSDK } from '@sigil-protocol/sdk';
+
+// Universal — REST API
+POST https://api.sigil.codes/v1/evaluate`}
             </pre>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── OpenClaw Native ─── */}
+      <section className="py-24 px-6 border-t border-white/5">
+        <div className="max-w-4xl mx-auto">
+          <div className="card-gradient p-8 md:p-12 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-[120px] opacity-10" style={{ backgroundColor: NEON }} />
+            <div className="relative flex flex-col md:flex-row items-center gap-8">
+              <div className="shrink-0">
+                <img src="/integrations/openclaw.png" alt="OpenClaw" className="w-20 h-20 rounded-2xl" />
+              </div>
+              <div className="text-center md:text-left">
+                <div className="flex items-center gap-2 justify-center md:justify-start mb-2">
+                  <span className="text-[11px] font-mono uppercase tracking-widest" style={{ color: NEON }}>OpenClaw Native</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full border font-medium" style={{ borderColor: `${NEON}40`, color: NEON, backgroundColor: `${NEON}10` }}>Verified on ClawdHub</span>
+                </div>
+                <h3 className="text-xl md:text-2xl font-bold mb-2">First-class OpenClaw integration</h3>
+                <p className="text-[14px] text-white/40 leading-relaxed mb-4">
+                  One command gives your OpenClaw agent secure wallet management — deploy wallets, evaluate transactions, manage session keys, and more. All through the 3-layer Guardian pipeline.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  <code className="text-[13px] font-mono px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/70">
+                    clawdhub install sigil-security
+                  </code>
+                  <a
+                    href="https://clawhub.ai/skills/sigil-security"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[13px] font-medium hover:underline"
+                    style={{ color: NEON }}
+                  >
+                    View on ClawdHub →
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -253,17 +298,17 @@ npx sigil-mcp  // stdio MCP server
               },
               {
                 title: "Social Recovery",
-                desc: "Lost your key? N-of-M trusted guardians recover your wallet after a configurable safety delay.",
+                desc: "Lost your key? N-of-M trusted guardians recover your Sigil Wallet after a configurable safety delay.",
                 icon: "🔄",
               },
               {
                 title: "ERC-4337 Native",
-                desc: "Smart account with gas abstraction. No private key needed by the agent — just a session key with guardrails.",
+                desc: "Sigil Wallet with gas abstraction. No private key needed by the agent — just a session key with guardrails.",
                 icon: "⛓️",
               },
               {
                 title: "UUPS Upgradeable",
-                desc: "Upgrade your account logic with 24h timelock + guardian co-sign. Future-proof without redeploying.",
+                desc: "Upgrade your Sigil Wallet logic with 24h timelock + guardian co-sign. Future-proof without redeploying.",
                 icon: "🔧",
               },
             ].map((f) => (
@@ -275,6 +320,54 @@ npx sigil-mcp  // stdio MCP server
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Polymarket Use Case ─── */}
+      <section className="py-24 px-6 border-t border-white/5">
+        <div className="max-w-5xl mx-auto">
+          <SectionHeader
+            tag="Use Case: Prediction Markets"
+            title="Secure your Polymarket agent"
+            desc="AI agents trading on Polymarket need guardrails. Sigil deploys on Polygon with purpose-built limits for prediction markets."
+          />
+
+          <div className="grid md:grid-cols-3 gap-4 mt-14">
+            {[
+              {
+                title: "Bet Limits",
+                desc: "Cap per-trade size and daily volume. Your agent can't YOLO your entire bankroll on a single market.",
+                icon: "🎲",
+              },
+              {
+                title: "Contract Whitelist",
+                desc: "Restrict your agent to verified Polymarket contracts only. No interacting with random tokens or drainers.",
+                icon: "✅",
+              },
+              {
+                title: "Emergency Kill Switch",
+                desc: "Market going sideways? Freeze your agent instantly. Withdraw funds while frozen. You stay in control.",
+                icon: "🧊",
+              },
+            ].map((f) => (
+              <div key={f.title} className="card-gradient p-6">
+                <div className="text-xl mb-3">{f.icon}</div>
+                <h3 className="font-semibold text-[15px] mb-2">{f.title}</h3>
+                <p className="text-[13px] text-white/40 leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 text-center">
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-black font-semibold text-[14px] hover:opacity-90 transition"
+              style={{ backgroundColor: NEON }}
+            >
+              Deploy on Polygon →
+            </Link>
+            <p className="text-[12px] text-white/25 mt-3">10 POL deploy fee · Verified Polymarket contracts in registry</p>
           </div>
         </div>
       </section>
@@ -340,7 +433,7 @@ npx sigil-mcp  // stdio MCP server
             desc="Pay once when you deploy. Every feature included. No monthly bills, no hidden charges."
           />
 
-          <div className="mt-14 grid md:grid-cols-4 gap-4">
+          <div className="mt-14 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {CHAIN_FEES.map(c => (
               <div key={c.chain} className="card-gradient p-5 text-center">
                 <div className="text-2xl mb-2">{c.icon}</div>
@@ -353,7 +446,7 @@ npx sigil-mcp  // stdio MCP server
 
           <div className="mt-6 text-center">
             <p className="text-[13px] text-white/30 mb-4">
-              Includes: smart account deployment, 3-layer validation, session keys, recovery, upgrades, SDK, API access.
+              Includes: Sigil Wallet deployment, 3-layer validation, session keys, recovery, upgrades, SDK, API access.
               <br />Validation costs (~$0.003/tx) absorbed by protocol. You only pay gas.
             </p>
             <Link
@@ -373,15 +466,15 @@ npx sigil-mcp  // stdio MCP server
           <SectionHeader
             tag="Integrations"
             title="Drop-in security for your stack"
-            desc="TypeScript SDK, Eliza plugin, REST API, MCP server. Integrate in minutes."
+            desc="OpenClaw skill, Eliza plugin, TypeScript SDK, REST API. Integrate in minutes, not days."
           />
 
           <div className="grid md:grid-cols-5 gap-4 mt-14">
             {[
-              { name: "OpenClaw Skill", desc: "Native skill for OpenClaw agents. Install from ClawdHub and go.", tag: "skill" },
+              { name: "OpenClaw Skill", desc: "Verified on ClawdHub. One command install for any OpenClaw agent.", tag: "✓ verified" },
               { name: "Eliza Plugin", desc: "13 actions, evaluator, wallet provider. npm install and go.", tag: "npm" },
               { name: "TypeScript SDK", desc: "Session keys, recovery, upgrades, token policies, multicall.", tag: "sdk" },
-              { name: "REST API", desc: "Evaluate transactions, manage accounts, query status.", tag: "api" },
+              { name: "REST API", desc: "Evaluate transactions, manage wallets, query status.", tag: "api" },
               { name: "MCP Server", desc: "Model Context Protocol tools for any AI agent framework.", tag: "mcp" },
             ].map((i) => (
               <div key={i.name} className="card-gradient p-5">
@@ -408,7 +501,7 @@ npx sigil-mcp  // stdio MCP server
               <div className="text-xl mb-3">🔐</div>
               <h3 className="font-semibold text-[14px] mb-2">Your keys, your control</h3>
               <p className="text-[13px] text-white/40 leading-relaxed">
-                Owner key, agent key, session keys, recovery guardians — all generated and stored on your side. We never see them.
+                Origin Wallet key, Agent Wallet key, session keys, recovery guardians — all generated and stored on your side. We never see them.
               </p>
             </div>
             <div className="card-gradient p-6">
@@ -422,7 +515,7 @@ npx sigil-mcp  // stdio MCP server
               <div className="text-xl mb-3">🧊</div>
               <h3 className="font-semibold text-[14px] mb-2">You can always override</h3>
               <p className="text-[13px] text-white/40 leading-relaxed">
-                Emergency freeze, withdrawal, key rotation — all owner-only on-chain functions. If our servers go offline, your wallet still works.
+                Emergency freeze, withdrawal, key rotation — all Origin Wallet-only on-chain functions. If our servers go offline, your Sigil Wallet still works.
               </p>
             </div>
           </div>
@@ -441,7 +534,7 @@ npx sigil-mcp  // stdio MCP server
             Connect wallet → Choose strategy → Deploy → Done.
           </p>
           <Link
-            href="/onboarding"
+            href="/login"
             className="inline-flex px-8 py-3.5 rounded-lg text-black font-semibold text-[15px] transition-all hover:brightness-110 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(0,255,136,0.3)]"
             style={{ backgroundColor: NEON }}
           >
@@ -459,7 +552,9 @@ npx sigil-mcp  // stdio MCP server
             <span>— Arven Digital</span>
           </div>
           <div className="flex gap-6">
-            <a href="https://github.com/Arven-Digital/sigil-protocol" target="_blank" rel="noreferrer" className="hover:text-white/60 transition-colors">GitHub</a>
+            <a href="https://github.com/Arven-Digital/sigil-public" target="_blank" rel="noreferrer" className="hover:text-white/60 transition-colors">GitHub</a>
+            <a href="https://clawhub.ai/skills/sigil-security" target="_blank" rel="noreferrer" className="hover:text-white/60 transition-colors">ClawdHub</a>
+            <Link href="/blog" className="hover:text-white/60 transition-colors">Blog</Link>
             <Link href="/docs" className="hover:text-white/60 transition-colors">Docs</Link>
             <Link href="/pricing" className="hover:text-white/60 transition-colors">Pricing</Link>
             <Link href="/terms" className="hover:text-white/60 transition-colors">Terms</Link>

@@ -104,6 +104,32 @@ html {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Blog prose styles */
+.prose-sigil h1, .prose-sigil h2, .prose-sigil h3, .prose-sigil h4 {
+  color: white;
+}
+.prose-sigil .code-block {
+  @apply rounded-lg p-4 my-6 overflow-x-auto text-[13px] leading-relaxed;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.prose-sigil .code-block code {
+  color: rgba(255,255,255,0.7);
+  font-family: var(--font-jetbrains), monospace;
+}
+.prose-sigil .inline-code {
+  @apply px-1.5 py-0.5 rounded text-[13px];
+  background: rgba(255,255,255,0.06);
+  color: #00FF88;
+  font-family: var(--font-jetbrains), monospace;
+}
+.prose-sigil strong {
+  color: rgba(255,255,255,0.8);
+}
+.prose-sigil em {
+  color: rgba(255,255,255,0.6);
+}
+
 /* Grid pattern background */
 .bg-grid {
   background-image: 
