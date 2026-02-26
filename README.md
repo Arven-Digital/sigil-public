@@ -181,12 +181,12 @@ One-time deployment fee per chain. No subscriptions.
 
 | Chain | Deploy Fee | Token |
 |-------|-----------|-------|
-| Ethereum | 0.00006 ETH | ~$0.18 |
-| Polygon | 10 POL | ~$2.50 |
-| Avalanche | 0.2 AVAX | ~$1.80 |
-| Base | 0.00006 ETH | ~$0.18 |
-| Arbitrum | 0.00006 ETH | ~$0.18 |
-| 0G Mainnet | 2.0 A0GI | ~$1.80 |
+| Ethereum | 0.003 ETH | ETH |
+| Polygon | 10 POL | POL |
+| Avalanche | 0.5 AVAX | AVAX |
+| Base | 0.003 ETH | ETH |
+| Arbitrum | 0.003 ETH | ETH |
+| 0G Mainnet | 1 A0GI | A0GI |
 
 Transaction validation (~$0.003/tx) is absorbed by the protocol.
 
