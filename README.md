@@ -29,16 +29,16 @@ Sigil Protocol provides a security layer for AI agents that manage crypto wallet
 
 If all three layers pass, the Guardian co-signs. If any layer flags the transaction, it's blocked with guidance on why and how to fix it.
 
-## Live on 6 Chains
+## Live on 6 Chains (All V12)
 
-| Chain | Chain ID | Factory Address | Version |
-|-------|----------|-----------------|---------|
-| **Polygon** | 137 | `0x483D6e4e203771485aC75f183b56D5F5cDcbe679` | V12 |
-| **Avalanche C-Chain** | 43114 | `0x2f4dd6db7affcf1f34c4d70998983528d834b8f6` | V10 |
-| **Base** | 8453 | `0x45b20a5F37b9740401a29BD70D636a77B18a510D` | V10 |
-| **Arbitrum One** | 42161 | `0x20f926bd5f416c875a7ec538f499d21d62850f35` | V10 |
-| **0G Mainnet** | 16661 | `0x20f926bd5f416c875a7ec538f499d21d62850f35` | V10 |
-| **Ethereum** | 1 | Coming soon | — |
+| Chain | Chain ID | Factory Address |
+|-------|----------|-----------------|
+| **Ethereum** | 1 | `0x20f926bd5f416c875a7ec538f499d21d62850f35` |
+| **Polygon** | 137 | `0x483D6e4e203771485aC75f183b56D5F5cDcbe679` |
+| **Avalanche C-Chain** | 43114 | `0x86e85de25473b432dabf1b9e8e8ce5145059b85b` |
+| **Base** | 8453 | `0x5729291ed4c69936f5b5ace04dee454c6838fd50` |
+| **Arbitrum One** | 42161 | `0x2f4dd6db7affcf1f34c4d70998983528d834b8f6` |
+| **0G Mainnet** | 16661 | `0x8bAD12A489338B533BCA3B19138Cd61caA17405F` |
 
 **Guardian Co-Signer:** `0xD06fBe90c06703C4b705571113740AfB104e3C67`
 **EntryPoint (ERC-4337 v0.7):** `0x0000000071727De22E5E9d8BAf0edAc6f37da032`
@@ -181,6 +181,7 @@ One-time deployment fee per chain. No subscriptions.
 
 | Chain | Deploy Fee | Token |
 |-------|-----------|-------|
+| Ethereum | 0.00006 ETH | ~$0.18 |
 | Polygon | 10 POL | ~$2.50 |
 | Avalanche | 0.2 AVAX | ~$1.80 |
 | Base | 0.00006 ETH | ~$0.18 |
