@@ -91,8 +91,16 @@ contract SigilAccount is BaseAccount, Initializable, ReentrancyGuard, UUPSUpgrad
     IEntryPoint private immutable _entryPoint;
     address public immutable factory;
 
+    // ─── Key Rotation Timelock ───
+    uint256 internal constant KEY_ROTATION_DELAY = 24 hours;
+    address public pendingAgentKey;
+    uint256 public pendingAgentKeyRequestedAt;
+    address public pendingGuardianKey;
+    uint256 public pendingGuardianKeyRequestedAt;
+
     // ─── Events ───
     event AccountInitialized(address indexed owner, address indexed agentKey, address indexed guardianKey);
+    event KeyRotationRequested(uint8 indexed keyType, address indexed oldKey, address indexed newKey, uint256 executeAfter);
     event PolicyUpdated(uint256 maxTxValue, uint256 dailyLimit, uint256 guardianThreshold, uint256 ownerThreshold);
     event AgentKeyRotated(address indexed oldKey, address indexed newKey);
     event GuardianKeyRotated(address indexed oldKey, address indexed newKey);
@@ -616,10 +624,43 @@ contract SigilAccount is BaseAccount, Initializable, ReentrancyGuard, UUPSUpgrad
     }
 
     error KeyCollision(uint8 code); // 1=o/a, 2=o/g, 3=a/g, 4=a/s, 5=a/rg, 6=g/s, 7=g/rg, 8=s/rg, 9=s/po, 10=rg/s, 11=o/s
+    error KeyRotationDelayNotElapsed(uint256 executeAfter);
+    error KeyRotationNotPending();
+    error NoKeyChange();
+
+    function requestRotateAgentKey(address newAgentKey) external onlyOwner notFrozen {
+        if (newAgentKey == address(0)) revert ZeroAddress(2);
+        // R7: Prevent key collisions that weaken the multi-sig model
+        if (newAgentKey == guardianKey) revert KeyCollision(3);
+        if (newAgentKey == owner) revert KeyCollision(1);
+        if (newAgentKey == pendingOwner) revert KeyCollision(9);
+        if (sessionKeyId[newAgentKey] != 0) revert KeyCollision(4);
+        if (recoveryGuardians[newAgentKey]) revert KeyCollision(5);
+        if (newAgentKey == agentKey) revert NoKeyChange();
+        pendingAgentKey = newAgentKey;
+        pendingAgentKeyRequestedAt = block.timestamp;
+        emit KeyRotationRequested(1, agentKey, newAgentKey, block.timestamp + KEY_ROTATION_DELAY);
+    }
+
+    function confirmRotateAgentKey() external onlyOwner notFrozen {
+        if (pendingAgentKey == address(0)) revert KeyRotationNotPending();
+        if (block.timestamp < pendingAgentKeyRequestedAt + KEY_ROTATION_DELAY) {
+            revert KeyRotationDelayNotElapsed(pendingAgentKeyRequestedAt + KEY_ROTATION_DELAY);
+        }
+        emit AgentKeyRotated(agentKey, pendingAgentKey);
+        agentKey = pendingAgentKey;
+        pendingAgentKey = address(0);
+        pendingAgentKeyRequestedAt = 0;
+    }
+
+    function cancelRotateAgentKey() external onlyOwner {
+        if (pendingAgentKey == address(0)) revert KeyRotationNotPending();
+        pendingAgentKey = address(0);
+        pendingAgentKeyRequestedAt = 0;
+    }
 
     function rotateAgentKey(address newAgentKey) external onlyOwner {
         if (newAgentKey == address(0)) revert ZeroAddress(2);
-        // R7: Prevent key collisions that weaken the multi-sig model
         if (newAgentKey == guardianKey) revert KeyCollision(3);
         if (newAgentKey == owner) revert KeyCollision(1);
         if (newAgentKey == pendingOwner) revert KeyCollision(9);
@@ -629,9 +670,38 @@ contract SigilAccount is BaseAccount, Initializable, ReentrancyGuard, UUPSUpgrad
         agentKey = newAgentKey;
     }
 
+    function requestRotateGuardianKey(address newGuardianKey) external onlyOwner notFrozen {
+        if (newGuardianKey == address(0)) revert ZeroAddress(3);
+        if (newGuardianKey == agentKey) revert KeyCollision(3);
+        if (newGuardianKey == owner) revert KeyCollision(2);
+        if (newGuardianKey == pendingOwner) revert KeyCollision(9);
+        if (sessionKeyId[newGuardianKey] != 0) revert KeyCollision(6);
+        if (recoveryGuardians[newGuardianKey]) revert KeyCollision(7);
+        if (newGuardianKey == guardianKey) revert NoKeyChange();
+        pendingGuardianKey = newGuardianKey;
+        pendingGuardianKeyRequestedAt = block.timestamp;
+        emit KeyRotationRequested(2, guardianKey, newGuardianKey, block.timestamp + KEY_ROTATION_DELAY);
+    }
+
+    function confirmRotateGuardianKey() external onlyOwner notFrozen {
+        if (pendingGuardianKey == address(0)) revert KeyRotationNotPending();
+        if (block.timestamp < pendingGuardianKeyRequestedAt + KEY_ROTATION_DELAY) {
+            revert KeyRotationDelayNotElapsed(pendingGuardianKeyRequestedAt + KEY_ROTATION_DELAY);
+        }
+        emit GuardianKeyRotated(guardianKey, pendingGuardianKey);
+        guardianKey = pendingGuardianKey;
+        pendingGuardianKey = address(0);
+        pendingGuardianKeyRequestedAt = 0;
+    }
+
+    function cancelRotateGuardianKey() external onlyOwner {
+        if (pendingGuardianKey == address(0)) revert KeyRotationNotPending();
+        pendingGuardianKey = address(0);
+        pendingGuardianKeyRequestedAt = 0;
+    }
+
     function rotateGuardianKey(address newGuardianKey) external onlyOwner {
         if (newGuardianKey == address(0)) revert ZeroAddress(3);
-        // R7: Prevent key collisions
         if (newGuardianKey == agentKey) revert KeyCollision(3);
         if (newGuardianKey == owner) revert KeyCollision(2);
         if (newGuardianKey == pendingOwner) revert KeyCollision(9);
