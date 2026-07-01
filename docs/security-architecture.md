@@ -90,4 +90,6 @@ Private production-only materials are intentionally excluded:
 - infrastructure credentials;
 - private monitoring configuration.
 
+Operational data boundary: Sigil uses a managed Supabase Postgres/Auth project on the free tier for persistent DB/Auth/Realtime. The exact account/project details are private operational inventory, not public repo material.
+
 That split is deliberate. Public proof should show enough for integrators and reviewers to reason about the system without publishing keys or operational attack surface.
