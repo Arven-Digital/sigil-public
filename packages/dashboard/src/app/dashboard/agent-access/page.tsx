@@ -57,9 +57,7 @@ const SCOPE_DEFINITIONS: ScopeInfo[] = [
     warning: "Session keys can sign transactions without the full agent key. A compromised agent could create a session key with high limits, then use it to drain funds before you notice. Only enable if your agent needs autonomous time-limited signing." },
 ];
 
-const ALL_SCOPES = SCOPE_DEFINITIONS.map(s => s.id);
 const DEFAULT_SCOPES = SCOPE_DEFINITIONS.filter(s => s.defaultEnabled).map(s => s.id);
-const SCOPE_LABELS: Record<string, string> = Object.fromEntries(SCOPE_DEFINITIONS.map(s => [s.id, s.label]));
 
 const RISK_COLORS: Record<ScopeRisk, { bg: string; border: string; text: string; badge: string }> = {
   safe:      { bg: "bg-[#00FF88]/5",  border: "border-[#00FF88]/20", text: "text-[#00FF88]", badge: "bg-[#00FF88]/10 text-[#00FF88]" },
@@ -345,7 +343,7 @@ export default function AgentAccessPage() {
           scopes: delegationScopes,
         }, null, 2),
       });
-    } catch (err) {
+    } catch {
       // Failed to sign delegation
     }
     setLoading(false);

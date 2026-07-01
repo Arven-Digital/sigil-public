@@ -22,7 +22,7 @@ export default function ActivityPage() {
   useEffect(() => setMounted(true), []);
   const [page, setPage] = useState(1);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const { address, chainId, isConnected, isAuthenticated, needsSignIn, signIn, isAuthenticating } = useWallet();
+  const { chainId, isConnected, isAuthenticated, needsSignIn, signIn, isAuthenticating } = useWallet();
   const accountAddress = mounted && chainId ? getStoredAccount(chainId) : null;
   const { data: txData, error, isLoading } = useTransactions(isAuthenticated ? (accountAddress || undefined) : undefined, page, PAGE_SIZE);
 

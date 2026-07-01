@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAccount as useWagmiAccount, useWriteContract, useWaitForTransactionReceipt, useChainId, useSwitchChain } from "wagmi";
 import WalletConnectButton from "@/components/WalletConnectButton";
 import { parseEther, encodeFunctionData } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FACTORY_ABI, FACTORY_ADDRESSES, GUARDIAN_ADDRESS, SIGIL_ACCOUNT_ABI, isMainnet, setStoredAccount, addStoredAccount, setActiveAccount, getNativeToken } from "@/lib/contracts";
-import { getBundlesForChain, getTemplateBundles, POLICY_BUNDLES, TEMPLATE_BUNDLE_MAP } from "@/lib/bundles";
+import { FACTORY_ABI, FACTORY_ADDRESSES, GUARDIAN_ADDRESS, SIGIL_ACCOUNT_ABI, isMainnet, addStoredAccount, setActiveAccount, getNativeToken } from "@/lib/contracts";
+import { getBundlesForChain, getTemplateBundles, TEMPLATE_BUNDLE_MAP } from "@/lib/bundles";
 import { api } from "@/lib/api";
 import { decodeErrorMessage } from "@/lib/errors";
 import { useWallet } from "@/lib/wallet";
@@ -204,13 +204,16 @@ export default function OnboardingFlow() {
   const effectiveReceipt = receipt || manualReceipt;
   const effectiveConfirmed = isConfirmed || !!manualReceipt;
 
-  const templateBase = TEMPLATE_BASES.find(t => t.id === selectedTemplate);
-  const chainLimits = templateBase ? getChainAwareLimits(templateBase, selectedChain) : null;
-  // For custom template, use user-provided values directly (already in native token units)
   const isCustom = selectedTemplate === "custom";
-  const template = isCustom && templateBase
-    ? { ...templateBase, maxTx: customMaxTx, daily: customDaily, guardianThreshold: customThreshold }
-    : templateBase && chainLimits ? { ...templateBase, ...chainLimits } : null;
+  const template = useMemo(() => {
+    const templateBase = TEMPLATE_BASES.find(t => t.id === selectedTemplate);
+    if (!templateBase) return null;
+    // For custom template, use user-provided values directly (already in native token units)
+    if (isCustom) {
+      return { ...templateBase, maxTx: customMaxTx, daily: customDaily, guardianThreshold: customThreshold };
+    }
+    return { ...templateBase, ...getChainAwareLimits(templateBase, selectedChain) };
+  }, [selectedTemplate, selectedChain, isCustom, customMaxTx, customDaily, customThreshold]);
 
   // Generate Agent Wallet key
   const generateKey = useCallback(() => {
@@ -431,7 +434,7 @@ export default function OnboardingFlow() {
         }
       }
     }
-  }, [effectiveConfirmed, effectiveReceipt, deployedAddress, selectedChain, address, agentAddress]);
+  }, [effectiveConfirmed, effectiveReceipt, deployedAddress, selectedChain, address, agentAddress, selectedTemplate, txHash]);
 
   if (!mounted) return null;
 

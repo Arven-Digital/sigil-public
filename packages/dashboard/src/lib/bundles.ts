@@ -68,7 +68,6 @@ const FN_REMOVE_LIQUIDITY_ETH = { selector: "0x02751cec", label: "removeLiquidit
 
 // ERC-20 extended
 const FN_INCREASE_ALLOWANCE = { selector: "0x39509351", label: "increaseAllowance" };
-const FN_DECREASE_ALLOWANCE = { selector: "0xa457c2d7", label: "decreaseAllowance" };
 const FN_PERMIT = { selector: "0xd505accf", label: "permit (EIP-2612)" };
 
 // UniversalRouter (no deadline variant)
@@ -82,11 +81,6 @@ const FN_MINT_LP = { selector: "0x88316456", label: "mint (V3 LP position)" };
 const FN_INCREASE_LP = { selector: "0x219f5d17", label: "increaseLiquidity" };
 const FN_DECREASE_LP = { selector: "0x0c49ccbe", label: "decreaseLiquidity" };
 const FN_COLLECT_LP = { selector: "0xfc6f7865", label: "collect (LP fees)" };
-
-// Permit2 (selectors verified against on-chain bytecode)
-const FN_PERMIT_TRANSFER = { selector: "0x30f28b7a", label: "permitTransferFrom" };
-const FN_PERMIT_BATCH = { selector: "0xedd9444b", label: "permitBatchTransferFrom" };
-const FN_PERMIT_WITNESS = { selector: "0x137c29fe", label: "permitWitnessTransferFrom" };
 
 // Staking / Rewards
 const FN_STAKE = { selector: "0xa694fc3a", label: "stake" };
@@ -175,7 +169,6 @@ const STAKING_FUNCTIONS = [
   FN_DEPOSIT, FN_WITHDRAW_NATIVE,
 ];
 const STABLECOIN_FUNCTIONS = [FN_APPROVE, FN_TRANSFER, FN_TRANSFER_FROM, FN_INCREASE_ALLOWANCE, FN_PERMIT, FN_DEPOSIT, FN_WITHDRAW_NATIVE];
-const PERMIT2_FUNCTIONS = [FN_PERMIT_TRANSFER, FN_PERMIT_BATCH, FN_PERMIT_WITNESS];
 
 export const POLICY_BUNDLES: PolicyBundle[] = [
   // ═══════════════════════════════════════

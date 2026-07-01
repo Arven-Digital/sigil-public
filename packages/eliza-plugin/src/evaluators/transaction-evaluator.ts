@@ -27,7 +27,7 @@ export function sigilTransactionEvaluator(): ElizaEvaluator {
       message: ElizaMessage,
       state?: ElizaState,
       _options?: Record<string, any>,
-      callback?: (response: { text: string; [key: string]: any }) => void
+      _callback?: (response: { text: string; [key: string]: any }) => void
     ) => {
       const text = message.content.text;
       const hasIntent = hasTransactionIntent(text);
