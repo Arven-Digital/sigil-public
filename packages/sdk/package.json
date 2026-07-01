@@ -18,7 +18,10 @@
       }
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
     "build:esm": "tsc -p tsconfig.json",
@@ -32,7 +35,7 @@
   "devDependencies": {
     "ethers": "^6.13.0",
     "typescript": "^5.5.0",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.6"
   },
   "license": "MIT",
   "repository": {
@@ -40,5 +43,11 @@
     "url": "https://github.com/sigil-protocol/sigil-protocol",
     "directory": "packages/sdk"
   },
-  "keywords": ["erc-4337", "smart-wallet", "ai-agent", "account-abstraction", "sigil"]
+  "keywords": [
+    "erc-4337",
+    "smart-wallet",
+    "ai-agent",
+    "account-abstraction",
+    "sigil"
+  ]
 }

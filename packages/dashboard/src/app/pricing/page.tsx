@@ -21,10 +21,12 @@ const INCLUDED = [
 ];
 
 const CHAIN_FEES = [
-  { chain: "Avalanche", token: "AVAX", fee: "0.2", icon: "🔺" },
-  { chain: "Base", token: "ETH", fee: "0.00006", icon: "🔵" },
-  { chain: "Arbitrum", token: "ETH", fee: "0.00006", icon: "🔷" },
-  { chain: "0G Mainnet", token: "A0GI", fee: "2.0", icon: "⚡" },
+  { chain: "Ethereum", token: "ETH", fee: "0.003", icon: "🔷" },
+  { chain: "Polygon", token: "POL", fee: "10", icon: "🟣" },
+  { chain: "Avalanche", token: "AVAX", fee: "0.5", icon: "🔺" },
+  { chain: "Base", token: "ETH", fee: "0.003", icon: "🔵" },
+  { chain: "Arbitrum", token: "ETH", fee: "0.003", icon: "🔷" },
+  { chain: "0G Mainnet", token: "A0GI", fee: "1", icon: "⚡" },
 ];
 
 const COST_BREAKDOWN = [
@@ -140,7 +142,7 @@ export default function PricingPage() {
             <div>
               <h3 className="font-semibold text-[14px] mb-2" style={{ color: NEON }}>You already have a wallet</h3>
               <p className="text-[13px] text-white/40 leading-relaxed">
-                You&apos;re deploying an on-chain smart account. You already have AVAX. Why add Stripe, credit cards, and subscription management to the mix?
+                You&apos;re deploying an on-chain smart account. You already have the native gas token. Why add Stripe, credit cards, and subscription management to the mix?
               </p>
             </div>
             <div>
@@ -198,7 +200,7 @@ export default function PricingPage() {
               },
               {
                 q: "Are there per-transaction fees?",
-                a: "No. You only pay standard Avalanche gas fees for your own transactions. Guardian validation costs are absorbed by the protocol.",
+                a: "No. You only pay standard network gas fees for your own transactions. Guardian validation costs are absorbed by the protocol.",
               },
               {
                 q: "What if I deploy on multiple chains?",

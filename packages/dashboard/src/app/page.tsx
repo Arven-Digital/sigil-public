@@ -184,7 +184,7 @@ export default function LandingPage() {
 clawdhub install sigil-security
 
 // Eliza — npm plugin (13 actions)
-import { sigilPlugin } from '@sigil-protocol/eliza';
+import { sigilPlugin } from '@sigil-protocol/eliza-plugin';
 
 // Any framework — TypeScript SDK
 import { SigilSDK } from '@sigil-protocol/sdk';
