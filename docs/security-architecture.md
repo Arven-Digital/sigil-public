@@ -90,6 +90,4 @@ Private production-only materials are intentionally excluded:
 - infrastructure credentials;
 - private monitoring configuration.
 
-
-
 That split is deliberate. Public proof should show enough for integrators and reviewers to reason about the system without publishing keys or operational attack surface.
