@@ -31,8 +31,8 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Audit high/critical
-        run: pnpm audit --audit-level high
+      - name: Audit dependencies
+        run: pnpm audit
 
       - name: Test
         run: pnpm test

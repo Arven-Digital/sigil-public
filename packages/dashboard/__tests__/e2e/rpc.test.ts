@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 
 const RPCS: Record<number, string[]> = {
   1: ["https://ethereum.publicnode.com", "https://eth.llamarpc.com"],
-  137: ["https://polygon-bor-rpc.publicnode.com", "https://polygon-rpc.com"],
+  137: ["https://rpc-mainnet.matic.quiknode.pro", "https://polygon-bor-rpc.publicnode.com", "https://1rpc.io/matic"],
   43114: ["https://avalanche-c-chain-rpc.publicnode.com", "https://api.avax.network/ext/bc/C/rpc"],
   8453: ["https://base-rpc.publicnode.com", "https://mainnet.base.org"],
   42161: ["https://arbitrum-one-rpc.publicnode.com", "https://arb1.arbitrum.io/rpc"],
@@ -92,10 +92,10 @@ describe.concurrent("On-Chain E2E — Factory contracts", () => {
     }
 
     it(`${name} (${chainId}): eth_getLogs for AccountCreated works`, async () => {
-      // Just verify the RPC call doesn't error — use a small block range
+      // Just verify the RPC call does not error — use a small block range accepted by public RPCs
       const latest = await rpcCall(chainId, "eth_blockNumber", []);
       const latestNum = BigInt(latest);
-      const from = "0x" + (latestNum - 100n > 0n ? latestNum - 100n : 0n).toString(16);
+      const from = "0x" + (latestNum - 50n > 0n ? latestNum - 50n : 0n).toString(16);
       const result = await rpcCall(chainId, "eth_getLogs", [{
         address: factory,
         topics: [ACCOUNT_CREATED_TOPIC],
