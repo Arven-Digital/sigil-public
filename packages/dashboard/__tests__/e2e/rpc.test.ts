@@ -1,42 +1,42 @@
 import { describe, it, expect } from "vitest";
 
 const RPCS: Record<number, string[]> = {
+  1: ["https://ethereum.publicnode.com", "https://eth.llamarpc.com"],
+  137: ["https://polygon-bor-rpc.publicnode.com", "https://polygon-rpc.com"],
   43114: ["https://avalanche-c-chain-rpc.publicnode.com", "https://api.avax.network/ext/bc/C/rpc"],
-  43113: ["https://avalanche-fuji-c-chain-rpc.publicnode.com", "https://api.avax-test.network/ext/bc/C/rpc"],
   8453: ["https://base-rpc.publicnode.com", "https://mainnet.base.org"],
   42161: ["https://arbitrum-one-rpc.publicnode.com", "https://arb1.arbitrum.io/rpc"],
   16661: ["https://evmrpc.0g.ai"],
-  137: ["https://polygon-bor-rpc.publicnode.com", "https://polygon-rpc.com"],
 };
 
 const FACTORIES: Record<number, string> = {
-  43114: "0x2f4dd6db7affcf1f34c4d70998983528d834b8f6",
-  43113: "0x86E85dE25473b432dabf1B9E8e8CE5145059b85b",
-  8453: "0x45b20a5F37b9740401a29BD70D636a77B18a510D",
-  42161: "0x20f926bd5f416c875a7ec538f499d21d62850f35",
-  16661: "0x20f926bd5f416c875a7ec538f499d21d62850f35",
-  137: "0x20f926bd5f416c875a7ec538f499d21d62850f35",
+  1: "0x20f926bd5f416c875a7ec538f499d21d62850f35",
+  137: "0x483D6e4e203771485aC75f183b56D5F5cDcbe679",
+  43114: "0x86e85de25473b432dabf1b9e8e8ce5145059b85b",
+  8453: "0x5729291ed4c69936f5b5ace04dee454c6838fd50",
+  42161: "0x2f4dd6db7affcf1f34c4d70998983528d834b8f6",
+  16661: "0x8bAD12A489338B533BCA3B19138Cd61caA17405F",
 };
 
 const CHAIN_NAMES: Record<number, string> = {
+  1: "Ethereum",
+  137: "Polygon",
   43114: "Avalanche",
-  43113: "Fuji",
   8453: "Base",
   42161: "Arbitrum",
   16661: "0G",
-  137: "Polygon",
 };
 
 const EXPECTED_DEPLOY_FEES: Record<number, bigint> = {
-  43114: 220000000000000000n,   // 0.22 AVAX
-  43113: 200000000000000000n,   // 0.2 AVAX
-  8453: 1000000000000000n,      // 0.001 ETH
-  42161: 1000000000000000n,     // 0.001 ETH
-  16661: 3230000000000000000n,  // 3.23 A0GI
-  137: 10000000000000000000n,   // 10 POL
+  1: 3000000000000000n,      // 0.003 ETH
+  137: 10000000000000000000n, // 10 POL
+  43114: 500000000000000000n, // 0.5 AVAX
+  8453: 3000000000000000n,   // 0.003 ETH
+  42161: 3000000000000000n,  // 0.003 ETH
+  16661: 1000000000000000000n, // 1 A0GI
 };
 
-const MAINNET_CHAINS = [43114, 8453, 42161, 16661, 137];
+const MAINNET_CHAINS = [1, 137, 43114, 8453, 42161, 16661];
 const TREASURY = "0xEC0D6435fFA48E33cf39c56f21A0cCFB9b50Ad45".toLowerCase();
 
 // AccountCreated event topic

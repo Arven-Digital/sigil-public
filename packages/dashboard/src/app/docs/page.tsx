@@ -68,7 +68,8 @@ import { SigilSDK } from '@sigil-protocol/sdk';
 const sigil = new SigilSDK({
   apiUrl: 'https://api.sigil.codes',
   accountAddress: '0xYourSigilAccount',
-  agentKey: '0xYourAgentPrivateKey',
+  apiKey: 'sgil_your_api_key',
+  agentPrivateKey: '0xYourAgentPrivateKey',
   chainId: 43114,
 });
 
@@ -77,7 +78,7 @@ const account = await sigil.getAccount();
 
 // Evaluate a transaction before sending
 const result = await sigil.evaluateTransaction({
-  to: '0xTarget',
+  target: '0xTarget',
   value: '100000000000000000', // 0.1 AVAX
   data: '0x',
 });
@@ -91,7 +92,7 @@ if (result.verdict === 'APPROVED') {
 ### 5. Or Use the Eliza Plugin
 
 \`\`\`typescript
-import { sigilPlugin } from '@sigil-protocol/eliza';
+import { sigilPlugin } from '@sigil-protocol/eliza-plugin';
 
 const plugin = sigilPlugin({
   apiUrl: 'https://api.sigil.codes',
@@ -128,8 +129,8 @@ import { SigilSDK } from '@sigil-protocol/sdk';
 const sigil = new SigilSDK({
   apiUrl: 'https://api.sigil.codes',
   accountAddress: '0xYourSigilAccount',
-  agentKey: '0xAgentPrivateKey',     // For agent operations
-  ownerKey: '0xOwnerPrivateKey',     // For owner operations (optional)
+  apiKey: 'sgil_your_api_key',
+  agentPrivateKey: '0xAgentPrivateKey', // For agent operations
   chainId: 43114,                     // Avalanche
   maxRetries: 3,                      // Auto-retry on network errors
 });
@@ -153,7 +154,7 @@ await sigil.registerAccount({
 
 \`\`\`typescript
 const result = await sigil.evaluateTransaction({
-  to: '0xTargetContract',
+  target: '0xTargetContract',
   value: '0',
   data: '0xa9059cbb...', // ERC20 transfer calldata
 });
@@ -232,20 +233,20 @@ try {
     id: "eliza-plugin",
     title: "Eliza Plugin",
     content: `
-## @sigil-protocol/eliza
+## @sigil-protocol/eliza-plugin
 
 Drop-in Eliza plugin that gives your AI agent secure wallet capabilities.
 
 ### Installation
 
 \`\`\`bash
-npm install @sigil-protocol/eliza
+npm install @sigil-protocol/eliza-plugin
 \`\`\`
 
 ### Setup
 
 \`\`\`typescript
-import { sigilPlugin } from '@sigil-protocol/eliza';
+import { sigilPlugin } from '@sigil-protocol/eliza-plugin';
 
 const plugin = sigilPlugin({
   apiUrl: 'https://api.sigil.codes',
