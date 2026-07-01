@@ -16,7 +16,7 @@ import { sigilPlugin } from '@sigil-protocol/eliza-plugin';
 const plugin = sigilPlugin({
   apiUrl: 'https://api.sigil.codes',
   apiKey: 'sigil_sk_...',
-  agentKey: '0xYOUR_AGENT_PRIVATE_KEY',
+  agentPrivateKey: '0xYOUR_AGENT_PRIVATE_KEY',
   accountAddress: '0xYOUR_ACCOUNT_ADDRESS',
   chainId: 1,
   // Optional
@@ -133,7 +133,7 @@ Policy: max_tx=1.0 ETH, daily=5.0 ETH, weekly=20.0 ETH
 |--------|------|---------|-------------|
 | `apiUrl` | string | required | Sigil API URL |
 | `apiKey` | string | optional | API key for authentication |
-| `agentKey` | string | optional | Agent private key for signing |
+| `agentPrivateKey` | string/function | required | Agent private key or custom signer for UserOp hashes |
 | `accountAddress` | string | required | Sigil account address |
 | `chainId` | number | 1 | Chain ID for UserOp hashing |
 | `maxRiskScore` | number | 60 | Auto-reject threshold (0-100) |

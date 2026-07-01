@@ -1,14 +1,14 @@
 ---
 title: "Introducing Sigil Protocol — Agent Wallets, On a Leash"
 date: "2026-02-14"
-excerpt: "Sigil Protocol brings 3-layer Guardian validation to AI agent wallets. Live on Avalanche, Base, Arbitrum, Polygon, and 0G — with integrations for OpenClaw, Eliza, SDK, and MCP."
+excerpt: "Sigil Protocol brings 3-layer Guardian validation to AI agent wallets. Live on Ethereum, Polygon, Avalanche, Base, Arbitrum, and 0G — with integrations for OpenClaw, Eliza, SDK, and MCP."
 author: "Sigil Team"
 tags: ["announcement", "Sigil Protocol", "launch"]
 ---
 
 # Introducing Sigil Protocol — Agent Wallets, On a Leash
 
-Today we're publicly introducing Sigil Protocol: a 3-layer security pipeline for AI agent wallets, live on five EVM chains.
+Today we're publicly introducing Sigil Protocol: a 3-layer security pipeline for AI agent wallets, live on six EVM chains.
 
 Sigil gives autonomous AI agents smart accounts with Guardian validation. Every transaction your agent submits passes through deterministic rules, transaction simulation, and AI risk scoring — all before a single wei moves. If any layer flags the transaction, it's blocked.
 
@@ -55,15 +55,16 @@ If the score exceeds your configured threshold, the transaction is blocked. This
 
 Total validation time: ~700ms. Total cost: ~$0.003 per transaction, absorbed by the protocol.
 
-## Live on 5 Chains
+## Live on 6 Chains
 
 Sigil is deployed and operational on:
 
-- **Avalanche** — 0.2 AVAX deployment fee
-- **Base** — 0.00006 ETH deployment fee
-- **Arbitrum** — 0.00006 ETH deployment fee
+- **Ethereum** — 0.003 ETH deployment fee
 - **Polygon** — 10 POL deployment fee (ideal for Polymarket agents)
-- **0G Mainnet** — 2.0 A0GI deployment fee
+- **Avalanche** — 0.5 AVAX deployment fee
+- **Base** — 0.003 ETH deployment fee
+- **Arbitrum** — 0.003 ETH deployment fee
+- **0G Mainnet** — 1 A0GI deployment fee
 
 All chains use the same smart contract architecture with chain-specific optimizations. Deploy on one chain in about 60 seconds.
 
@@ -86,7 +87,7 @@ One command gives your OpenClaw agent full access to Sigil — deploy accounts, 
 ### Eliza Plugin
 
 ```
-npm install @sigil-protocol/eliza
+npm install @sigil-protocol/eliza-plugin
 ```
 
 13 actions, a transaction evaluator, and a wallet provider. Plug into any Eliza agent and start validating transactions immediately.
@@ -96,7 +97,12 @@ npm install @sigil-protocol/eliza
 ```typescript
 import { SigilSDK } from '@sigil-protocol/sdk';
 
-const sigil = new SigilSDK({ chainId: 43114 });
+const sigil = new SigilSDK({
+  apiKey: 'sgil_your_api_key',
+  accountAddress: '0xYourSigilAccount',
+  agentPrivateKey: '0xYourAgentPrivateKey',
+  chainId: 43114,
+});
 const result = await sigil.evaluate(transaction);
 ```
 
