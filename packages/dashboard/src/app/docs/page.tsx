@@ -692,7 +692,8 @@ function renderMarkdown(md: string): string {
       `<pre class="overflow-x-auto"><code class="language-${lang}">${escapeHtml(code.trim())}</code></pre>`
     )
     // Inline code
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    // Escape inline-code content because this renderer feeds dangerouslySetInnerHTML.
+    .replace(/`([^`]+)`/g, (_m: string, code: string) => `<code>${escapeHtml(code)}</code>`)
     // Headers
     .replace(/^### (.+)$/gm, '<h3>$1</h3>')
     .replace(/^## (.+)$/gm, '<h2>$1</h2>')

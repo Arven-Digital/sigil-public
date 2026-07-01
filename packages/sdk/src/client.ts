@@ -7,6 +7,13 @@ import type {
   AccountInfo,
   PolicyInfo,
   AuthResponse,
+  TransactionParams,
+  TransactionsResult,
+  FreezeResult,
+  RotateKeyResult,
+  SessionKeyCreateParams,
+  SessionKeyCreateResult,
+  SessionKeyInfo,
 } from './types.js';
 import { SigilError } from './errors.js';
 import { getRpcUrl, getGasPrice, getNonce as rpcGetNonce } from './rpc.js';
@@ -27,10 +34,10 @@ const CHAIN_PRIORITY_FEES: Record<number, bigint> = {
 export class SigilSDK {
   private readonly apiKey: string;
   private readonly accountAddress: string;
-  private readonly agentPrivateKey: string;
+  private readonly signer: (userOpHash: string) => Promise<string>;
   private readonly chainId: number;
   private readonly apiUrl: string;
-  private readonly rpcUrl: string;
+  private rpcUrl: string;
 
   private token: string | null = null;
   private tokenExpiresAt = 0;
@@ -39,10 +46,56 @@ export class SigilSDK {
   constructor(config: SigilConfig) {
     this.apiKey = config.apiKey;
     this.accountAddress = config.accountAddress;
-    this.agentPrivateKey = config.agentPrivateKey;
     this.chainId = config.chainId;
     this.apiUrl = (config.apiUrl ?? DEFAULT_API_URL).replace(/\/+$/, '');
     this.rpcUrl = getRpcUrl(config.chainId);
+
+    if (typeof config.agentPrivateKey === 'function') {
+      this.signer = config.agentPrivateKey;
+    } else {
+      this.signer = (userOpHash: string) => signUserOpHash(userOpHash, config.agentPrivateKey as string);
+    }
+  }
+
+  /** Override the RPC provider used for nonce/gas reads. */
+  setProvider(rpcUrl: string, _entryPointAddress?: string): this {
+    this.rpcUrl = rpcUrl;
+    return this;
+  }
+
+  private normalizeTransactionParams(
+    targetOrParams: string | TransactionParams,
+    value: string | bigint = BigInt(0),
+    data = '0x',
+  ): Required<TransactionParams> {
+    if (typeof targetOrParams === 'string') {
+      return { target: targetOrParams, value, data };
+    }
+    return {
+      target: targetOrParams.target,
+      value: targetOrParams.value ?? BigInt(0),
+      data: targetOrParams.data ?? '0x',
+    };
+  }
+
+  private normalizeValue(value: string | bigint): bigint {
+    return typeof value === 'bigint' ? value : BigInt(value);
+  }
+
+  private normalizeEvaluationResult(result: Partial<EvalResult>): EvalResult {
+    return {
+      verdict: result.verdict ?? 'REJECTED',
+      riskScore: result.riskScore ?? 100,
+      rejectionReason: result.rejectionReason,
+      guidance: result.guidance,
+      guardianSignature: result.guardianSignature,
+      evaluationMs: result.evaluationMs ?? 0,
+      layers: {
+        layer1: result.layers?.layer1 ?? { result: 'UNKNOWN' },
+        layer2: result.layers?.layer2,
+        layer3: result.layers?.layer3,
+      },
+    };
   }
 
   // ── Auth ──────────────────────────────────────────────────
@@ -133,8 +186,15 @@ export class SigilSDK {
     return this.contractCall(to, amount, '0x');
   }
 
-  async contractCall(target: string, value: bigint, data: string): Promise<TxResult> {
-    const op = await this.buildUserOp(target, value, data);
+  async contractCall(target: string, value: bigint, data: string): Promise<TxResult>;
+  async contractCall(params: TransactionParams): Promise<TxResult>;
+  async contractCall(
+    targetOrParams: string | TransactionParams,
+    value: string | bigint = BigInt(0),
+    data = '0x',
+  ): Promise<TxResult> {
+    const tx = this.normalizeTransactionParams(targetOrParams, value, data);
+    const op = await this.buildUserOp(tx);
     const sig = await this.signUserOp(op);
     op.signature = sig;
     return this.submitUserOp(op);
@@ -142,15 +202,27 @@ export class SigilSDK {
 
   // ── Evaluate (dry run) ────────────────────────────────────
 
-  async evaluate(target: string, value: bigint, data: string): Promise<EvalResult> {
-    const op = await this.buildUserOp(target, value, data);
+  async evaluate(target: string, value: bigint, data: string): Promise<EvalResult>;
+  async evaluate(params: TransactionParams): Promise<EvalResult>;
+  async evaluate(
+    targetOrParams: string | TransactionParams,
+    value: string | bigint = BigInt(0),
+    data = '0x',
+  ): Promise<EvalResult> {
+    const tx = this.normalizeTransactionParams(targetOrParams, value, data);
+    const op = await this.buildUserOp(tx);
     const sig = await this.signUserOp(op);
     op.signature = sig;
     // API derives chainId from account's DB record, not from request
-    return (await this.apiFetch('/v1/evaluate', {
+    const result = (await this.apiFetch('/v1/evaluate', {
       method: 'POST',
       body: { userOp: op },
-    })) as EvalResult;
+    })) as Partial<EvalResult>;
+    return this.normalizeEvaluationResult(result);
+  }
+
+  async evaluateTransaction(params: TransactionParams): Promise<EvalResult> {
+    return this.evaluate(params);
   }
 
   // ── Account Info ──────────────────────────────────────────
@@ -163,9 +235,85 @@ export class SigilSDK {
     return (await this.apiFetch(`/v1/accounts/${this.accountAddress}/policy`)) as PolicyInfo;
   }
 
+  async updatePolicy(params: Record<string, unknown>): Promise<PolicyInfo> {
+    return (await this.apiFetch(`/v1/accounts/${this.accountAddress}/policy`, {
+      method: 'PUT',
+      body: params,
+    })) as PolicyInfo;
+  }
+
+  async getTransactions(options: { limit?: number; offset?: number; verdict?: string } = {}): Promise<TransactionsResult> {
+    const query = new URLSearchParams({ account: this.accountAddress });
+    if (options.limit != null) query.set('limit', String(options.limit));
+    if (options.offset != null) query.set('offset', String(options.offset));
+    if (options.verdict) query.set('verdict', options.verdict);
+    return (await this.apiFetch(`/v1/transactions?${query.toString()}`)) as TransactionsResult;
+  }
+
+  async freeze(): Promise<FreezeResult> {
+    return (await this.apiFetch(`/v1/accounts/${this.accountAddress}/freeze`, {
+      method: 'POST',
+    })) as FreezeResult;
+  }
+
+  async unfreeze(): Promise<FreezeResult> {
+    return (await this.apiFetch(`/v1/accounts/${this.accountAddress}/unfreeze`, {
+      method: 'POST',
+    })) as FreezeResult;
+  }
+
+  async rotateKey(newAgentKey: string): Promise<RotateKeyResult> {
+    return (await this.apiFetch(`/v1/accounts/${this.accountAddress}/rotate-key`, {
+      method: 'POST',
+      body: { newAgentKey },
+    })) as RotateKeyResult;
+  }
+
+  async createSessionKey(params: SessionKeyCreateParams): Promise<SessionKeyCreateResult> {
+    const validForHours = params.validForHours
+      ?? (params.validUntil ? Math.max(1, Math.ceil((params.validUntil - Math.floor(Date.now() / 1000)) / 3600)) : 24);
+    const result = (await this.apiFetch(`/v1/agent/wallets/${this.accountAddress}/session-keys`, {
+      method: 'POST',
+      body: {
+        key: params.key,
+        validForHours,
+        spendLimit: params.spendLimit,
+        maxTxValue: params.maxTxValue,
+        cooldownSeconds: params.cooldownSeconds ?? params.cooldown ?? 0,
+        allowAllTargets: params.allowAllTargets ?? true,
+        targets: params.targets,
+        functions: params.functions,
+      },
+    })) as Partial<SessionKeyCreateResult>;
+    return {
+      key: params.key,
+      validUntil: params.validUntil ?? Math.floor(Date.now() / 1000) + validForHours * 3600,
+      ...result,
+    };
+  }
+
+  async revokeSessionKey(sessionId: number | string): Promise<string> {
+    const result = (await this.apiFetch(`/v1/agent/wallets/${this.accountAddress}/session-keys/${sessionId}`, {
+      method: 'DELETE',
+    })) as { txHash?: string; message?: string };
+    return result.txHash ?? result.message ?? 'revoked';
+  }
+
+  async getSessionKey(sessionId: number | string): Promise<SessionKeyInfo> {
+    return (await this.apiFetch(`/v1/agent/wallets/${this.accountAddress}/session-keys/${sessionId}`)) as SessionKeyInfo;
+  }
+
   // ── Low-level UserOp ─────────────────────────────────────
 
-  async buildUserOp(target: string, value: bigint, innerData: string): Promise<UserOp> {
+  async buildUserOp(target: string, value: bigint, innerData: string): Promise<UserOp>;
+  async buildUserOp(params: TransactionParams): Promise<UserOp>;
+  async buildUserOp(
+    targetOrParams: string | TransactionParams,
+    value: string | bigint = BigInt(0),
+    innerData = '0x',
+  ): Promise<UserOp> {
+    const tx = this.normalizeTransactionParams(targetOrParams, value, innerData);
+    const txValue = this.normalizeValue(tx.value);
     // Fetch nonce if not cached
     if (this.nonce === null) {
       this.nonce = await rpcGetNonce(this.rpcUrl, ENTRY_POINT, this.accountAddress, 0);
@@ -177,7 +325,7 @@ export class SigilSDK {
     // maxFeePerGas = 2x base + priority (handles spikes)
     const maxFeePerGas = baseGasPrice * BigInt(2) + priorityFee;
 
-    const callData = encodeExecute(target, value, innerData);
+    const callData = encodeExecute(tx.target, txValue, tx.data);
 
     // Pack gas fields into v0.7 format
     const vgl = BigInt(300000);
@@ -198,7 +346,7 @@ export class SigilSDK {
 
   async signUserOp(userOp: UserOp): Promise<string> {
     const hash = getUserOpHash(userOp, this.chainId);
-    return signUserOpHash(hash, this.agentPrivateKey);
+    return this.signer(hash);
   }
 
   async submitUserOp(userOp: UserOp): Promise<TxResult> {

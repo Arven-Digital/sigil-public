@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import WalletConnectButton from "@/components/WalletConnectButton";
 import { useWallet } from "@/lib/wallet";
 
 const links = [
@@ -24,7 +24,7 @@ export default function Sidebar() {
       </Link>
 
       <div className="mb-6">
-        <ConnectButton showBalance={false} accountStatus="address" chainStatus="icon" />
+        <WalletConnectButton showBalance={false} accountStatus="address" chainStatus="icon" />
       </div>
 
       {isAuthenticated && (
