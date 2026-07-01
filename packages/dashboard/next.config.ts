@@ -37,7 +37,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https:",
               "font-src 'self' data:",
-              "connect-src 'self' https://sigil.codes https://app.sigil.codes https://api.sigil.codes https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org https://api.avax.network https://api.avax-test.network https://*.publicnode.com https://*.drpc.org https://rpc.ankr.com https://*.web3modal.org https://pulse.walletconnect.org https://polygon-rpc.com https://mainnet.base.org https://arb1.arbitrum.io https://evmrpc.0g.ai https://api.web3modal.org https://*.kaspersky-labs.com",
+              "connect-src 'self' https://sigil.codes https://app.sigil.codes https://api.sigil.codes https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org https://api.avax.network https://api.avax-test.network https://*.publicnode.com https://*.drpc.org https://rpc.ankr.com https://*.web3modal.org https://pulse.walletconnect.org https://rpc-mainnet.matic.quiknode.pro https://1rpc.io https://*.1rpc.io https://mainnet.base.org https://arb1.arbitrum.io https://evmrpc.0g.ai https://api.web3modal.org https://*.kaspersky-labs.com",
               "frame-src 'self' https://*.walletconnect.com https://*.walletconnect.org",
             ].join("; "),
           },
