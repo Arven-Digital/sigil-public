@@ -15,7 +15,7 @@ export default function EmergencyPage() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const { address, isConnected } = useWallet();
+  const { isConnected } = useWallet();
   const { viewChainId: chainId } = useViewChain();
   const accountAddress = mounted ? getStoredAccount(chainId) : null;
   const hasAccount = !!accountAddress;

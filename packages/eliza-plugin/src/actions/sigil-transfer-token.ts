@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import type { SigilSDK } from '@sigil-protocol/sdk';
 import type { ElizaAction, ElizaRuntime, ElizaMessage, ElizaState } from '../types';
-import { parseAddress, friendlyError } from '../utils';
+import { friendlyError } from '../utils';
 
 const ERC20_ABI = ['function transfer(address to, uint256 amount) returns (bool)'];
 

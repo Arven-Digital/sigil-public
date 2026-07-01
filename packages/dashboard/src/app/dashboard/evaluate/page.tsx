@@ -154,7 +154,7 @@ export default function EvaluatePage() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const { address, isAuthenticated, needsSignIn, signIn } = useWallet();
+  const { address, needsSignIn, signIn } = useWallet();
   const [signingIn, setSigningIn] = useState(false);
   const { viewChainId: chainId } = useViewChain();
   const accountAddress = mounted ? getStoredAccount(chainId) : null;

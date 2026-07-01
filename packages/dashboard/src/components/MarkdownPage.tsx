@@ -24,7 +24,7 @@ function parseMarkdown(md: string): string {
     .replace(/<p class="text-white\/40 mb-3 leading-relaxed"><\/p>/g, '');
 }
 
-export default function MarkdownPage({ file, title }: { file: string; title: string }) {
+export default function MarkdownPage({ file }: { file: string; title: string }) {
   const [html, setHtml] = useState("");
 
   useEffect(() => {

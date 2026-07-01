@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { formatEther, formatUnits } from "viem";
 import { useWallet } from "@/lib/wallet";
@@ -25,16 +25,19 @@ function rpcCall(rpc: string, method: string, params: unknown[]) {
 
 // balanceOf(address) selector
 const BALANCE_OF = "0x70a08231";
+const SELECTORS = {
+  maxTxValue: "0xe8eecf4c",
+  dailyLimit: "0x67eeba0c",
+  isFrozen: "0x33eeb147",
+  dailySpent: "0x0bc6b89c",
+  guardianThreshold: "0xd5af4e20",
+  agentKey: "0xaf2c73a2",
+};
 
 interface TokenBalance {
   token: TokenInfo;
   balance: bigint;
   formatted: string;
-}
-
-function RiskBadge({ score }: { score: number }) {
-  const color = score <= 20 ? "text-[#00FF88] bg-[#00FF88]/10" : score <= 50 ? "text-[#F4A524] bg-[#F4A524]/10" : "text-[#F04452] bg-[#F04452]/10";
-  return <span className={`text-xs px-2 py-0.5 rounded-md font-medium font-mono ${color}`}>Risk: {score}</span>;
 }
 
 function CopyableAddress({ address, label, compact }: { address: string; label?: string; compact?: boolean }) {
@@ -188,11 +191,6 @@ export default function DashboardOverview() {
   const [tokensLoading, setTokensLoading] = useState(false);
   const [agentKey, setAgentKey] = useState<string | null>(null);
   const [agentBalance, setAgentBalance] = useState<bigint | null>(null);
-
-  const SELECTORS = {
-    maxTxValue: "0xe8eecf4c", dailyLimit: "0x67eeba0c", isFrozen: "0x33eeb147",
-    dailySpent: "0x0bc6b89c", guardianThreshold: "0xd5af4e20", agentKey: "0xaf2c73a2",
-  };
 
   // Fetch native + contract state
   useEffect(() => {
@@ -617,7 +615,7 @@ export default function DashboardOverview() {
                   onClick={async () => {
                     setResettingCB(true);
                     try { await api.resetCircuitBreaker(accountAddress!, chainId); window.location.reload(); }
-                    catch (e) { /* Circuit breaker reset failed */ } finally { setResettingCB(false); }
+                    catch { /* Circuit breaker reset failed */ } finally { setResettingCB(false); }
                   }}
                   disabled={resettingCB}
                   className="w-full py-2 rounded-lg bg-[#F04452] text-white text-xs font-medium hover:brightness-110 transition-colors disabled:opacity-50"

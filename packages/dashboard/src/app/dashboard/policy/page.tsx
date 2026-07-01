@@ -75,7 +75,6 @@ export default function PolicyPage() {
   const [allowedFunctions, setAllowedFunctions] = useState<string[]>([]);
   const [blockedAddresses, setBlockedAddresses] = useState<string[]>([]);
   const [newTarget, setNewTarget] = useState("");
-  const [newFunction, setNewFunction] = useState("");
   const [newBlocked, setNewBlocked] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -241,7 +240,7 @@ export default function PolicyPage() {
       setBundleError(`${bundle.name}: ${err instanceof Error ? err.message : "Transaction rejected"}`);
     }
     setApplyingBundle(null);
-  }, [accountAddress, address, isDemo, chainId, allowedTargets, allowedFunctions, waitForReceipt]);
+  }, [accountAddress, address, isDemo, allowedTargets, allowedFunctions, waitForReceipt]);
 
   // Sync from contract data first, then API
   useEffect(() => {
@@ -450,22 +449,6 @@ export default function PolicyPage() {
     })();
   }, [accountAddress, isDemo, chainId, bundles, onChainLoaded]);
 
-  // Track on-chain values so we know what actually changed
-  const [onChainValues, setOnChainValues] = useState<{
-    maxTxValue: string; dailyLimit: string; guardianThreshold: string; ownerThreshold: string;
-  } | null>(null);
-
-  useEffect(() => {
-    if (maxTxValue && dailyLimit && guardianThreshold) {
-      const vals = {
-        maxTxValue: parseFloat(formatEther(maxTxValue as bigint)).toString(),
-        dailyLimit: parseFloat(formatEther(dailyLimit as bigint)).toString(),
-        guardianThreshold: parseFloat(formatEther(guardianThreshold as bigint)).toString(),
-        ownerThreshold: ownerThresholdVal_raw ? parseFloat(formatEther(ownerThresholdVal_raw as bigint)).toString() : "0",
-      };
-      setOnChainValues(vals);
-    }
-  }, [maxTxValue, dailyLimit, guardianThreshold]);
 
   async function handleSave() {
     if (!accountAddress || isDemo) return;
@@ -537,13 +520,6 @@ export default function PolicyPage() {
         });
       } catch { /* DB sync is best-effort — on-chain is source of truth */ }
 
-      // Update tracked on-chain values
-      setOnChainValues({
-        maxTxValue: maxPerTx,
-        dailyLimit: dailyLimitVal,
-        guardianThreshold: guardianThresholdVal,
-        ownerThreshold: ownerThreshold,
-      });
 
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);

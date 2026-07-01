@@ -32,9 +32,9 @@ function formatCountdown(executeAfter: number): string {
 }
 
 export default function RecoveryPage() {
-  const { address, isConnected } = useWallet();
+  const { address } = useWallet();
   const { data: config, error: configError, isLoading: configLoading, mutate: mutateConfig } = useRecoveryConfig(address);
-  const { data: recoveries, error: recError, mutate: mutateRecoveries } = useActiveRecoveries(address);
+  const { data: recoveries, mutate: mutateRecoveries } = useActiveRecoveries(address);
   const addr = address || "";
 
   const recoveryConfig = config;
