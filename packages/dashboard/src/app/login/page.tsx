@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import WalletConnectButton from "@/components/WalletConnectButton";
 import { useWallet } from "@/lib/wallet";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "https://api.sigil.codes/v1").trim();
@@ -101,7 +101,7 @@ function LoginPageInner() {
                 Your wallet address will be linked to your Google login for on-chain operations.
               </p>
               <div className="flex justify-center">
-                <ConnectButton label="Connect Wallet" />
+                <WalletConnectButton label="Connect Wallet" />
               </div>
             </div>
           </div>
@@ -189,7 +189,7 @@ function LoginPageInner() {
             </button>
           ) : (
             <div className="flex justify-center">
-              <ConnectButton label="Connect Wallet" />
+              <WalletConnectButton label="Connect Wallet" />
             </div>
           )}
 

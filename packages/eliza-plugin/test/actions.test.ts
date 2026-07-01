@@ -129,7 +129,7 @@ describe('sigil_send', () => {
 
     const result = await action.handler(
       mockRuntime,
-      msg('Send 1 ETH to 0x742d35CC6634c0532925a3B844bc9e7595F2Bd28'),
+      msg('Send 0.1 ETH to 0x742d35CC6634c0532925a3B844bc9e7595F2Bd28'),
       {},
       {},
       cb
@@ -154,7 +154,7 @@ describe('sigil_send', () => {
 
     const result = await action.handler(
       mockRuntime,
-      msg('Send 1 ETH to 0x742d35CC6634c0532925a3B844bc9e7595F2Bd28'),
+      msg('Send 0.1 ETH to 0x742d35CC6634c0532925a3B844bc9e7595F2Bd28'),
       {},
       {},
       cb
@@ -170,14 +170,16 @@ describe('sigil_send', () => {
     expect(await action.validate(mockRuntime, msg('Send some ETH'))).toBe(false);
   });
 
-  it('should send 0 ETH when no amount specified', async () => {
+  it('should reject missing amount instead of sending 0 ETH', async () => {
     const sdk = createMockSdk();
     const action = sigilSendAction(sdk, 60);
     const cb = vi.fn();
 
-    await action.handler(mockRuntime, msg('Send to 0x742d35CC6634c0532925a3B844bc9e7595F2Bd28'), {}, {}, cb);
-    // parseEthAmount picks up "0" from the hex — sends 0 ETH which is valid
-    expect(cb.mock.calls[0][0].text).toContain('0 ETH');
+    const result = await action.handler(mockRuntime, msg('Send to 0x742d35CC6634c0532925a3B844bc9e7595F2Bd28'), {}, {}, cb);
+
+    expect(result).toBe(false);
+    expect(cb.mock.calls[0][0].text).toContain('Invalid ETH amount');
+    expect(sdk.evaluate).not.toHaveBeenCalled();
   });
 });
 

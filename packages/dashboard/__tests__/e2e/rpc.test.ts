@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
 
-const RPCS: Record<number, string> = {
-  43114: "https://avalanche-c-chain-rpc.publicnode.com",
-  43113: "https://avalanche-fuji-c-chain-rpc.publicnode.com",
-  8453: "https://base-rpc.publicnode.com",
-  42161: "https://arbitrum-one-rpc.publicnode.com",
-  16661: "https://evmrpc.0g.ai",
-  137: "https://polygon-bor-rpc.publicnode.com",
+const RPCS: Record<number, string[]> = {
+  43114: ["https://avalanche-c-chain-rpc.publicnode.com", "https://api.avax.network/ext/bc/C/rpc"],
+  43113: ["https://avalanche-fuji-c-chain-rpc.publicnode.com", "https://api.avax-test.network/ext/bc/C/rpc"],
+  8453: ["https://base-rpc.publicnode.com", "https://mainnet.base.org"],
+  42161: ["https://arbitrum-one-rpc.publicnode.com", "https://arb1.arbitrum.io/rpc"],
+  16661: ["https://evmrpc.0g.ai"],
+  137: ["https://polygon-bor-rpc.publicnode.com", "https://polygon-rpc.com"],
 };
 
 const FACTORIES: Record<number, string> = {
@@ -43,14 +43,22 @@ const TREASURY = "0xEC0D6435fFA48E33cf39c56f21A0cCFB9b50Ad45".toLowerCase();
 const ACCOUNT_CREATED_TOPIC = "0xf910bcf6ef45198082a2e9755330a11e60bde93603dd71de5eb22ecab5416768";
 
 async function rpcCall(chainId: number, method: string, params: unknown[]) {
-  const res = await fetch(RPCS[chainId], {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
-  });
-  const json = await res.json();
-  if (json.error) throw new Error(`RPC error: ${JSON.stringify(json.error)}`);
-  return json.result;
+  let lastError: Error | undefined;
+  for (const rpcUrl of RPCS[chainId] ?? []) {
+    try {
+      const res = await fetch(rpcUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+      });
+      const json = await res.json();
+      if (json.error) throw new Error(`RPC error from ${rpcUrl}: ${JSON.stringify(json.error)}`);
+      return json.result;
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+    }
+  }
+  throw lastError ?? new Error(`No RPC configured for chain ${chainId}`);
 }
 
 async function ethCall(chainId: number, to: string, data: string): Promise<string> {

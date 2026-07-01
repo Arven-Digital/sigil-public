@@ -6,9 +6,8 @@ describe("Contract Utilities", () => {
     expect(getNativeToken(137)).toBe("POL");
   });
 
-  it("getNativeToken returns AVAX for Avalanche", () => {
+  it("getNativeToken returns AVAX for Avalanche C-Chain", () => {
     expect(getNativeToken(43114)).toBe("AVAX");
-    expect(getNativeToken(43113)).toBe("AVAX");
   });
 
   it("getNativeToken returns ETH for Base and Arbitrum", () => {
@@ -20,8 +19,8 @@ describe("Contract Utilities", () => {
     expect(getNativeToken(16661)).toBe("A0GI");
   });
 
-  it("FACTORY_ADDRESSES has entries for all 6 chains", () => {
-    const expected = [43114, 43113, 8453, 42161, 16661, 137];
+  it("FACTORY_ADDRESSES has entries for all 6 mainnet chains", () => {
+    const expected = [1, 137, 43114, 8453, 42161, 16661];
     for (const cid of expected) {
       expect(FACTORY_ADDRESSES).toHaveProperty(String(cid));
       expect(FACTORY_ADDRESSES[cid]).toMatch(/^0x[0-9a-fA-F]{40}$/);

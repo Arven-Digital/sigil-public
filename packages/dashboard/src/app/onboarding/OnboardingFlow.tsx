@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useAccount as useWagmiAccount, useWriteContract, useWaitForTransactionReceipt, useChainId, useSwitchChain } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import WalletConnectButton from "@/components/WalletConnectButton";
 import { parseEther, encodeFunctionData } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import Link from "next/link";
@@ -500,7 +500,7 @@ export default function OnboardingFlow() {
             ) : (
               <div className="rounded-xl border border-white/5 bg-white/[0.02] p-8 text-center">
                 <p className="text-white/40 mb-4">Connect with MetaMask, WalletConnect, or any EVM wallet</p>
-                <ConnectButton />
+                <WalletConnectButton />
               </div>
             )}
 
