@@ -56,12 +56,12 @@ function stripDangerousHtml(s: string): string {
 
 // Simple markdown to HTML
 function markdownToHtml(md: string): string {
-  let html = stripDangerousHtml(md)
+  const html = stripDangerousHtml(md)
     // Code blocks
     .replace(/```(\w*)\n([\s\S]*?)```/g, (_m, lang, code) =>
-      `<pre class="code-block"><code class="language-${lang}">${code.replace(/</g, "&lt;").replace(/>/g, "&gt;").trim()}</code></pre>`)
+      `<pre class="code-block"><code class="language-${escapeHtml(lang)}">${escapeHtml(code).trim()}</code></pre>`)
     // Inline code
-    .replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
+    .replace(/`([^`]+)`/g, (_m, code) => `<code class="inline-code">${escapeHtml(code)}</code>`)
     // Images
     .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="rounded-lg my-6" />')
     // Links
