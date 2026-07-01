@@ -23,6 +23,7 @@
     "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
     "build:esm": "tsc -p tsconfig.json",
     "build:cjs": "tsc -p tsconfig.cjs.json",
+    "test": "vitest run",
     "clean": "rm -rf dist"
   },
   "peerDependencies": {
@@ -30,7 +31,8 @@
   },
   "devDependencies": {
     "ethers": "^6.13.0",
-    "typescript": "^5.5.0"
+    "typescript": "^5.5.0",
+    "vitest": "^3.2.4"
   },
   "license": "MIT",
   "repository": {

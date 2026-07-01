@@ -1,6 +1,16 @@
 import type { NextConfig } from "next";
+import path from "node:path";
 
 const nextConfig: NextConfig = {
+  webpack(config) {
+    config.resolve = config.resolve ?? {};
+    config.resolve.alias = {
+      ...(config.resolve.alias ?? {}),
+      "@react-native-async-storage/async-storage": path.join(process.cwd(), "src/lib/async-storage-web-shim.ts"),
+    };
+    return config;
+  },
+
   // Security headers
   async headers() {
     return [
