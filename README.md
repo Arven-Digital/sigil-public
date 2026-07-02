@@ -101,6 +101,18 @@ The Guardian can co-sign approved transactions. It cannot initiate transactions,
 4. Generate the agent key locally and save it securely. It is shown once.
 5. Deploy the smart account and fund both the smart account and agent EOA with native gas token.
 
+> **Packages are not yet published to npm.** `@sigil-protocol/sdk`,
+> `@sigil-protocol/eliza-plugin`, and `@sigil-protocol/mcp` are built from this
+> repository. Until the first npm release, install from source:
+>
+> ```bash
+> git clone https://github.com/Arven-Digital/sigil-public
+> cd sigil-public && pnpm install && pnpm build
+> # then reference the workspace packages, e.g. via pnpm link or a workspace dep
+> ```
+>
+> The `npm install`/`npx` commands below will work once the packages are published.
+
 ### SDK
 
 ```bash
@@ -157,7 +169,7 @@ SIGIL_API_KEY=sgil_... \
 SIGIL_ACCOUNT_ADDRESS=0x... \
 SIGIL_AGENT_PRIVATE_KEY=0x... \
 SIGIL_CHAIN_ID=137 \
-npx sigil-mcp
+npx @sigil-protocol/mcp
 ```
 
 ## Public proof commands
