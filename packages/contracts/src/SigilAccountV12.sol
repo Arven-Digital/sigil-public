@@ -673,6 +673,9 @@ contract SigilAccountV12 is BaseAccount, Initializable, ReentrancyGuard, UUPSUpg
         emit FunctionWhitelisted(selector, allowed);
     }
 
+    /// @dev DEPRECATED: ERC-1271 is now owner-only (see _isAuthorizedSigner), so
+    /// this flag no longer affects signature validation. Retained for storage
+    /// layout / ABI compatibility across the upgrade.
     function setAllowedERC1271Caller(address caller, bool allowed) external onlyOwner {
         allowedERC1271Callers[caller] = allowed;
         emit ERC1271CallerUpdated(caller, allowed);
@@ -723,6 +726,15 @@ contract SigilAccountV12 is BaseAccount, Initializable, ReentrancyGuard, UUPSUpg
     /**
      * @dev Enforce token allowance policies on ERC-20 approve/transfer/transferFrom calls.
      *   Called from _enforcePolicies when an inner call targets a token with a policy.
+     *
+     *   ⚠️ OPT-IN, PER-TOKEN: token limits apply ONLY to tokens that have an
+     *   explicit policy set via setTokenPolicy (see the `hasTokenPolicy` early
+     *   return below). The native-value limits (maxTxValue / dailyLimit / session
+     *   spendLimit) track only the ETH `value` field, which is 0 for ERC-20
+     *   transfers — so a whitelisted token WITHOUT a token policy has NO spend
+     *   cap and can be fully drained within the target/function whitelist.
+     *   Integrators MUST call setTokenPolicy for every ERC-20 they want capped;
+     *   whitelisting a token as a target is not sufficient.
      *
      *   KNOWN LIMITATION: Fee-on-transfer tokens (e.g., STA, PAXG) may bypass daily limits
      *   because the policy tracks the transfer amount parameter, not actual tokens moved.
@@ -1472,10 +1484,12 @@ contract SigilAccountV12 is BaseAccount, Initializable, ReentrancyGuard, UUPSUpg
      *      Cross-chain replay protection comes from the calling protocol's own
      *      EIP-712 domain separator which already includes chainId.
      *
-     *   Accepts signatures from owner, agent key, or valid session keys.
-     *   Owner signatures are always valid.
-     *   Agent key signatures are valid when account is not frozen.
-     *   Session key signatures are valid within their time/spend bounds.
+     *   Accepts OWNER signatures only. Agent and session keys are deliberately
+     *   excluded: ERC-1271 is a view function and cannot enforce the token /
+     *   spend policy that gates the on-chain execution paths, so a signature
+     *   from a restricted key (e.g. a Permit2 permit) would bypass that policy
+     *   entirely and could drain the account. Only the owner — the account's
+     *   ultimate authority — may produce ERC-1271 signatures.
      */
     function isValidSignature(bytes32 hash, bytes memory signature) external view override returns (bytes4) {
         if (signature.length != 65) return ERC1271_INVALID;
@@ -1495,14 +1509,19 @@ contract SigilAccountV12 is BaseAccount, Initializable, ReentrancyGuard, UUPSUpg
 
     /**
      * @dev Check if an address is an authorized signer for ERC-1271.
-     *   R10 FIX: Agent key ERC-1271 signatures are RESTRICTED to prevent policy bypass.
-     *   Only owner and session keys can sign arbitrary external protocol transactions.
-     *   This prevents compromised agent keys from draining funds via Permit2, 1inch, etc.
+     *   R10 FIX (completed): ONLY the owner may produce ERC-1271 signatures.
+     *   Agent and session keys are excluded — an ERC-1271 signature (e.g. a
+     *   Permit2 permit) is not routed through the on-chain token/spend policy,
+     *   so allowing a restricted key to sign would let a compromised agent key
+     *   drain funds via Permit2, 1inch, CoW, etc. — exactly the attack Sigil
+     *   exists to prevent.
+     *
+     *   NOTE: `allowedERC1271Callers` (and its setter) are retained for storage
+     *   layout / ABI compatibility across the upgrade but no longer grant any
+     *   ERC-1271 authority.
      */
     function _isAuthorizedSigner(address signer) internal view returns (bool) {
-        if (signer == owner) return true;
-        // V12: Agent key valid only when caller is whitelisted and account not frozen
-        return signer == agentKey && !isFrozen && allowedERC1271Callers[msg.sender];
+        return signer == owner;
     }
 
     // ═══════════════════════════════════════════════════════════
