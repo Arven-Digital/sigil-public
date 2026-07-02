@@ -7,7 +7,7 @@
 Sigil provides ERC-4337 smart accounts with a 3-layer Guardian validation pipeline:
 - Layer 1: Deterministic rules (spending limits, whitelists, velocity)
 - Layer 2: Transaction simulation (dry-run, detect reverts/drain)
-- Layer 3: AI risk scoring (LLM scores 0-100, threshold 70)
+- Layer 3: AI risk scoring (LLM scores 0-100 against a calibrated threshold)
 
 All three layers must pass before the Guardian co-signs.
 

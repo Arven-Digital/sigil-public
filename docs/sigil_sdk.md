@@ -6,6 +6,10 @@
 
 ## Installation
 
+> **Not yet published to npm.** Until the first release, build from source:
+> `git clone https://github.com/Arven-Digital/sigil-public && cd sigil-public && pnpm install && pnpm build`.
+> The commands below will work once `@sigil-protocol/sdk` is published.
+
 ```bash
 npm install @sigil-protocol/sdk
 # or

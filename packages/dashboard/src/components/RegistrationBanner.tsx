@@ -64,7 +64,7 @@ export default function RegistrationBanner() {
             <p className="text-white/40 text-lg mb-4">
               {free_spots_remaining > 0
                 ? "Register now and get a referral code to share with a friend — they get free access too."
-                : "You can still join with a referral code or subscribe for $5/month."}
+                : "You can still join with a referral code — see the pricing page for current options."}
             </p>
 
             <div className="flex items-center gap-4">

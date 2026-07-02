@@ -52,10 +52,10 @@ Base URL: `https://api.sigil.codes/v1`
 Checks: per-tx value limit, daily velocity limit, target whitelist, function selector whitelist, token approval caps, token daily transfer limits. Instant pass/fail.
 
 ### Layer 2: Simulation
-Dry-runs the transaction via Tenderly. Checks for: reverts, unexpected ETH/token balance changes, storage slot modifications. Returns `SAFE` or `UNSAFE` with details.
+Dry-runs the transaction against a simulation engine. Checks for: reverts, unexpected ETH/token balance changes, storage slot modifications. Returns `SAFE` or `UNSAFE` with details.
 
 ### Layer 3: LLM Risk Scoring
-AI (gpt-4o-mini) analyzes the transaction in context of recent history. Scores 0-100. Below 70 = APPROVE, above = REJECT/ESCALATE. Considers: unusual patterns, large deviations from history, known attack vectors.
+An LLM risk model analyzes the transaction in context of recent history and returns a 0-100 risk score, which the Guardian compares against a calibrated threshold to APPROVE, REJECT, or ESCALATE. Considers: unusual patterns, large deviations from history, known attack vectors.
 
 ### Verdicts
 - **APPROVE** — All 3 layers passed. Guardian co-signs.

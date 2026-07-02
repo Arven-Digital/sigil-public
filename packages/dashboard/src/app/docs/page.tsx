@@ -521,7 +521,7 @@ Every transaction submitted through the Guardian API passes through:
 
 2. **Layer 2: Transaction Simulation** — Full dry-run of the transaction. Detects reverts, unexpected balance changes, sandwich attack patterns, unlimited approvals.
 
-3. **Layer 3: AI Risk Scoring** — LLM analyzes the transaction in context of recent history, target reputation, and known attack vectors. Scores 0-100 (threshold: 70).
+3. **Layer 3: AI Risk Scoring** — LLM analyzes the transaction in context of recent history, target reputation, and known attack vectors. Produces a 0-100 risk score evaluated against a calibrated threshold.
 
 ### Security Features
 
@@ -556,7 +556,7 @@ Sigil Protocol provides a Model Context Protocol (MCP) server for integration wi
 npm install @sigil-protocol/mcp
 
 # Run as stdio server
-npx sigil-mcp
+npx @sigil-protocol/mcp
 \`\`\`
 
 ### Configuration
@@ -591,7 +591,7 @@ SIGIL_CHAIN_ID=43114
   "mcpServers": {
     "sigil": {
       "command": "npx",
-      "args": ["sigil-mcp"],
+      "args": ["@sigil-protocol/mcp"],
       "env": {
         "SIGIL_API_URL": "https://api.sigil.codes",
         "SIGIL_API_KEY": "sgil_...",
@@ -622,7 +622,7 @@ export default function DocsPage() {
           </Link>
           <div className="flex items-center gap-4">
             <a
-              href="https://github.com/Arven-Digital/sigil-protocol"
+              href="https://github.com/Arven-Digital/sigil-public"
               target="_blank"
               rel="noreferrer"
               className="text-white/40 hover:text-white text-sm transition-colors"
