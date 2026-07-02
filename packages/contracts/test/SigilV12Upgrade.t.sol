@@ -94,26 +94,44 @@ contract SigilV12UpgradeTest is Test {
         assertEq(result, bytes4(0xffffffff));
     }
 
-    function test_AgentSigAcceptedFromWhitelistedCaller() public {
-        // Use a real private key for the agent
+    function test_AgentSigRejectedEvenFromWhitelistedCaller() public {
+        // Post-hardening: ERC-1271 is owner-only. An agent-key signature must be
+        // rejected even when the caller is whitelisted — an ERC-1271 signature is
+        // not routed through the token/spend policy, so accepting it would let a
+        // compromised agent key bypass policy via Permit2/CoW/etc.
         uint256 agentPk = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
         address agentAddr = vm.addr(agentPk);
 
         SigilAccountV12 account = SigilAccountV12(payable(address(new MinProxy(address(v11impl)))));
         account.initialize(address(this), agentAddr, GUARDIAN, 1 ether, 10 ether, 0.5 ether);
 
-        // Whitelist the caller
+        // Whitelist the caller (retained flag, now inert for ERC-1271)
         account.setAllowedERC1271Caller(POLYMARKET_CTF, true);
 
-        // Sign a hash as the agent
         bytes32 testHash = keccak256("polymarket order");
-        // Try EIP-191 mode (raw hash signed as eth_sign)
         bytes32 ethHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", testHash));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(agentPk, ethHash);
         bytes memory sig = abi.encodePacked(r, s, v);
 
-        // Call from whitelisted Polymarket contract
+        // Call from whitelisted Polymarket contract — still rejected.
         vm.prank(POLYMARKET_CTF);
+        bytes4 result = account.isValidSignature(testHash, sig);
+        assertEq(result, bytes4(0xffffffff)); // ERC1271_INVALID
+    }
+
+    function test_OwnerSigAcceptedViaERC1271() public {
+        // Owner remains a valid ERC-1271 signer (domain-bound Sigil-native mode).
+        uint256 ownerPk = 0xa11ce00000000000000000000000000000000000000000000000000000000001;
+        address ownerAddr = vm.addr(ownerPk);
+
+        SigilAccountV12 account = SigilAccountV12(payable(address(new MinProxy(address(v11impl)))));
+        account.initialize(ownerAddr, AGENT_KEY, GUARDIAN, 1 ether, 10 ether, 0.5 ether);
+
+        bytes32 testHash = keccak256("owner-approved order");
+        bytes32 domainDigest = keccak256(abi.encodePacked("\x19\x01", account.domainSeparator(), testHash));
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(ownerPk, domainDigest);
+        bytes memory sig = abi.encodePacked(r, s, v);
+
         bytes4 result = account.isValidSignature(testHash, sig);
         assertEq(result, bytes4(0x1626ba7e)); // ERC1271_MAGIC
     }
