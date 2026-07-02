@@ -200,7 +200,7 @@ Required env: SIGIL_API_KEY, SIGIL_ACCOUNT_ADDRESS
 ## Eliza Plugin
 
 ```typescript
-import { sigilPlugin } from '@sigil-protocol/eliza';
+import { sigilPlugin } from '@sigil-protocol/eliza-plugin';
 // 13 actions: send, evaluate, freeze, unfreeze, rotateKey,
 // createSessionKey, updatePolicy, addTarget, removeTarget,
 // getStatus, getHistory, transferToken, getBalance
