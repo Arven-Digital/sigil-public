@@ -11,7 +11,8 @@
     "clean": "turbo clean",
     "audit:high": "pnpm audit --audit-level high",
     "proof:public": "node scripts/public-proof.mjs",
-    "ci": "pnpm install --frozen-lockfile && pnpm audit:deps && pnpm test && pnpm build && pnpm lint && pnpm proof:public",
+    "gate:release": "node scripts/release-integrity.mjs",
+    "ci": "pnpm install --frozen-lockfile && pnpm audit:deps && pnpm test && pnpm build && pnpm lint && pnpm proof:public && pnpm gate:release",
     "audit:deps": "pnpm audit"
   },
   "devDependencies": {
