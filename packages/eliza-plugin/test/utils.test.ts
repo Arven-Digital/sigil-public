@@ -35,6 +35,9 @@ describe('hasTransactionIntent', () => {
   it('rejects unrelated text', () => {
     expect(hasTransactionIntent('what is the weather?')).toBe(false);
   });
+  it('rejects adversarially long numeric amounts', () => {
+    expect(hasTransactionIntent(`send ${'9'.repeat(100_000)} ETH`)).toBe(false);
+  });
 });
 
 describe('ethToWei / weiToEth', () => {

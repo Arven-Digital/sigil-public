@@ -94,14 +94,15 @@ export function parseEthAmount(text: string): string | null {
 
 /** Check if text contains transaction intent */
 export function hasTransactionIntent(text: string): boolean {
-  const lower = text.toLowerCase();
+  const normalized = text.slice(0, 4096).toLowerCase();
   const keywords = [
     'send', 'transfer', 'pay', 'swap', 'deposit',
     'withdraw', 'approve', 'bridge', 'stake',
   ];
-  const hasKeyword = keywords.some(k => lower.includes(k));
-  const hasAddress = /0x[0-9a-fA-F]{40}/.test(text);
-  const hasAmount = /\d+\.?\d*\s*(?:eth|token|usdc|usdt|dai)/i.test(text);
+  const hasKeyword = keywords.some(keyword => normalized.includes(keyword));
+  const hasAddress = /0x[0-9a-fA-F]{40}/.test(normalized);
+  const hasUnit = ['eth', 'token', 'usdc', 'usdt', 'dai'].some(unit => normalized.includes(unit));
+  const hasAmount = hasUnit && parseEthAmount(normalized) !== null;
   return hasKeyword && (hasAddress || hasAmount);
 }
 
