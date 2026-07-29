@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import type { SigilSDK } from '@sigil-protocol/sdk';
 import type { ElizaAction, ElizaRuntime, ElizaMessage, ElizaState } from '../types';
-import { parseAddress, friendlyError } from '../utils';
+import { parseEthAmount, friendlyError } from '../utils';
 
 const ERC20_ABI = ['function transfer(address to, uint256 amount) returns (bool)'];
 
@@ -20,7 +20,7 @@ export function sigilTransferTokenAction(sdk: SigilSDK, maxRisk: number, bundler
       const text = message.content.text;
       // Need at least one address and an amount
       const addresses = text.match(/0x[0-9a-fA-F]{40}/g);
-      return !!addresses && addresses.length >= 1 && /\d+/.test(text);
+      return !!addresses && addresses.length >= 1 && parseEthAmount(text) !== null;
     },
     handler: async (
       _runtime: ElizaRuntime,
@@ -40,11 +40,11 @@ export function sigilTransferTokenAction(sdk: SigilSDK, maxRisk: number, bundler
 
         // Try parsing from text if not in structured content
         const addresses = text.match(/0x[0-9a-fA-F]{40}/g) ?? [];
-        const amountMatch = text.match(/(\d+\.?\d*)/);
+        const parsedTextAmount = parseEthAmount(text);
 
         const resolvedToken = tokenAddress ?? addresses[1] ?? addresses[0];
         const resolvedTo = toAddress ?? addresses[0];
-        const resolvedAmount = amount ?? amountMatch?.[1];
+        const resolvedAmount = amount ?? parsedTextAmount ?? undefined;
 
         if (!resolvedToken || !resolvedTo || !resolvedAmount) {
           callback?.({
