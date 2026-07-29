@@ -33,8 +33,12 @@ export function sigilSendAction(sdk: SigilSDK, maxRisk: number, bundlerUrl?: str
       const target = parseAddress(text);
       const amount = parseEthAmount(text);
 
-      if (!target || !amount) {
+      if (!target) {
         callback?.({ text: '❌ Please provide both a target address and an ETH amount.' });
+        return false;
+      }
+      if (!amount) {
+        callback?.({ text: '❌ Invalid ETH amount — must be a positive number.' });
         return false;
       }
 

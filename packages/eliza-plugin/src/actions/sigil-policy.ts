@@ -1,6 +1,17 @@
 import type { SigilSDK } from '@sigil-protocol/sdk';
 import type { ElizaAction, ElizaRuntime, ElizaMessage, ElizaState } from '../types';
-import { weiToEth, ethToWei, friendlyError } from '../utils';
+import { weiToEth, ethToWei, friendlyError, parseEthAmount } from '../utils';
+
+function amountAfterLabel(text: string, labels: string[]): string | null {
+  for (const label of labels) {
+    const index = text.indexOf(label);
+    if (index >= 0) {
+      const value = parseEthAmount(text.slice(index + label.length, index + label.length + 96));
+      if (value) return value;
+    }
+  }
+  return null;
+}
 
 export function sigilPolicyAction(sdk: SigilSDK): ElizaAction {
   return {
@@ -26,20 +37,21 @@ export function sigilPolicyAction(sdk: SigilSDK): ElizaAction {
       callback?: (response: { text: string; [key: string]: any }) => void
     ) => {
       try {
-        const text = message.content.text.toLowerCase();
-        const isUpdate = /set|update|change|increase|decrease|limit.*to/i.test(text);
+        const text = message.content.text.slice(0, 4096).toLowerCase();
+        const isUpdate = ['set', 'update', 'change', 'increase', 'decrease'].some(word => text.includes(word))
+          || (text.includes('limit') && text.includes('to'));
 
         if (isUpdate) {
           // Parse update parameters
           const params: any = { updatedBy: 'agent' };
 
-          const dailyMatch = text.match(/daily\s*(?:limit)?\s*(?:to)?\s*(\d+\.?\d*)\s*eth/i);
-          const weeklyMatch = text.match(/weekly\s*(?:limit)?\s*(?:to)?\s*(\d+\.?\d*)\s*eth/i);
-          const maxTxMatch = text.match(/(?:max|maximum)\s*(?:tx|transaction)?\s*(?:value)?\s*(?:to)?\s*(\d+\.?\d*)\s*eth/i);
+          const dailyMatch = amountAfterLabel(text, ['daily']);
+          const weeklyMatch = amountAfterLabel(text, ['weekly']);
+          const maxTxMatch = amountAfterLabel(text, ['maximum', 'max']);
 
-          if (dailyMatch) params.dailyLimit = ethToWei(dailyMatch[1]);
-          if (weeklyMatch) params.weeklyLimit = ethToWei(weeklyMatch[1]);
-          if (maxTxMatch) params.maxTxValue = ethToWei(maxTxMatch[1]);
+          if (dailyMatch) params.dailyLimit = ethToWei(dailyMatch);
+          if (weeklyMatch) params.weeklyLimit = ethToWei(weeklyMatch);
+          if (maxTxMatch) params.maxTxValue = ethToWei(maxTxMatch);
 
           if (!dailyMatch && !weeklyMatch && !maxTxMatch) {
             callback?.({ text: '❌ Could not parse policy update. Try: "Set daily limit to 5 ETH" or "Set max transaction to 1 ETH"' });

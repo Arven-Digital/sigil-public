@@ -2,6 +2,25 @@ import type { SigilSDK } from '@sigil-protocol/sdk';
 import type { ElizaAction, ElizaRuntime, ElizaMessage, ElizaState } from '../types';
 import { friendlyError } from '../utils';
 
+function parseTransactionLimit(text: string): number {
+  const input = text.slice(0, 4096).toLowerCase();
+  for (const marker of ['transactions', 'transaction', 'tx']) {
+    const markerIndex = input.indexOf(marker);
+    if (markerIndex < 0) continue;
+
+    let end = markerIndex;
+    while (end > 0 && input[end - 1] === ' ') end -= 1;
+    let start = end;
+    while (start > 0 && end - start < 2) {
+      const code = input.charCodeAt(start - 1);
+      if (code < 48 || code > 57) break;
+      start -= 1;
+    }
+    if (start < end) return Math.min(Number(input.slice(start, end)), 50);
+  }
+  return 10;
+}
+
 export function sigilHistoryAction(sdk: SigilSDK): ElizaAction {
   return {
     name: 'SIGIL_HISTORY',
@@ -22,8 +41,7 @@ export function sigilHistoryAction(sdk: SigilSDK): ElizaAction {
       callback?: (response: { text: string; [key: string]: any }) => void
     ) => {
       try {
-        const limitMatch = message.content.text.match(/(\d+)\s*(?:transactions?|tx)/i);
-        const limit = limitMatch ? Math.min(parseInt(limitMatch[1]), 50) : 10;
+        const limit = parseTransactionLimit(message.content.text);
 
         const result = await sdk.getTransactions({ limit });
 

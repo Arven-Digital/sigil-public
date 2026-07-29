@@ -16,6 +16,12 @@ describe('parseAddress', () => {
 describe('parseEthAmount', () => {
   it('parses "0.5 ETH"', () => expect(parseEthAmount('0.5 ETH')).toBe('0.5'));
   it('parses "1.2"', () => expect(parseEthAmount('send 1.2')).toBe('1.2'));
+  it('does not treat an address prefix as an amount', () => {
+    expect(parseEthAmount('send to 0x742d35Cc6634C0532925a3b844Bc9e7595f2bD28')).toBeNull();
+  });
+  it('bounds parser work on adversarial numeric input', () => {
+    expect(parseEthAmount('9'.repeat(100_000))).toBeNull();
+  });
   it('returns null for no amount', () => expect(parseEthAmount('hello')).toBeNull());
 });
 
