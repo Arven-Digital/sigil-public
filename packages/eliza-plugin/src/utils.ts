@@ -30,8 +30,66 @@ export function parseAddress(text: string): string | null {
 
 /** Parse an ETH amount from text (e.g. "0.5 ETH", "1.2") */
 export function parseEthAmount(text: string): string | null {
-  const match = text.match(/(\d+\.?\d*)\s*(?:ETH|eth|Eth)?/);
-  return match ? match[1] : null;
+  const input = text.slice(0, 4096);
+
+  for (let start = 0; start < input.length; start++) {
+    const code = input.charCodeAt(start);
+    if (code < 48 || code > 57) continue;
+
+    // Do not interpret the 0 in an Ethereum address prefix as an amount.
+    if (input[start] === '0' && (input[start + 1] === 'x' || input[start + 1] === 'X')) {
+      start += 1;
+      while (start + 1 < input.length) {
+        const next = input.charCodeAt(start + 1);
+        const isHex = (next >= 48 && next <= 57) || (next >= 65 && next <= 70) || (next >= 97 && next <= 102);
+        if (!isHex) break;
+        start += 1;
+      }
+      continue;
+    }
+
+    let end = start;
+    while (end < input.length && end - start < 78) {
+      const digit = input.charCodeAt(end);
+      if (digit < 48 || digit > 57) break;
+      end += 1;
+    }
+
+    const nextWhole = input.charCodeAt(end);
+    if (nextWhole >= 48 && nextWhole <= 57) {
+      while (end < input.length) {
+        const digit = input.charCodeAt(end);
+        if (digit < 48 || digit > 57) break;
+        end += 1;
+      }
+      start = end - 1;
+      continue;
+    }
+
+    if (input[end] === '.') {
+      let fractionEnd = end + 1;
+      while (fractionEnd < input.length && fractionEnd - end <= 18) {
+        const digit = input.charCodeAt(fractionEnd);
+        if (digit < 48 || digit > 57) break;
+        fractionEnd += 1;
+      }
+      const nextFraction = input.charCodeAt(fractionEnd);
+      if (nextFraction >= 48 && nextFraction <= 57) {
+        while (fractionEnd < input.length) {
+          const digit = input.charCodeAt(fractionEnd);
+          if (digit < 48 || digit > 57) break;
+          fractionEnd += 1;
+        }
+        start = fractionEnd - 1;
+        continue;
+      }
+      if (fractionEnd > end + 1) end = fractionEnd;
+    }
+
+    return input.slice(start, end);
+  }
+
+  return null;
 }
 
 /** Check if text contains transaction intent */

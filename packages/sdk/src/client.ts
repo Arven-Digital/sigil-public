@@ -22,6 +22,12 @@ import { encodeExecute, getUserOpHash, signUserOpHash, ENTRY_POINT } from './use
 const DEFAULT_API_URL = 'https://api.sigil.codes';
 const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000; // refresh 5 min before expiry
 
+function trimTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value.charCodeAt(end - 1) === 47) end -= 1;
+  return value.slice(0, end);
+}
+
 // Per-chain default priority fees (gwei)
 const CHAIN_PRIORITY_FEES: Record<number, bigint> = {
   137:   1_000_000_000n,   // Polygon: 1 gwei (spikes handled by maxFee buffer)
@@ -47,7 +53,7 @@ export class SigilSDK {
     this.apiKey = config.apiKey;
     this.accountAddress = config.accountAddress;
     this.chainId = config.chainId;
-    this.apiUrl = (config.apiUrl ?? DEFAULT_API_URL).replace(/\/+$/, '');
+    this.apiUrl = trimTrailingSlashes(config.apiUrl ?? DEFAULT_API_URL);
     this.rpcUrl = getRpcUrl(config.chainId);
 
     if (typeof config.agentPrivateKey === 'function') {

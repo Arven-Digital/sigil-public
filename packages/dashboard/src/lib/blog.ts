@@ -13,6 +13,11 @@ export interface BlogPost {
 }
 
 const BLOG_DIR = path.join(process.cwd(), "src/content/blog");
+const BLOG_ENTRIES = [
+  { file: "558-tests-security-journey.md", slug: "558-tests-security-journey" },
+  { file: "introducing-sigil-protocol.md", slug: "introducing-sigil-protocol" },
+  { file: "why-ai-agents-need-security-layer.md", slug: "why-ai-agents-need-security-layer" },
+] as const;
 
 function parseFrontmatter(raw: string): { meta: Record<string, any>; content: string } {
   const match = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
@@ -43,29 +48,37 @@ function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-// Strip raw HTML tags (script, iframe, event handlers) from markdown content
-function stripDangerousHtml(s: string): string {
-  return s
-    .replace(/<script[\s>][\s\S]*?<\/script>/gi, '')
-    .replace(/<iframe[\s>][\s\S]*?<\/iframe>/gi, '')
-    .replace(/<object[\s>][\s\S]*?<\/object>/gi, '')
-    .replace(/<embed[\s>][\s\S]*?>/gi, '')
-    .replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '')
-    .replace(/javascript\s*:/gi, '');
+function safeMarkdownUrl(raw: string, image = false): string {
+  const value = raw.trim();
+  if (value.startsWith('/') || (!image && value.startsWith('#'))) {
+    return value;
+  }
+
+  try {
+    const protocol = new URL(value).protocol;
+    const allowed = protocol === 'https:' || protocol === 'http:' || (!image && protocol === 'mailto:');
+    return allowed ? value : '#';
+  } catch {
+    return '#';
+  }
 }
 
 // Simple markdown to HTML
-function markdownToHtml(md: string): string {
-  const html = stripDangerousHtml(md)
+export function markdownToHtml(md: string): string {
+  // Escape the complete document before adding our small, fixed HTML vocabulary.
+  // Raw HTML therefore stays visible as text instead of becoming executable markup.
+  const html = escapeHtml(md)
     // Code blocks
     .replace(/```(\w*)\n([\s\S]*?)```/g, (_m, lang, code) =>
-      `<pre class="code-block"><code class="language-${escapeHtml(lang)}">${escapeHtml(code).trim()}</code></pre>`)
+      `<pre class="code-block"><code class="language-${lang}">${code.trim()}</code></pre>`)
     // Inline code
-    .replace(/`([^`]+)`/g, (_m, code) => `<code class="inline-code">${escapeHtml(code)}</code>`)
+    .replace(/`([^`]+)`/g, (_m, code) => `<code class="inline-code">${code}</code>`)
     // Images
-    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="rounded-lg my-6" />')
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt, url) =>
+      `<img src="${safeMarkdownUrl(url, true)}" alt="${alt}" class="rounded-lg my-6" />`)
     // Links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-[#00FF88] hover:underline">$1</a>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, label, url) =>
+      `<a href="${safeMarkdownUrl(url)}" class="text-[#00FF88] hover:underline">${label}</a>`)
     // Bold
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     // Italic
@@ -152,12 +165,11 @@ function markdownToHtml(md: string): string {
 
 export function getAllPosts(): BlogPost[] {
   if (!fs.existsSync(BLOG_DIR)) return [];
-  const files = fs.readdirSync(BLOG_DIR).filter(f => f.endsWith(".md"));
-  return files.map(file => {
-    const raw = fs.readFileSync(path.join(BLOG_DIR, file), "utf-8");
+  return BLOG_ENTRIES.filter(entry => fs.existsSync(path.join(BLOG_DIR, entry.file))).map(entry => {
+    const raw = fs.readFileSync(path.join(BLOG_DIR, entry.file), "utf-8");
     const { meta, content } = parseFrontmatter(raw);
     return {
-      slug: file.replace(/\.md$/, ""),
+      slug: entry.slug,
       title: meta.title || "Untitled",
       date: meta.date || "2026-01-01",
       excerpt: meta.excerpt || "",
@@ -167,6 +179,19 @@ export function getAllPosts(): BlogPost[] {
       readingTime: estimateReadingTime(content),
     };
   }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+}
+
+export function blogPathForSlug(slug: string): string {
+  switch (slug) {
+    case "558-tests-security-journey":
+      return "/blog/558-tests-security-journey";
+    case "introducing-sigil-protocol":
+      return "/blog/introducing-sigil-protocol";
+    case "why-ai-agents-need-security-layer":
+      return "/blog/why-ai-agents-need-security-layer";
+    default:
+      return "/blog";
+  }
 }
 
 export function getPostBySlug(slug: string): BlogPost | undefined {

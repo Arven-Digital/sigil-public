@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Fraunces } from "next/font/google";
-import { getAllPosts } from "@/lib/blog";
+import { blogPathForSlug, getAllPosts } from "@/lib/blog";
 import type { Metadata } from "next";
 
 const fraunces = Fraunces({ subsets: ["latin"], weight: ["800"], display: "swap" });
@@ -55,7 +55,7 @@ export default function BlogPage() {
       <section className="px-6 pb-24">
         <div className="max-w-4xl mx-auto grid gap-6">
           {posts.map((post) => (
-            <Link key={post.slug} href={`/blog/${post.slug}`} className="group">
+            <Link key={post.slug} href={blogPathForSlug(post.slug)} className="group">
               <article className="rounded-xl border border-white/5 bg-white/[0.02] p-6 md:p-8 transition-all hover:border-white/10 hover:bg-white/[0.04]">
                 <div className="flex items-center gap-3 mb-3 text-[12px] text-white/30">
                   <time dateTime={post.date}>
