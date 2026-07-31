@@ -38,9 +38,12 @@
     "vitest": "^3.2.6"
   },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sigil-protocol/sigil-protocol",
+    "url": "https://github.com/Arven-Digital/sigil-public",
     "directory": "packages/sdk"
   },
   "keywords": [

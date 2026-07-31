@@ -45,3 +45,6 @@ jobs:
 
       - name: Public proof
         run: pnpm proof:public
+
+      - name: Release integrity gate
+        run: pnpm gate:release
