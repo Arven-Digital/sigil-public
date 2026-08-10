@@ -9,6 +9,21 @@ permissions:
   contents: read
 
 jobs:
+  secret-scan:
+    name: Secret scan (no plaintext credentials)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Scan tracked files for secrets
+        run: node scripts/secret-scan.mjs
+
   gate:
     name: install-audit-test-build-lint-proof
     runs-on: ubuntu-latest
