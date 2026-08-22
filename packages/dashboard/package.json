@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "eslint src __tests__",
     "test": "vitest run",
+    "test:ci": "vitest run --exclude '__tests__/e2e/**' --exclude '__tests__/security/csp.test.ts'",
+    "test:live": "vitest run __tests__/e2e __tests__/security/csp.test.ts",
     "test:watch": "vitest"
   },
   "dependencies": {
