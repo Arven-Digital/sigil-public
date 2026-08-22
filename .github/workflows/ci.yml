@@ -38,6 +38,7 @@ jobs:
         run: |
           pnpm --filter @sigil-protocol/dashboard test:ci
           pnpm --filter @sigil-protocol/sdk test
+          pnpm --filter @sigil-protocol/sdk build
           pnpm --filter @sigil-protocol/eliza-plugin test
 
       - name: Live production probes (advisory)
