@@ -12,7 +12,7 @@ def check_pnpm(text):
     if not sections:
         return ['Missing resolved packages/snapshots section']
     text = '\n'.join(sections)
-    for name, version in re.findall(r"(?m)^  ['\"]?(next|sharp)@([^\s:'\"]+)[ '\"]*:", text):
+    for name, version in re.findall(r"(?m)^  ['\"]?(next|sharp|braces|postcss-selector-parser|stream-json)@([^\s:'\"]+)[ '\"]*:", text):
         version = version.split('(')[0]
         match = re.fullmatch(r"(\d+)\.(\d+)\.(\d+)", version)
         nums = tuple(map(int, match.groups())) if match else ()
@@ -20,8 +20,14 @@ def check_pnpm(text):
         if nums:
             if name == 'next':
                 safe = (nums[0] == 15 and nums >= (15, 5, 28)) or (nums[0] == 16 and nums >= (16, 4, 1))
-            else:
+            elif name == 'sharp':
                 safe = nums >= (0, 35, 5)
+            elif name == 'braces':
+                safe = False  # No published patch; remove the vulnerable parent graph.
+            elif name == 'postcss-selector-parser':
+                safe = nums >= (7, 1, 6)
+            elif name == 'stream-json':
+                safe = nums >= (3, 6, 0)
         if not safe:
             failures.append(f'{name}@{version}: below policy floor or unsupported version')
     return failures
