@@ -703,8 +703,8 @@ export default function PolicyPage() {
           const fns = KNOWN_FUNCTIONS.filter(f => f.category === cat);
           const enabledCount = fns.filter(f => isFnEnabled(f.sig)).length;
           return (
-            <div key={cat} className="rounded-lg border border-white/[0.06] bg-white/[0.02] overflow-hidden">
-              <div className="flex items-center justify-between px-3 py-2 bg-white/[0.02] border-b border-white/5">
+            <div key={cat} className="rounded-lg border border-white/6 bg-white/2 overflow-hidden">
+              <div className="flex items-center justify-between px-3 py-2 bg-white/2 border-b border-white/5">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] uppercase tracking-wider text-white/40 font-medium">{cat}</span>
                   {enabledCount > 0 && (
@@ -744,7 +744,7 @@ export default function PolicyPage() {
                     <label
                       key={fn.sig}
                       className={`flex items-center gap-3 px-2 py-1.5 rounded cursor-pointer transition-colors ${
-                        isEnabled ? "bg-[#00FF88]/5" : "hover:bg-white/[0.03]"
+                        isEnabled ? "bg-[#00FF88]/5" : "hover:bg-white/3"
                       } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
                       <input
@@ -752,7 +752,7 @@ export default function PolicyPage() {
                         checked={isEnabled}
                         onChange={() => !disabled && toggleFunction(fn.sig)}
                         disabled={disabled}
-                        className="rounded border-white/10 bg-[#050505] text-[#00FF88] focus:ring-[#00FF88] cursor-pointer"
+                        className="rounded-sm border-white/10 bg-[#050505] text-[#00FF88] focus:ring-[#00FF88] cursor-pointer"
                       />
                       <span className="text-xs font-medium flex-1">{fn.label}</span>
                       <code className="text-[10px] text-white/20 font-mono truncate max-w-[240px]">{fn.sig}</code>
@@ -766,8 +766,8 @@ export default function PolicyPage() {
 
         {/* Custom functions */}
         {customItems.length > 0 && (
-          <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] overflow-hidden">
-            <div className="px-3 py-2 bg-white/[0.02] border-b border-white/5">
+          <div className="rounded-lg border border-white/6 bg-white/2 overflow-hidden">
+            <div className="px-3 py-2 bg-white/2 border-b border-white/5">
               <span className="text-[10px] uppercase tracking-wider text-white/40 font-medium">Custom</span>
             </div>
             <div className="p-2 space-y-0.5">
@@ -778,7 +778,7 @@ export default function PolicyPage() {
                     checked={true}
                     onChange={() => toggleFunction(item)}
                     disabled={disabled}
-                    className="rounded border-white/10 bg-[#050505] text-[#00FF88] focus:ring-[#00FF88] cursor-pointer"
+                    className="rounded-sm border-white/10 bg-[#050505] text-[#00FF88] focus:ring-[#00FF88] cursor-pointer"
                   />
                   <code className="text-xs font-mono truncate flex-1">{item}</code>
                 </div>
@@ -794,7 +794,7 @@ export default function PolicyPage() {
             onChange={e => setCustomSig(e.target.value)}
             placeholder="Custom: myFunction(address,uint256)"
             disabled={disabled}
-            className="flex-1 bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-xs font-mono focus:border-[#00FF88] outline-none disabled:opacity-50"
+            className="flex-1 bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-xs font-mono focus:border-[#00FF88] outline-hidden disabled:opacity-50"
           />
           <button
             onClick={() => { if (customSig.trim()) { setItems([...items, customSig.trim()]); setCustomSig(""); } }}
@@ -816,15 +816,15 @@ export default function PolicyPage() {
       <div className="space-y-2">
         {items.map((item, i) => (
           <div key={i} className="flex items-center gap-2">
-            <code className="flex-1 text-xs bg-[#050505] px-3 py-1.5 rounded font-mono">{item}</code>
-            <button onClick={() => setItems(items.filter((_, j) => j !== i))} className="text-[#F04452] hover:text-[#F04452] text-xs px-2">Remove</button>
+            <code className="flex-1 text-xs bg-[#050505] px-3 py-1.5 rounded-sm font-mono">{item}</code>
+            <button onClick={() => setItems(items.filter((_, j) => j !== i))} className="text-sigil-error hover:text-sigil-error text-xs px-2">Remove</button>
           </div>
         ))}
         <div className="flex gap-2">
           <input value={newVal} onChange={e => setNewVal(e.target.value)} placeholder={placeholder}
-            className="flex-1 bg-[#050505] border border-white/5 rounded px-3 py-1.5 text-xs font-mono focus:border-[#00FF88] outline-none" />
+            className="flex-1 bg-[#050505] border border-white/5 rounded-sm px-3 py-1.5 text-xs font-mono focus:border-[#00FF88] outline-hidden" />
           <button onClick={() => { if (newVal.trim()) { setItems([...items, newVal.trim()]); setNewVal(""); } }}
-            className="px-3 py-1.5 bg-[#00FF88] hover:brightness-110 text-[#050505] text-xs rounded">Add</button>
+            className="px-3 py-1.5 bg-[#00FF88] hover:brightness-110 text-[#050505] text-xs rounded-sm">Add</button>
         </div>
       </div>
     );
@@ -843,13 +843,13 @@ export default function PolicyPage() {
       </div>
 
       {isDemo && (
-        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-8 text-center">
+        <div className="rounded-xl border border-white/6 bg-white/2 p-8 text-center">
           <p className="text-white/40">{isConnected ? "Deploy a Sigil Wallet to configure policies" : "Connect wallet to view policies"}</p>
         </div>
       )}
 
       {!isDemo && accountAddress && (
-        <div className="p-3 bg-white/[0.02] border border-white/5 rounded-lg text-sm space-y-1">
+        <div className="p-3 bg-white/2 border border-white/5 rounded-lg text-sm space-y-1">
           <div className="text-xs text-white/40">On-chain policy for <span className="font-mono">{accountAddress.slice(0, 10)}...{accountAddress.slice(-6)}</span></div>
           {ownerAddr && <div className="text-xs"><span className="text-white/40">Origin Wallet:</span> <span className="font-mono">{(ownerAddr as string).slice(0, 10)}...</span></div>}
           {agentKeyAddr && <div className="text-xs"><span className="text-white/40">Agent Wallet:</span> <span className="font-mono">{(agentKeyAddr as string).slice(0, 10)}...</span></div>}
@@ -857,7 +857,7 @@ export default function PolicyPage() {
       )}
 
       {saveError && (
-        <div className="p-3 bg-[#F04452]/10 border border-[#F04452]/30 rounded-lg text-sm text-[#F04452]">⚠ {saveError}</div>
+        <div className="p-3 bg-sigil-error/10 border border-sigil-error/30 rounded-lg text-sm text-sigil-error">⚠ {saveError}</div>
       )}
 
       {/* Spending Limits */}
@@ -871,7 +871,7 @@ export default function PolicyPage() {
             <div key={f.label}>
               <label className="text-xs text-white/40 block mb-1">{f.label}</label>
               <input type="text" value={f.value} onChange={e => f.set(e.target.value)} disabled={isDemo}
-                className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm font-mono focus:border-[#00FF88] outline-none disabled:opacity-50" />
+                className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm font-mono focus:border-[#00FF88] outline-hidden disabled:opacity-50" />
             </div>
           ))}
         </div>
@@ -883,13 +883,13 @@ export default function PolicyPage() {
           <div>
             <label className="text-xs text-white/40 block mb-1">Guardian Co-sign Threshold ({getNativeToken(chainId)})</label>
             <input type="text" value={guardianThresholdVal} onChange={e => setGuardianThresholdVal(e.target.value)} disabled={isDemo}
-              className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm font-mono focus:border-[#00FF88] outline-none disabled:opacity-50" />
+              className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm font-mono focus:border-[#00FF88] outline-hidden disabled:opacity-50" />
             <p className="text-xs text-white/40 mt-1">Transactions above this require guardian co-signature</p>
           </div>
           <div>
             <label className="text-xs text-white/40 block mb-1">Origin Wallet Override Threshold ({getNativeToken(chainId)})</label>
             <input type="text" value={ownerThreshold} onChange={e => setOwnerThreshold(e.target.value)} disabled={isDemo}
-              className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm font-mono focus:border-[#00FF88] outline-none disabled:opacity-50" />
+              className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm font-mono focus:border-[#00FF88] outline-hidden disabled:opacity-50" />
             <p className="text-xs text-white/40 mt-1">Transactions above this require owner signature</p>
           </div>
         </div>
@@ -905,7 +905,7 @@ export default function PolicyPage() {
             </div>
           )}
           {bundleError && (
-            <div className="mb-4 p-3 bg-[#F04452]/10 border border-[#F04452]/30 rounded-lg text-xs text-[#F04452]">⚠ {bundleError}</div>
+            <div className="mb-4 p-3 bg-sigil-error/10 border border-sigil-error/30 rounded-lg text-xs text-sigil-error">⚠ {bundleError}</div>
           )}
           <div className="space-y-3">
             {bundles.map(bundle => {
@@ -926,19 +926,19 @@ export default function PolicyPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm">{bundle.name}</span>
-                        {isEnabled && <span className="text-xs px-1.5 py-0.5 rounded bg-[#00FF88]/20 text-[#00FF88]">✓ Active</span>}
+                        {isEnabled && <span className="text-xs px-1.5 py-0.5 rounded-sm bg-[#00FF88]/20 text-[#00FF88]">✓ Active</span>}
                       </div>
                       <p className="text-xs text-white/40 mt-0.5">{bundle.description}</p>
                       <div className="mt-2 flex flex-wrap gap-1">
                         {bundle.targets.map(t => (
-                          <span key={t.address} className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-white/30 font-mono">
+                          <span key={t.address} className="text-[10px] px-1.5 py-0.5 rounded-sm bg-white/5 text-white/30 font-mono">
                             {t.label}
                           </span>
                         ))}
                       </div>
                       <div className="mt-1 flex flex-wrap gap-1">
                         {bundle.functions.map(f => (
-                          <span key={f.selector} className="text-[10px] px-1.5 py-0.5 rounded bg-[#00FF88]/5 text-[#00FF88]/40 font-mono">
+                          <span key={f.selector} className="text-[10px] px-1.5 py-0.5 rounded-sm bg-[#00FF88]/5 text-[#00FF88]/40 font-mono">
                             {f.label}
                           </span>
                         ))}
@@ -990,7 +990,7 @@ export default function PolicyPage() {
           </p>
 
           {erc1271Error && (
-            <div className="mb-4 p-3 bg-[#F04452]/10 border border-[#F04452]/30 rounded-lg text-xs text-[#F04452]">⚠ {erc1271Error}</div>
+            <div className="mb-4 p-3 bg-sigil-error/10 border border-sigil-error/30 rounded-lg text-xs text-sigil-error">⚠ {erc1271Error}</div>
           )}
 
           {/* Known protocols */}
@@ -1000,7 +1000,7 @@ export default function PolicyPage() {
               {knownCallers.map(caller => {
                 const isEnabled = erc1271Callers.includes(caller.address.toLowerCase());
                 return (
-                  <div key={caller.address} className="flex items-center justify-between p-3 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+                  <div key={caller.address} className="flex items-center justify-between p-3 rounded-lg border border-white/6 bg-white/2">
                     <div>
                       <div className="text-sm font-medium">{caller.name}</div>
                       <div className="text-xs text-white/30 mt-0.5">{caller.description}</div>
@@ -1011,7 +1011,7 @@ export default function PolicyPage() {
                       disabled={erc1271Adding}
                       className={`shrink-0 px-4 py-2 rounded-lg text-xs font-medium transition-colors ${
                         isEnabled
-                          ? "bg-[#00FF88]/20 text-[#00FF88] hover:bg-[#F04452]/20 hover:text-[#F04452]"
+                          ? "bg-[#00FF88]/20 text-[#00FF88] hover:bg-sigil-error/20 hover:text-sigil-error"
                           : "bg-[#00FF88] text-[#050505] hover:brightness-110"
                       } disabled:opacity-50`}
                     >
@@ -1024,14 +1024,14 @@ export default function PolicyPage() {
           )}
 
           {/* Custom caller */}
-          <div className="pt-3 border-t border-white/[0.06]">
+          <div className="pt-3 border-t border-white/6">
             <div className="text-xs text-white/30 uppercase tracking-wide mb-2">Custom Protocol Address</div>
             <div className="flex gap-2">
               <input
                 value={newErc1271Caller}
                 onChange={e => setNewErc1271Caller(e.target.value)}
                 placeholder="0x..."
-                className="flex-1 px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-sm font-mono placeholder:text-white/20 focus:outline-none focus:border-[#00FF88]/30"
+                className="flex-1 px-3 py-2 rounded-lg bg-white/4 border border-white/8 text-sm font-mono placeholder:text-white/20 focus:outline-hidden focus:border-[#00FF88]/30"
               />
               <button
                 onClick={() => {
@@ -1060,7 +1060,7 @@ export default function PolicyPage() {
                     <button
                       onClick={() => handleRemoveERC1271Caller(addr)}
                       disabled={erc1271Adding}
-                      className="text-xs text-[#F04452] hover:underline disabled:opacity-50"
+                      className="text-xs text-sigil-error hover:underline disabled:opacity-50"
                     >
                       Remove
                     </button>

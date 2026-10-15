@@ -91,7 +91,7 @@ function LayerCard({ num, title, result, animDelay }: { num: number; title: stri
 
   if (!visible && result) {
     return (
-      <div className="rounded-xl border border-white/5 bg-white/[0.02] p-5 animate-pulse">
+      <div className="rounded-xl border border-white/5 bg-white/2 p-5 animate-pulse">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-sm font-bold text-indigo-400">{num}</div>
           <span className="text-sm text-gray-400">{title}</span>
@@ -112,17 +112,17 @@ function LayerCard({ num, title, result, animDelay }: { num: number; title: stri
     );
   }
 
-  const borderColor = result.pass ? "border-[#00FF88]/30" : "border-[#F04452]/30";
+  const borderColor = result.pass ? "border-[#00FF88]/30" : "border-sigil-error/30";
   const icon = result.pass ? "✅" : "❌";
 
   return (
-    <div className={`rounded-xl border ${borderColor} bg-white/[0.02] p-5 transition-all duration-500`}>
+    <div className={`rounded-xl border ${borderColor} bg-white/2 p-5 transition-all duration-500`}>
       <div className="flex items-center gap-3 mb-2">
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${result.pass ? "bg-[#00FF88]/10 text-[#00FF88]" : "bg-[#F04452]/10 text-[#F04452]"}`}>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${result.pass ? "bg-[#00FF88]/10 text-[#00FF88]" : "bg-sigil-error/10 text-sigil-error"}`}>
           {icon}
         </div>
         <span className="font-semibold text-sm">{title}</span>
-        <span className={`ml-auto text-xs font-medium px-2 py-0.5 rounded ${result.pass ? "bg-[#00FF88]/10 text-[#00FF88]" : "bg-[#F04452]/10 text-[#F04452]"}`}>
+        <span className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-sm ${result.pass ? "bg-[#00FF88]/10 text-[#00FF88]" : "bg-sigil-error/10 text-sigil-error"}`}>
           {result.pass ? "PASS" : "FAIL"}
         </span>
       </div>
@@ -134,13 +134,13 @@ function LayerCard({ num, title, result, animDelay }: { num: number; title: stri
         <div className="ml-11 mt-2">
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-500">Risk Score:</span>
-            <span className={`text-sm font-bold font-mono ${result.score < 30 ? "text-[#00FF88]" : result.score < 70 ? "text-[#F4A524]" : "text-[#F04452]"}`}>
+            <span className={`text-sm font-bold font-mono ${result.score < 30 ? "text-[#00FF88]" : result.score < 70 ? "text-sigil-warning" : "text-sigil-error"}`}>
               {result.score}/100
             </span>
           </div>
           <div className="mt-1 h-1.5 bg-gray-800 rounded-full overflow-hidden w-32">
             <div
-              className={`h-full rounded-full transition-all duration-1000 ${result.score < 30 ? "bg-[#00FF88]" : result.score < 70 ? "bg-[#F4A524]" : "bg-[#F04452]"}`}
+              className={`h-full rounded-full transition-all duration-1000 ${result.score < 30 ? "bg-[#00FF88]" : result.score < 70 ? "bg-sigil-warning" : "bg-sigil-error"}`}
               style={{ width: `${result.score}%` }}
             />
           </div>
@@ -263,8 +263,8 @@ export default function EvaluatePage() {
       </div>
 
       {needsSignIn && (
-        <div className="p-4 bg-[#F4A524]/10 border border-[#F4A524]/30 rounded-xl text-sm flex items-center justify-between">
-          <span className="text-[#F4A524]">🔐 Sign in with your wallet to evaluate transactions</span>
+        <div className="p-4 bg-sigil-warning/10 border border-sigil-warning/30 rounded-xl text-sm flex items-center justify-between">
+          <span className="text-sigil-warning">🔐 Sign in with your wallet to evaluate transactions</span>
           <button
             onClick={async () => { setSigningIn(true); try { await signIn(); } catch {} setSigningIn(false); }}
             disabled={signingIn}
@@ -282,7 +282,7 @@ export default function EvaluatePage() {
 
       <div className="grid grid-cols-2 gap-6">
         {/* Input Form */}
-        <div className="rounded-xl border border-white/5 bg-white/[0.02] p-6 space-y-4">
+        <div className="rounded-xl border border-white/5 bg-white/2 p-6 space-y-4">
           <h2 className="font-semibold">Transaction Parameters</h2>
 
           <div>
@@ -296,7 +296,7 @@ export default function EvaluatePage() {
                 placeholder="0x..."
                 autoComplete="off"
                 spellCheck={false}
-                className="flex-1 bg-[#050505] border border-white/5 rounded-lg px-3 py-2.5 text-sm font-mono focus:border-[#00FF88] outline-none"
+                className="flex-1 bg-[#050505] border border-white/5 rounded-lg px-3 py-2.5 text-sm font-mono focus:border-[#00FF88] outline-hidden"
               />
               <button
                 type="button"
@@ -314,7 +314,7 @@ export default function EvaluatePage() {
               value={value}
               onChange={e => setValue(e.target.value)}
               placeholder="0.0"
-              className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2.5 text-sm font-mono focus:border-[#00FF88] outline-none"
+              className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2.5 text-sm font-mono focus:border-[#00FF88] outline-hidden"
             />
           </div>
 
@@ -323,7 +323,7 @@ export default function EvaluatePage() {
             <select
               value={fnSelector}
               onChange={e => setFnSelector(e.target.value)}
-              className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2.5 text-sm focus:border-[#00FF88] outline-none"
+              className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2.5 text-sm focus:border-[#00FF88] outline-hidden"
             >
               {FUNCTION_CATEGORIES.map(cat => (
                 <optgroup key={cat.category} label={cat.category}>
@@ -346,7 +346,7 @@ export default function EvaluatePage() {
                 onChange={e => setCustomData(e.target.value)}
                 placeholder="0x..."
                 rows={3}
-                className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2.5 text-sm font-mono focus:border-[#00FF88] outline-none resize-none"
+                className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2.5 text-sm font-mono focus:border-[#00FF88] outline-hidden resize-none"
               />
             </div>
           )}
@@ -390,14 +390,14 @@ export default function EvaluatePage() {
               result.verdict === "APPROVE"
                 ? "border-[#00FF88] bg-[#00FF88]/5"
                 : result.verdict === "REJECT"
-                ? "border-[#F04452] bg-[#F04452]/5"
-                : "border-[#F4A524] bg-[#F4A524]/5"
+                ? "border-sigil-error bg-sigil-error/5"
+                : "border-sigil-warning bg-sigil-warning/5"
             }`}>
               <div className="text-3xl mb-2">
                 {result.verdict === "APPROVE" ? "✅" : result.verdict === "REJECT" ? "🚫" : "⚠️"}
               </div>
               <div className={`text-xl font-bold ${
-                result.verdict === "APPROVE" ? "text-[#00FF88]" : result.verdict === "REJECT" ? "text-[#F04452]" : "text-[#F4A524]"
+                result.verdict === "APPROVE" ? "text-[#00FF88]" : result.verdict === "REJECT" ? "text-sigil-error" : "text-sigil-warning"
               }`}>
                 {result.verdict}
               </div>
@@ -486,7 +486,7 @@ export default function EvaluatePage() {
                 </div>
               )}
               {execError && (
-                <div className="rounded-xl border border-[#F04452]/30 bg-[#F04452]/5 p-3 text-sm text-[#F04452]">
+                <div className="rounded-xl border border-sigil-error/30 bg-sigil-error/5 p-3 text-sm text-sigil-error">
                   ⚠ {execError}
                 </div>
               )}
@@ -519,7 +519,7 @@ export default function EvaluatePage() {
           )}
 
           {error && (
-            <div className="rounded-xl border border-[#F04452]/30 bg-[#F04452]/5 p-4 text-sm text-[#F04452]">
+            <div className="rounded-xl border border-sigil-error/30 bg-sigil-error/5 p-4 text-sm text-sigil-error">
               ⚠ {error}
             </div>
           )}

@@ -63,8 +63,8 @@ const SCOPE_LABELS: Record<string, string> = Object.fromEntries(SCOPE_DEFINITION
 
 const RISK_COLORS: Record<ScopeRisk, { bg: string; border: string; text: string; badge: string }> = {
   safe:      { bg: "bg-[#00FF88]/5",  border: "border-[#00FF88]/20", text: "text-[#00FF88]", badge: "bg-[#00FF88]/10 text-[#00FF88]" },
-  elevated:  { bg: "bg-[#F4A524]/5",  border: "border-[#F4A524]/20", text: "text-[#F4A524]", badge: "bg-[#F4A524]/10 text-[#F4A524]" },
-  dangerous: { bg: "bg-[#F04452]/5",  border: "border-[#F04452]/20", text: "text-[#F04452]", badge: "bg-[#F04452]/10 text-[#F04452]" },
+  elevated:  { bg: "bg-sigil-warning/5",  border: "border-sigil-warning/20", text: "text-sigil-warning", badge: "bg-sigil-warning/10 text-sigil-warning" },
+  dangerous: { bg: "bg-sigil-error/5",  border: "border-sigil-error/20", text: "text-sigil-error", badge: "bg-sigil-error/10 text-sigil-error" },
 };
 
 const RISK_LABELS: Record<ScopeRisk, string> = {
@@ -94,7 +94,7 @@ const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "https://api.sigil.codes").t
 function ScopeWarningModal({ scope, onConfirm, onCancel }: { scope: ScopeInfo; onConfirm: () => void; onCancel: () => void }) {
   const colors = RISK_COLORS[scope.risk];
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onCancel}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4" onClick={onCancel}>
       <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl max-w-md w-full p-6 space-y-4" onClick={e => e.stopPropagation()}>
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-full ${colors.bg} ${colors.border} border flex items-center justify-center text-lg`}>
@@ -125,8 +125,8 @@ function ScopeWarningModal({ scope, onConfirm, onCancel }: { scope: ScopeInfo; o
             onClick={onConfirm}
             className={`flex-1 px-4 py-2.5 ${
               scope.risk === "dangerous"
-                ? "bg-[#F04452] hover:bg-[#F04452]/80"
-                : "bg-[#F4A524] hover:bg-[#F4A524]/80"
+                ? "bg-sigil-error hover:bg-sigil-error/80"
+                : "bg-sigil-warning hover:bg-sigil-warning/80"
             } text-[#050505] rounded-lg text-sm font-semibold transition-colors`}
           >
             Enable Anyway
@@ -196,7 +196,7 @@ function ScopeSelector({ scopes, onChange }: { scopes: string[]; onChange: (s: s
                       type="checkbox"
                       checked={scopes.includes(scope.id)}
                       onChange={() => toggleScope(scope)}
-                      className="mt-0.5 rounded border-white/10 bg-[#050505] text-[#00FF88] focus:ring-[#00FF88] cursor-pointer"
+                      className="mt-0.5 rounded-sm border-white/10 bg-[#050505] text-[#00FF88] focus:ring-[#00FF88] cursor-pointer"
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
@@ -403,7 +403,7 @@ export default function AgentAccessPage() {
 
       {/* Auth gate */}
       {needsSignIn && tab === "api-keys" && (
-        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-8 text-center space-y-4">
+        <div className="bg-white/2 border border-white/5 rounded-xl p-8 text-center space-y-4">
           <div className="text-4xl">🔐</div>
           <h2 className="text-lg font-semibold">Sign in to manage API keys</h2>
           <p className="text-sm text-white/40 max-w-md mx-auto">
@@ -417,7 +417,7 @@ export default function AgentAccessPage() {
             {isAuthenticating ? "Waiting for signature..." : "Sign in with Wallet"}
           </button>
           {authError && (
-            <p className="text-sm text-[#F04452]">⚠ {authError}</p>
+            <p className="text-sm text-sigil-error">⚠ {authError}</p>
           )}
         </div>
       )}
@@ -426,7 +426,7 @@ export default function AgentAccessPage() {
       {(tab === "api-keys" && (isAuthenticated || !needsSignIn)) && (
         <div className="space-y-6">
           {/* Generate new key */}
-          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6 space-y-4">
+          <div className="bg-white/2 border border-white/5 rounded-xl p-6 space-y-4">
             <h2 className="text-lg font-semibold">Generate API Key</h2>
             <p className="text-sm text-white/40">
               Create a key your AI agent can use to authenticate. Safe defaults are pre-selected — expand permissions only if your agent needs them.
@@ -439,7 +439,7 @@ export default function AgentAccessPage() {
                   value={keyName}
                   onChange={(e) => setKeyName(e.target.value)}
                   placeholder="e.g. Claude Trading Bot"
-                  className="w-full px-3 py-2 bg-[#050505] border border-white/5 rounded-lg text-sm focus:ring-1 focus:ring-[#00FF88] outline-none"
+                  className="w-full px-3 py-2 bg-[#050505] border border-white/5 rounded-lg text-sm focus:ring-1 focus:ring-[#00FF88] outline-hidden"
                 />
               </div>
               <div>
@@ -465,8 +465,8 @@ export default function AgentAccessPage() {
             </button>
 
             {error && (
-              <div className="bg-[#F04452]/10 border border-[#F04452]/30 rounded-lg p-3">
-                <p className="text-sm text-[#F04452]">⚠ {error}</p>
+              <div className="bg-sigil-error/10 border border-sigil-error/30 rounded-lg p-3">
+                <p className="text-sm text-sigil-error">⚠ {error}</p>
               </div>
             )}
 
@@ -475,12 +475,12 @@ export default function AgentAccessPage() {
               <div className="bg-[#00FF88]/10 border border-[#00FF88]/30 rounded-lg p-4 space-y-2">
                 <p className="text-sm font-medium text-[#00FF88]">✓ API Key Generated — Save it now!</p>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 bg-[#050505] px-3 py-2 rounded text-sm font-mono break-all">
+                  <code className="flex-1 bg-[#050505] px-3 py-2 rounded-sm text-sm font-mono break-all">
                     {newKey}
                   </code>
                   <button
                     onClick={() => { navigator.clipboard.writeText(newKey); }}
-                    className="px-3 py-2 bg-[#050505] border border-white/5 rounded text-sm hover:bg-white/5 transition-colors"
+                    className="px-3 py-2 bg-[#050505] border border-white/5 rounded-sm text-sm hover:bg-white/5 transition-colors"
                   >
                     Copy
                   </button>
@@ -491,7 +491,7 @@ export default function AgentAccessPage() {
                   <summary className="text-sm text-[#00FF88] cursor-pointer hover:underline">
                     Agent Quickstart Code
                   </summary>
-                  <pre className="mt-2 bg-[#050505] p-3 rounded text-xs font-mono overflow-x-auto">
+                  <pre className="mt-2 bg-[#050505] p-3 rounded-sm text-xs font-mono overflow-x-auto">
 {`// 1. Authenticate with your API key
 const auth = await fetch("${API_URL}/v1/agent/auth/api-key", {
   method: "POST",
@@ -525,7 +525,7 @@ const { txHash, verdict, riskScore } = await result.json();`}
           </div>
 
           {/* Existing keys */}
-          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
+          <div className="bg-white/2 border border-white/5 rounded-xl p-6">
             <h2 className="text-lg font-semibold mb-4">Active Keys</h2>
             {keys.length === 0 ? (
               <p className="text-sm text-white/40">No API keys created yet.</p>
@@ -538,9 +538,9 @@ const { txHash, verdict, riskScore } = await result.json();`}
                       key={key.id}
                       className={`flex items-center justify-between p-3 rounded-lg border ${
                         key.revoked
-                          ? "border-[#F04452]/30 bg-[#F04452]/5 opacity-60"
+                          ? "border-sigil-error/30 bg-sigil-error/5 opacity-60"
                           : new Date(key.expires_at) < new Date()
-                          ? "border-[#F4A524]/30 bg-[#F4A524]/5 opacity-60"
+                          ? "border-sigil-warning/30 bg-sigil-warning/5 opacity-60"
                           : "border-white/5 bg-[#050505]"
                       }`}
                     >
@@ -549,18 +549,18 @@ const { txHash, verdict, riskScore } = await result.json();`}
                           <span className="font-medium text-sm">{key.name}</span>
                           <code className="text-xs text-white/40 font-mono">{key.key_prefix}...</code>
                           {key.revoked && (
-                            <span className="text-xs px-1.5 py-0.5 rounded bg-[#F04452]/20 text-[#F04452]">Revoked</span>
+                            <span className="text-xs px-1.5 py-0.5 rounded-sm bg-sigil-error/20 text-sigil-error">Revoked</span>
                           )}
                           {!key.revoked && new Date(key.expires_at) < new Date() && (
-                            <span className="text-xs px-1.5 py-0.5 rounded bg-[#F4A524]/20 text-[#F4A524]">Expired</span>
+                            <span className="text-xs px-1.5 py-0.5 rounded-sm bg-sigil-warning/20 text-sigil-warning">Expired</span>
                           )}
                           {risk.dangerous > 0 && (
-                            <span className="text-xs px-1.5 py-0.5 rounded bg-[#F04452]/10 text-[#F04452]">
+                            <span className="text-xs px-1.5 py-0.5 rounded-sm bg-sigil-error/10 text-sigil-error">
                               🔴 {risk.dangerous} dangerous
                             </span>
                           )}
                           {risk.elevated > 0 && !risk.dangerous && (
-                            <span className="text-xs px-1.5 py-0.5 rounded bg-[#F4A524]/10 text-[#F4A524]">
+                            <span className="text-xs px-1.5 py-0.5 rounded-sm bg-sigil-warning/10 text-sigil-warning">
                               ⚠ {risk.elevated} elevated
                             </span>
                           )}
@@ -577,7 +577,7 @@ const { txHash, verdict, riskScore } = await result.json();`}
                       {!key.revoked && new Date(key.expires_at) > new Date() && (
                         <button
                           onClick={() => revokeKey(key.id)}
-                          className="px-3 py-1.5 text-xs text-[#F04452] border border-[#F04452]/30 rounded hover:bg-[#F04452]/10 transition-colors"
+                          className="px-3 py-1.5 text-xs text-sigil-error border border-sigil-error/30 rounded-sm hover:bg-sigil-error/10 transition-colors"
                         >
                           Revoke
                         </button>
@@ -608,7 +608,7 @@ const { txHash, verdict, riskScore } = await result.json();`}
             </div>
           </div>
 
-          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
+          <div className="bg-white/2 border border-white/5 rounded-xl p-6">
             <h3 className="font-semibold mb-4">How Non-Custodial Execution Works</h3>
             <div className="space-y-3">
               {[
@@ -619,14 +619,14 @@ const { txHash, verdict, riskScore } = await result.json();`}
                 { step: "5", title: "Agent gets txHash", desc: "Returns verdict, risk score, and transaction hash" },
               ].map(({ step, title, desc }) => (
                 <div key={step} className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-[#00FF88]/10 text-[#00FF88] text-sm flex items-center justify-center font-bold">{step}</span>
+                  <span className="shrink-0 w-7 h-7 rounded-full bg-[#00FF88]/10 text-[#00FF88] text-sm flex items-center justify-center font-bold">{step}</span>
                   <div><span className="text-sm text-white/70 font-medium">{title}</span><p className="text-xs text-white/40 mt-0.5">{desc}</p></div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
+          <div className="bg-white/2 border border-white/5 rounded-xl p-6">
             <h3 className="font-semibold mb-3">Agent Integration Code</h3>
             <pre className="bg-[#050505] p-4 rounded-lg text-xs font-mono overflow-x-auto text-white/60">
 {`// 1. Authenticate
@@ -657,11 +657,11 @@ const { txHash, verdict, riskScore } = await res.json();`}
             </p>
           </div>
 
-          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
+          <div className="bg-white/2 border border-white/5 rounded-xl p-6">
             <h3 className="font-semibold mb-3">Why This Matters</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="space-y-2">
-                <div className="text-[#F04452] font-medium">❌ Custodial (others)</div>
+                <div className="text-sigil-error font-medium">❌ Custodial (others)</div>
                 <ul className="text-xs text-white/40 space-y-1">
                   <li>• Service holds your private keys</li>
                   <li>• One breach = all wallets drained</li>
@@ -686,7 +686,7 @@ const { txHash, verdict, riskScore } = await res.json();`}
       {/* Delegation Tab */}
       {tab === "delegation" && (
         <div className="space-y-6">
-          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6 space-y-4">
+          <div className="bg-white/2 border border-white/5 rounded-xl p-6 space-y-4">
             <h2 className="text-lg font-semibold">Sign Delegation</h2>
             <p className="text-sm text-white/40">
               Sign an EIP-712 message to authorize an AI agent. No API key needed — the agent uses your signature directly. More secure for one-time setups.
@@ -699,7 +699,7 @@ const { txHash, verdict, riskScore } = await res.json();`}
                   value={agentName}
                   onChange={(e) => setAgentName(e.target.value)}
                   placeholder="e.g. claude-opus, my-bot"
-                  className="w-full px-3 py-2 bg-[#050505] border border-white/5 rounded-lg text-sm focus:ring-1 focus:ring-[#00FF88] outline-none"
+                  className="w-full px-3 py-2 bg-[#050505] border border-white/5 rounded-lg text-sm focus:ring-1 focus:ring-[#00FF88] outline-hidden"
                 />
               </div>
               <div>
@@ -731,12 +731,12 @@ const { txHash, verdict, riskScore } = await res.json();`}
                     Your agent should POST this to <code className="text-[#00FF88]">{API_URL}/v1/agent/auth/delegation</code>
                   </p>
                   <div className="relative">
-                    <pre className="bg-[#050505] p-3 rounded text-xs font-mono overflow-x-auto max-h-48">
+                    <pre className="bg-[#050505] p-3 rounded-sm text-xs font-mono overflow-x-auto max-h-48">
                       {delegationResult.agentPayload}
                     </pre>
                     <button
                       onClick={() => navigator.clipboard.writeText(delegationResult.agentPayload)}
-                      className="absolute top-2 right-2 px-2 py-1 bg-white/5 rounded text-xs hover:bg-white/20 transition-colors"
+                      className="absolute top-2 right-2 px-2 py-1 bg-white/5 rounded-sm text-xs hover:bg-white/20 transition-colors"
                     >
                       Copy
                     </button>
@@ -746,7 +746,7 @@ const { txHash, verdict, riskScore } = await res.json();`}
             )}
           </div>
 
-          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-6">
+          <div className="bg-white/2 border border-white/5 rounded-xl p-6">
             <h3 className="font-semibold mb-3">How Delegation Works</h3>
             <ol className="space-y-2 text-sm text-white/40 list-decimal list-inside">
               <li>You sign an EIP-712 message in your wallet (above)</li>

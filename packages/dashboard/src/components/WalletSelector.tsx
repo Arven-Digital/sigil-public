@@ -146,10 +146,10 @@ export default function WalletSelector({ chainId, onAccountChange }: Props) {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-left transition-colors border border-white/5 hover:border-white/10 bg-white/[0.02]"
+        className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-left transition-colors border border-white/5 hover:border-white/10 bg-white/2"
       >
         <span
-          className="w-2 h-2 rounded-full flex-shrink-0"
+          className="w-2 h-2 rounded-full shrink-0"
           style={{ backgroundColor: "#00FF88" }}
         />
         <div className="flex-1 min-w-0">
@@ -172,7 +172,7 @@ export default function WalletSelector({ chainId, onAccountChange }: Props) {
           </div>
         </div>
         <span
-          className="w-4 h-4 rounded flex-shrink-0 flex items-center justify-center text-[8px]"
+          className="w-4 h-4 rounded-sm shrink-0 flex items-center justify-center text-[8px]"
           style={{ backgroundColor: CHAIN_COLORS[chainId] || "#666", color: "#fff" }}
         >
           {(CHAIN_NAMES[chainId] || "?")[0]}
@@ -188,7 +188,7 @@ export default function WalletSelector({ chainId, onAccountChange }: Props) {
             const chainId_ = Number(cid);
             return (
               <div key={cid}>
-                <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-white/20 bg-white/[0.02] flex items-center gap-1.5">
+                <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-white/20 bg-white/2 flex items-center gap-1.5">
                   <span
                     className="w-2 h-2 rounded-full"
                     style={{ backgroundColor: CHAIN_COLORS[chainId_] || "#666" }}
@@ -201,12 +201,12 @@ export default function WalletSelector({ chainId, onAccountChange }: Props) {
                     <button
                       key={`${acc.chainId}-${acc.address}`}
                       onClick={() => handleSelect(acc)}
-                      className={`w-full px-3 py-2 flex items-center gap-2 text-left transition-colors hover:bg-white/[0.04] ${
+                      className={`w-full px-3 py-2 flex items-center gap-2 text-left transition-colors hover:bg-white/4 ${
                         isActive ? "bg-[#00FF88]/5" : ""
                       }`}
                     >
                       <span
-                        className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
                         style={{ backgroundColor: isActive ? "#00FF88" : "transparent" }}
                       />
                       <div className="flex-1 min-w-0">
@@ -242,11 +242,11 @@ export default function WalletSelector({ chainId, onAccountChange }: Props) {
                 onChange={e => { setImportAddr(e.target.value); setImportError(""); }}
                 placeholder="0x..."
                 autoFocus
-                className="w-full bg-[#050505] border border-white/10 rounded px-2 py-1.5 text-[11px] font-mono focus:border-[#00FF88] outline-none"
+                className="w-full bg-[#050505] border border-white/10 rounded-sm px-2 py-1.5 text-[11px] font-mono focus:border-[#00FF88] outline-hidden"
               />
-              {importError && <div className="text-[10px] text-[#F04452]">{importError}</div>}
+              {importError && <div className="text-[10px] text-sigil-error">{importError}</div>}
               <div className="flex gap-1.5">
-                <button onClick={handleImport} className="flex-1 px-2 py-1 bg-[#00FF88] text-[#050505] text-[11px] rounded font-medium">Import</button>
+                <button onClick={handleImport} className="flex-1 px-2 py-1 bg-[#00FF88] text-[#050505] text-[11px] rounded-sm font-medium">Import</button>
                 <button onClick={() => { setImporting(false); setImportError(""); }} className="px-2 py-1 text-white/30 text-[11px] hover:text-white/60">Cancel</button>
               </div>
             </div>

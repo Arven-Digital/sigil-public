@@ -11,7 +11,7 @@ const DynamicConnectButton = dynamic(
       <button
         type="button"
         disabled
-        className="px-4 py-2 rounded-xl border border-white/10 bg-white/[0.03] text-white/40 text-sm"
+        className="px-4 py-2 rounded-xl border border-white/10 bg-white/3 text-white/40 text-sm"
       >
         Loading wallet…
       </button>

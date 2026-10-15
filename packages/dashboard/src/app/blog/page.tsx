@@ -56,7 +56,7 @@ export default function BlogPage() {
         <div className="max-w-4xl mx-auto grid gap-6">
           {posts.map((post) => (
             <Link key={post.slug} href={blogPathForSlug(post.slug)} className="group">
-              <article className="rounded-xl border border-white/5 bg-white/[0.02] p-6 md:p-8 transition-all hover:border-white/10 hover:bg-white/[0.04]">
+              <article className="rounded-xl border border-white/5 bg-white/2 p-6 md:p-8 transition-all hover:border-white/10 hover:bg-white/4">
                 <div className="flex items-center gap-3 mb-3 text-[12px] text-white/30">
                   <time dateTime={post.date}>
                     {new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}

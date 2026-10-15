@@ -146,13 +146,13 @@ export default function RecoveryPage() {
 
 
       {configError && (
-        <div className="p-3 bg-[#F04452]/10 border border-[#F04452]/30 rounded-lg text-sm text-[#F04452]">
+        <div className="p-3 bg-sigil-error/10 border border-sigil-error/30 rounded-lg text-sm text-sigil-error">
           ⚠ Failed to load recovery config: {configError.message || "API unreachable"}
         </div>
       )}
 
       {actionError && (
-        <div className="p-3 bg-[#F04452]/10 border border-[#F04452]/30 rounded-lg text-sm text-[#F04452]">
+        <div className="p-3 bg-sigil-error/10 border border-sigil-error/30 rounded-lg text-sm text-sigil-error">
           ⚠ {actionError}
         </div>
       )}
@@ -194,8 +194,8 @@ export default function RecoveryPage() {
                   disabled={removeLoading === g || !address}
                   className={`px-3 py-1 text-xs rounded-lg transition-colors ${
                     removeConfirm === g
-                      ? "bg-[#F04452] text-white animate-pulse"
-                      : "bg-[#F04452]/10 text-[#F04452] border border-[#F04452]/20 hover:bg-[#F04452] hover:text-white"
+                      ? "bg-sigil-error text-white animate-pulse"
+                      : "bg-sigil-error/10 text-sigil-error border border-sigil-error/20 hover:bg-sigil-error hover:text-white"
                   } disabled:opacity-30`}
                 >
                   {removeLoading === g ? <LoadingSpinner /> : removeConfirm === g ? "Confirm Remove" : "Remove"}
@@ -216,7 +216,7 @@ export default function RecoveryPage() {
               value={newGuardian}
               onChange={(e) => setNewGuardian(e.target.value)}
               placeholder="Guardian address (0x...)"
-              className="flex-1 bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm font-mono focus:border-[#00FF88] outline-none"
+              className="flex-1 bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm font-mono focus:border-[#00FF88] outline-hidden"
             />
             <button
               onClick={handleAddGuardian}
@@ -239,7 +239,7 @@ export default function RecoveryPage() {
             <select
               value={threshold}
               onChange={(e) => setThreshold(e.target.value ? Number(e.target.value) : "")}
-              className="flex-1 bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm focus:border-[#00FF88] outline-none"
+              className="flex-1 bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm focus:border-[#00FF88] outline-hidden"
             >
               <option value="">Select threshold</option>
               {recoveryConfig && Array.from({ length: recoveryConfig.guardianCount }, (_, i) => i + 1).map(n => (
@@ -268,7 +268,7 @@ export default function RecoveryPage() {
                 value={delayHours}
                 onChange={(e) => setDelayHours(e.target.value ? Number(e.target.value) : "")}
                 placeholder="48"
-                className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm focus:border-[#00FF88] outline-none pr-16"
+                className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm focus:border-[#00FF88] outline-hidden pr-16"
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-white/40">hours</span>
             </div>
@@ -290,9 +290,9 @@ export default function RecoveryPage() {
             {activeRecoveries.map((r: any) => {
               const isReady = r.executeAfter <= Math.floor(Date.now() / 1000);
               return (
-                <div key={r.id} className={`p-4 rounded-lg border ${isReady ? "bg-[#F4A524]/5 border-[#F4A524]/30" : "bg-[#050505]/50 border-white/5/50"}`}>
+                <div key={r.id} className={`p-4 rounded-lg border ${isReady ? "bg-sigil-warning/5 border-sigil-warning/30" : "bg-[#050505]/50 border-white/5/50"}`}>
                   <div className="flex items-center justify-between mb-2">
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded ${isReady ? "bg-[#F4A524]/20 text-[#F4A524]" : "bg-[#00FF88]/10 text-[#00FF88]"}`}>
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-sm ${isReady ? "bg-sigil-warning/20 text-sigil-warning" : "bg-[#00FF88]/10 text-[#00FF88]"}`}>
                       {isReady ? "Ready to Execute" : "Pending"}
                     </span>
                     <span className="text-xs text-white/40 font-mono">{r.id}</span>
@@ -308,7 +308,7 @@ export default function RecoveryPage() {
                     </div>
                     <div>
                       <div className="text-xs text-white/40">Time Remaining</div>
-                      <div className={`text-xs ${isReady ? "text-[#F4A524]" : ""}`}>{formatCountdown(r.executeAfter)}</div>
+                      <div className={`text-xs ${isReady ? "text-sigil-warning" : ""}`}>{formatCountdown(r.executeAfter)}</div>
                     </div>
                     <div className="flex items-end">
                       <button
@@ -316,8 +316,8 @@ export default function RecoveryPage() {
                         disabled={cancelLoading === r.id || !address}
                         className={`px-3 py-1 text-xs rounded-lg transition-colors ${
                           cancelConfirm === r.id
-                            ? "bg-[#F04452] text-white animate-pulse"
-                            : "bg-[#F04452]/10 text-[#F04452] border border-[#F04452]/20 hover:bg-[#F04452] hover:text-white"
+                            ? "bg-sigil-error text-white animate-pulse"
+                            : "bg-sigil-error/10 text-sigil-error border border-sigil-error/20 hover:bg-sigil-error hover:text-white"
                         } disabled:opacity-30`}
                       >
                         {cancelLoading === r.id ? <LoadingSpinner /> : cancelConfirm === r.id ? "Confirm Cancel" : "Cancel Recovery"}

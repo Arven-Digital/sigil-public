@@ -76,7 +76,8 @@
       "tailwindcss>postcss-selector-parser": "7.1.6",
       "@wagmi/connectors>@walletconnect/ethereum-provider": "2.26.0",
       "@wagmi/connectors>@base-org/account": "2.5.13",
-      "shell-quote@<1.12.0": "1.12.0"
+      "shell-quote@<1.12.0": "1.12.0",
+      "@coinbase/cdp-sdk@<1.58.0": "1.58.0"
     }
   }
 }

@@ -85,7 +85,7 @@ function LoginPageInner() {
             <p className="text-white/40">Connect your wallet to access the dashboard.</p>
           </div>
 
-          <div className="rounded-xl border border-white/5 bg-white/[0.02] p-6 space-y-4">
+          <div className="rounded-xl border border-white/5 bg-white/2 p-6 space-y-4">
             <div className="flex items-center gap-3 p-3 rounded-xl" style={{ backgroundColor: `${NEON}10`, border: `1px solid ${NEON}20` }}>
               {googleUser.avatar_url && (
                 <img src={googleUser.avatar_url} alt="" className="w-10 h-10 rounded-full" />
@@ -146,13 +146,13 @@ function LoginPageInner() {
 
         {/* Error message */}
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-[#F04452]/10 border border-[#F04452]/20 text-[#F04452] text-sm text-center">
+          <div className="mb-4 p-3 rounded-xl bg-sigil-error/10 border border-sigil-error/20 text-sigil-error text-sm text-center">
             {ERROR_MESSAGES[error] || error}
           </div>
         )}
 
         {/* Login options */}
-        <div className="rounded-xl border border-white/5 bg-white/[0.02] p-6 space-y-4">
+        <div className="rounded-xl border border-white/5 bg-white/2 p-6 space-y-4">
           {/* Google OAuth */}
           <button
             onClick={handleGoogleLogin}
@@ -178,7 +178,7 @@ function LoginPageInner() {
           {!showWalletConnect ? (
             <button
               onClick={() => setShowWalletWarning(true)}
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] transition-colors text-white font-medium"
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl border border-white/10 bg-white/3 hover:bg-white/6 transition-colors text-white font-medium"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="6" width="20" height="14" rx="2" />
@@ -216,7 +216,7 @@ function LoginPageInner() {
 
       {/* Wallet-only warning modal */}
       {showWalletWarning && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs px-4">
           <div className="max-w-sm w-full rounded-2xl border border-white/10 bg-[#0a0a0a] p-6 space-y-4 shadow-2xl">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg" style={{ backgroundColor: `${NEON}15`, color: NEON }}>
@@ -231,11 +231,11 @@ function LoginPageInner() {
 
             <ul className="text-sm text-white/50 space-y-2">
               <li className="flex items-start gap-2">
-                <span className="text-[#F04452] mt-0.5">✕</span>
+                <span className="text-sigil-error mt-0.5">✕</span>
                 No password reset or account recovery via email
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#F04452] mt-0.5">✕</span>
+                <span className="text-sigil-error mt-0.5">✕</span>
                 No email notifications for security alerts
               </li>
               <li className="flex items-start gap-2">
@@ -247,7 +247,7 @@ function LoginPageInner() {
             <div className="flex gap-3 pt-2">
               <button
                 onClick={() => setShowWalletWarning(false)}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] transition-colors text-sm font-medium"
+                className="flex-1 px-4 py-2.5 rounded-xl border border-white/10 bg-white/3 hover:bg-white/6 transition-colors text-sm font-medium"
               >
                 ← Back
               </button>

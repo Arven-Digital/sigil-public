@@ -479,12 +479,12 @@ export default function OnboardingFlow() {
                 </div>
 
                 {needsSignIn && (
-                  <div className="rounded-xl border border-[#F4A524]/30 bg-[#F4A524]/5 p-5">
+                  <div className="rounded-xl border border-sigil-warning/30 bg-sigil-warning/5 p-5">
                     <p className="text-sm text-white/60 mb-3">Sign a message to prove wallet ownership. Required for registration.</p>
                     <button
                       onClick={signIn}
                       disabled={isAuthenticating}
-                      className="w-full py-2.5 bg-[#F4A524] hover:brightness-110 disabled:opacity-50 text-[#050505] rounded-xl font-medium transition-colors"
+                      className="w-full py-2.5 bg-sigil-warning hover:brightness-110 disabled:opacity-50 text-[#050505] rounded-xl font-medium transition-colors"
                     >
                       {isAuthenticating ? "Signing..." : "🔐 Sign In with Ethereum"}
                     </button>
@@ -498,7 +498,7 @@ export default function OnboardingFlow() {
                 )}
               </div>
             ) : (
-              <div className="rounded-xl border border-white/5 bg-white/[0.02] p-8 text-center">
+              <div className="rounded-xl border border-white/5 bg-white/2 p-8 text-center">
                 <p className="text-white/40 mb-4">Connect with MetaMask, WalletConnect, or any EVM wallet</p>
                 <WalletConnectButton />
               </div>
@@ -557,13 +557,13 @@ export default function OnboardingFlow() {
                             {getTemplateBundles(t.id, selectedChain).map(b => (
                               <div key={b.id}>
                                 <div className="flex gap-1 flex-wrap">
-                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#00FF88]/10 text-[#00FF88]/60 font-medium">
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded-sm bg-[#00FF88]/10 text-[#00FF88]/60 font-medium">
                                     {b.icon} {b.name}
                                   </span>
                                 </div>
                                 <div className="flex gap-1 flex-wrap mt-0.5">
                                   {b.targets.map(tgt => (
-                                    <span key={tgt.address} className="text-[9px] px-1 py-0.5 rounded bg-white/5 text-white/25 font-mono">
+                                    <span key={tgt.address} className="text-[9px] px-1 py-0.5 rounded-sm bg-white/5 text-white/25 font-mono">
                                       {tgt.label}
                                     </span>
                                   ))}
@@ -591,7 +591,7 @@ export default function OnboardingFlow() {
                       min="0"
                       value={customMaxTx}
                       onChange={e => setCustomMaxTx(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-[#050505] border border-white/10 text-white font-mono text-sm focus:border-[#00FF88]/50 focus:outline-none transition-colors"
+                      className="w-full px-3 py-2 rounded-lg bg-[#050505] border border-white/10 text-white font-mono text-sm focus:border-[#00FF88]/50 focus:outline-hidden transition-colors"
                     />
                   </div>
                   <div>
@@ -602,7 +602,7 @@ export default function OnboardingFlow() {
                       min="0"
                       value={customDaily}
                       onChange={e => setCustomDaily(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-[#050505] border border-white/10 text-white font-mono text-sm focus:border-[#00FF88]/50 focus:outline-none transition-colors"
+                      className="w-full px-3 py-2 rounded-lg bg-[#050505] border border-white/10 text-white font-mono text-sm focus:border-[#00FF88]/50 focus:outline-hidden transition-colors"
                     />
                   </div>
                   <div>
@@ -613,7 +613,7 @@ export default function OnboardingFlow() {
                       min="0"
                       value={customThreshold}
                       onChange={e => setCustomThreshold(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-[#050505] border border-white/10 text-white font-mono text-sm focus:border-[#00FF88]/50 focus:outline-none transition-colors"
+                      className="w-full px-3 py-2 rounded-lg bg-[#050505] border border-white/10 text-white font-mono text-sm focus:border-[#00FF88]/50 focus:outline-hidden transition-colors"
                     />
                   </div>
                 </div>
@@ -645,7 +645,7 @@ export default function OnboardingFlow() {
                 <button
                   key={c.id}
                   onClick={() => setSelectedChain(c.id)}
-                  className={`rounded-xl border p-5 text-left transition-all ${selectedChain === c.id ? "border-[#00FF88] bg-[#00FF88]/10 ring-2 ring-[#00FF88]/30" : "border-white/5 bg-white/[0.02] hover:border-white/10"}`}
+                  className={`rounded-xl border p-5 text-left transition-all ${selectedChain === c.id ? "border-[#00FF88] bg-[#00FF88]/10 ring-2 ring-[#00FF88]/30" : "border-white/5 bg-white/2 hover:border-white/10"}`}
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">{c.icon}</span>
@@ -659,9 +659,9 @@ export default function OnboardingFlow() {
             </div>
 
             {isMainnet(selectedChain) && (
-              <div className="rounded-xl border border-[#F4A524]/30 bg-[#F4A524]/5 p-4">
-                <div className="flex items-center gap-2 text-[#F4A524] font-semibold text-sm mb-1">⚠️ Mainnet Selected</div>
-                <p className="text-xs text-[#F4A524]/70">This network uses real funds. Transactions are irreversible and gas fees apply. Make sure you understand the risks before deploying.</p>
+              <div className="rounded-xl border border-sigil-warning/30 bg-sigil-warning/5 p-4">
+                <div className="flex items-center gap-2 text-sigil-warning font-semibold text-sm mb-1">⚠️ Mainnet Selected</div>
+                <p className="text-xs text-sigil-warning/70">This network uses real funds. Transactions are irreversible and gas fees apply. Make sure you understand the risks before deploying.</p>
               </div>
             )}
 
@@ -677,7 +677,7 @@ export default function OnboardingFlow() {
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold mb-2">Generate Agent Wallet</h2>
-              <p className="text-white/40">This key will be used by your AI agent to sign transactions. <strong className="text-[#F4A524]">⚠️ Save the private key NOW — it is shown ONLY ONCE and cannot be recovered.</strong></p>
+              <p className="text-white/40">This key will be used by your AI agent to sign transactions. <strong className="text-sigil-warning">⚠️ Save the private key NOW — it is shown ONLY ONCE and cannot be recovered.</strong></p>
             </div>
 
             <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4 text-sm text-white/50">
@@ -700,17 +700,17 @@ export default function OnboardingFlow() {
                 </div>
 
                 {/* Private Key - WARNING */}
-                <div className="rounded-xl border border-[#F4A524]/40 bg-[#F4A524]/5 p-4">
+                <div className="rounded-xl border border-sigil-warning/40 bg-sigil-warning/5 p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[#F4A524]">⚠️</span>
-                    <span className="text-xs font-bold text-[#F4A524] uppercase">Private Key — Save This NOW</span>
+                    <span className="text-sigil-warning">⚠️</span>
+                    <span className="text-xs font-bold text-sigil-warning uppercase">Private Key — Save This NOW</span>
                   </div>
                   <div className="font-mono text-xs text-white/60 break-all bg-[#050505]/50 rounded-lg p-3 mb-3">
                     {agentPrivateKey}
                   </div>
                   <button
                     onClick={() => { navigator.clipboard.writeText(agentPrivateKey); setKeyCopied(true); }}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${keyCopied ? "bg-[#00FF88] text-white" : "bg-[#F4A524]/20 text-[#F4A524] hover:bg-[#F4A524]/30"}`}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${keyCopied ? "bg-[#00FF88] text-white" : "bg-sigil-warning/20 text-sigil-warning hover:bg-sigil-warning/30"}`}
                   >
                     {keyCopied ? "✓ Copied!" : "📋 Copy Private Key"}
                   </button>
@@ -726,7 +726,7 @@ export default function OnboardingFlow() {
                     type="checkbox"
                     checked={keyAcknowledged}
                     onChange={e => setKeyAcknowledged(e.target.checked)}
-                    className="mt-1 rounded border-gray-600 bg-white/5 text-[#00FF88] focus:ring-[#00FF88]"
+                    className="mt-1 rounded-sm border-gray-600 bg-white/5 text-[#00FF88] focus:ring-[#00FF88]"
                   />
                   <span className="text-sm text-white/40">I have saved the private key. I understand it will not be shown again.</span>
                 </label>
@@ -735,7 +735,7 @@ export default function OnboardingFlow() {
 
             {/* Deployment Summary */}
             {agentAddress && (
-              <div className="rounded-xl border border-white/5 bg-white/[0.02] p-5 space-y-3">
+              <div className="rounded-xl border border-white/5 bg-white/2 p-5 space-y-3">
                 <h3 className="font-semibold text-sm text-white/60">Deployment Summary</h3>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div><span className="text-white/30">Origin Wallet:</span> <span className="font-mono text-xs">{address?.slice(0, 10)}...{address?.slice(-6)}</span></div>
@@ -762,9 +762,9 @@ export default function OnboardingFlow() {
               </button>
 
               {existingAccount && (
-                <div className="rounded-xl border border-[#F4A524]/40 bg-[#F4A524]/5 p-4 mt-3">
-                  <div className="flex items-center gap-2 text-[#F4A524] font-semibold text-sm mb-1">⚠️ Wallet Already Exists</div>
-                  <p className="text-xs text-[#F4A524]/70 mb-2">
+                <div className="rounded-xl border border-sigil-warning/40 bg-sigil-warning/5 p-4 mt-3">
+                  <div className="flex items-center gap-2 text-sigil-warning font-semibold text-sm mb-1">⚠️ Wallet Already Exists</div>
+                  <p className="text-xs text-sigil-warning/70 mb-2">
                     You already have a Sigil Wallet on this chain: <span className="font-mono">{existingAccount.slice(0, 14)}...{existingAccount.slice(-6)}</span>
                   </p>
                   <p className="text-xs text-white/40 mb-3">Free tier is limited to 1 Sigil Wallet per Origin Wallet. Go to your dashboard or switch to a different chain.</p>
@@ -790,8 +790,8 @@ export default function OnboardingFlow() {
               // Log full error for debugging
               // Deployment error occurred - rawError contains details
               return (
-                <div className="rounded-xl border border-[#F04452]/30 bg-[#F04452]/5 p-4">
-                  <div className="text-[#F04452] text-sm font-medium mb-1">Deployment Failed</div>
+                <div className="rounded-xl border border-sigil-error/30 bg-sigil-error/5 p-4">
+                  <div className="text-sigil-error text-sm font-medium mb-1">Deployment Failed</div>
                   <div className="text-xs text-white/40">{decodeErrorMessage(rawError || undefined)}</div>
                   <details className="mt-2">
                     <summary className="text-xs text-white/20 cursor-pointer hover:text-white/40">Show raw error</summary>
@@ -842,8 +842,8 @@ export default function OnboardingFlow() {
             )}
 
             {whitelistError && (
-              <div className="rounded-xl border border-[#F4A524]/30 bg-[#F4A524]/5 p-4 text-sm">
-                <span className="text-[#F4A524]">⚠️ Whitelist partially applied:</span>{" "}
+              <div className="rounded-xl border border-sigil-warning/30 bg-sigil-warning/5 p-4 text-sm">
+                <span className="text-sigil-warning">⚠️ Whitelist partially applied:</span>{" "}
                 <span className="text-white/40">{whitelistError}</span>
                 <p className="text-xs text-white/30 mt-1">You can apply bundles later from the Policy page.</p>
               </div>
@@ -862,7 +862,7 @@ export default function OnboardingFlow() {
                 </div>
 
                 {/* Deployment details */}
-                <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 mb-6 space-y-2 text-sm">
+                <div className="rounded-xl border border-white/6 bg-white/2 p-4 mb-6 space-y-2 text-sm">
                   <div className="flex justify-between items-start">
                     <span className="text-white/30 shrink-0">Sigil Wallet</span>
                     <span className="font-mono text-[#00FF88] text-xs break-all text-right ml-4">{deployedAddress}</span>
@@ -905,8 +905,8 @@ export default function OnboardingFlow() {
                     </div>
                   )}
                   {whitelistError && (
-                    <div className="flex items-center gap-3 py-2 px-3 rounded-lg bg-[#F4A524]/5">
-                      <span className="text-[#F4A524] text-sm">⚠</span>
+                    <div className="flex items-center gap-3 py-2 px-3 rounded-lg bg-sigil-warning/5">
+                      <span className="text-sigil-warning text-sm">⚠</span>
                       <span className="text-sm text-white/50">Whitelist partially applied — finish in Policies</span>
                     </div>
                   )}
@@ -914,7 +914,7 @@ export default function OnboardingFlow() {
                   {/* Pending items */}
                   <div className="mt-3 space-y-3">
                     {/* Step: Fund Sigil Wallet */}
-                    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                    <div className="rounded-xl border border-white/6 bg-white/2 p-4">
                       <div className="flex items-center gap-3 mb-2">
                         <span className="h-6 w-6 rounded-full border border-white/20 flex items-center justify-center text-xs text-white/30">1</span>
                         <span className="text-sm font-medium">Fund your Sigil Wallet</span>
@@ -927,7 +927,7 @@ export default function OnboardingFlow() {
                         <code className="text-xs text-[#00FF88] break-all">{deployedAddress}</code>
                         <button
                           onClick={() => navigator.clipboard.writeText(deployedAddress)}
-                          className="shrink-0 px-2 py-1 text-[10px] bg-white/5 hover:bg-white/10 rounded text-white/40 transition-colors"
+                          className="shrink-0 px-2 py-1 text-[10px] bg-white/5 hover:bg-white/10 rounded-sm text-white/40 transition-colors"
                         >
                           Copy
                         </button>
@@ -935,7 +935,7 @@ export default function OnboardingFlow() {
                     </div>
 
                     {/* Step 2: Fund Agent Wallet */}
-                    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                    <div className="rounded-xl border border-white/6 bg-white/2 p-4">
                       <div className="flex items-center gap-3 mb-2">
                         <span className="h-6 w-6 rounded-full border border-white/20 flex items-center justify-center text-xs text-white/30">2</span>
                         <span className="text-sm font-medium">Fund Agent Wallet (gas)</span>
@@ -948,7 +948,7 @@ export default function OnboardingFlow() {
                         {agentAddress && (
                           <button
                             onClick={() => navigator.clipboard.writeText(agentAddress)}
-                            className="shrink-0 px-2 py-1 text-[10px] bg-white/5 hover:bg-white/10 rounded text-white/40 transition-colors"
+                            className="shrink-0 px-2 py-1 text-[10px] bg-white/5 hover:bg-white/10 rounded-sm text-white/40 transition-colors"
                           >
                             Copy
                           </button>
@@ -960,7 +960,7 @@ export default function OnboardingFlow() {
                     </div>
 
                     {/* Step 3: Generate API Key */}
-                    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                    <div className="rounded-xl border border-white/6 bg-white/2 p-4">
                       <div className="flex items-center gap-3 mb-2">
                         <span className="h-6 w-6 rounded-full border border-white/20 flex items-center justify-center text-xs text-white/30">3</span>
                         <span className="text-sm font-medium">Generate an API Key</span>
@@ -979,22 +979,22 @@ export default function OnboardingFlow() {
                     </div>
 
                     {/* Step 4: Share Private Key — THE CRITICAL STEP */}
-                    <div className="rounded-xl border border-[#F4A524]/30 bg-[#F4A524]/5 p-4">
+                    <div className="rounded-xl border border-sigil-warning/30 bg-sigil-warning/5 p-4">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="h-6 w-6 rounded-full border border-[#F4A524]/40 bg-[#F4A524]/10 flex items-center justify-center text-xs text-[#F4A524] font-bold">4</span>
-                        <span className="text-sm font-medium text-[#F4A524]">Share Agent Private Key with Your AI</span>
+                        <span className="h-6 w-6 rounded-full border border-sigil-warning/40 bg-sigil-warning/10 flex items-center justify-center text-xs text-sigil-warning font-bold">4</span>
+                        <span className="text-sm font-medium text-sigil-warning">Share Agent Private Key with Your AI</span>
                       </div>
                       <p className="text-xs text-white/40 ml-9 mb-3">
                         This is the most important step. Your AI agent needs the <strong className="text-white/60">private key from Step 4</strong> to sign transactions locally.
                         Without it, the agent can authenticate but <strong className="text-white/60">cannot execute any trades</strong>.
                       </p>
-                      <div className="ml-9 rounded-lg bg-[#050505] border border-[#F4A524]/20 p-3 space-y-2">
-                        <p className="text-[10px] text-[#F4A524]/80 font-medium">Add these to your agent&apos;s environment / config:</p>
+                      <div className="ml-9 rounded-lg bg-[#050505] border border-sigil-warning/20 p-3 space-y-2">
+                        <p className="text-[10px] text-sigil-warning/80 font-medium">Add these to your agent&apos;s environment / config:</p>
                         <div className="font-mono text-[10px] text-white/40 space-y-0.5">
                           <div><span className="text-white/20"># Agent signs transactions locally with this key</span></div>
-                          <div>SIGIL_AGENT_PRIVATE_KEY=<span className="text-[#F4A524]">0x_your_agent_private_key_from_step_4</span></div>
+                          <div>SIGIL_AGENT_PRIVATE_KEY=<span className="text-sigil-warning">0x_your_agent_private_key_from_step_4</span></div>
                           <div><span className="text-white/20"># API key for Guardian authentication</span></div>
-                          <div>SIGIL_API_KEY=<span className="text-[#F4A524]">sgil_your_key_from_step_3</span></div>
+                          <div>SIGIL_API_KEY=<span className="text-sigil-warning">sgil_your_key_from_step_3</span></div>
                           <div><span className="text-white/20"># Your Sigil smart wallet address</span></div>
                           <div>SIGIL_WALLET_ADDRESS={deployedAddress}</div>
                           <div><span className="text-white/20"># Chain</span></div>
@@ -1003,7 +1003,7 @@ export default function OnboardingFlow() {
                           <div>SIGIL_API_URL=https://api.sigil.codes</div>
                         </div>
                       </div>
-                      <div className="ml-9 mt-3 rounded-lg bg-white/[0.02] border border-white/5 p-3">
+                      <div className="ml-9 mt-3 rounded-lg bg-white/2 border border-white/5 p-3">
                         <p className="text-[10px] text-white/30">
                           <strong className="text-white/50">🔐 Security:</strong> The agent key can ONLY submit transactions for Guardian approval — it cannot withdraw funds, change policies, or freeze the wallet.
                           Even if the key is compromised, the Guardian&apos;s 3-layer evaluation pipeline (rules → simulation → AI) protects your funds.
@@ -1013,7 +1013,7 @@ export default function OnboardingFlow() {
                     </div>
 
                     {/* Step 5: Review policy */}
-                    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                    <div className="rounded-xl border border-white/6 bg-white/2 p-4">
                       <div className="flex items-center gap-3 mb-2">
                         <span className="h-6 w-6 rounded-full border border-white/20 flex items-center justify-center text-xs text-white/30">5</span>
                         <span className="text-sm font-medium">Review Policies &amp; Whitelists</span>

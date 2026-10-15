@@ -39,7 +39,7 @@ export default function AgentLandingPage() {
 
         {/* Conversational Setup */}
         <div className="space-y-8">
-          <div className="bg-gradient-to-r from-[#00FF88]/10 to-[#00FF88]/10 border border-[#00FF88]/30 rounded-xl p-8">
+          <div className="bg-linear-to-r from-[#00FF88]/10 to-[#00FF88]/10 border border-[#00FF88]/30 rounded-xl p-8">
             <h2 className="text-xl font-bold mb-3">🤖 Conversational Setup</h2>
             <p className="text-white/40 mb-4">
               The recommended flow: your agent asks the Origin Wallet holder a few questions, collects their preferences, then handles the deployment. No technical knowledge needed from the user.
@@ -63,7 +63,7 @@ const setup = await fetch("${API_URL}/v1/agent/setup", { ... });
             </p>
           </div>
 
-          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-8">
+          <div className="bg-white/2 border border-white/5 rounded-xl p-8">
             <h2 className="text-xl font-bold mb-6">Direct API Quick Start</h2>
 
             {/* Step 1 */}
@@ -167,7 +167,7 @@ await fetch("${API_URL}/v1/agent/wallets/0xYourWallet/policy", {
           </div>
 
           {/* API Endpoints Reference */}
-          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-8">
+          <div className="bg-white/2 border border-white/5 rounded-xl p-8">
             <h2 className="text-xl font-bold mb-6">API Reference</h2>
 
             <div className="space-y-4">
@@ -195,7 +195,7 @@ await fetch("${API_URL}/v1/agent/wallets/0xYourWallet/policy", {
           </div>
 
           {/* Security */}
-          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-8">
+          <div className="bg-white/2 border border-white/5 rounded-xl p-8">
             <h2 className="text-xl font-bold mb-4">Security Model</h2>
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -210,7 +210,7 @@ await fetch("${API_URL}/v1/agent/wallets/0xYourWallet/policy", {
                 </ul>
               </div>
               <div className="space-y-2">
-                <h3 className="font-semibold text-[#F04452] text-sm">✗ Agents CANNOT</h3>
+                <h3 className="font-semibold text-sigil-error text-sm">✗ Agents CANNOT</h3>
                 <ul className="text-sm text-white/40 space-y-1">
                   <li>• Withdraw or transfer funds</li>
                   <li>• Freeze or unfreeze Sigil Wallets</li>
@@ -224,7 +224,7 @@ await fetch("${API_URL}/v1/agent/wallets/0xYourWallet/policy", {
           </div>
 
           {/* Supported Chains */}
-          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-8">
+          <div className="bg-white/2 border border-white/5 rounded-xl p-8">
             <h2 className="text-xl font-bold mb-4">Supported Chains</h2>
             <div className="grid grid-cols-2 gap-4">
               {[
@@ -253,8 +253,8 @@ function Endpoint({ method, path, desc, scope }: { method: string; path: string;
   const methodColors: Record<string, string> = {
     GET: "text-[#00FF88]",
     POST: "text-[#00FF88]",
-    PUT: "text-[#F4A524]",
-    DELETE: "text-[#F04452]",
+    PUT: "text-sigil-warning",
+    DELETE: "text-sigil-error",
   };
 
   return (
@@ -263,7 +263,7 @@ function Endpoint({ method, path, desc, scope }: { method: string; path: string;
       <code className="text-sm font-mono flex-1">{path}</code>
       <span className="text-xs text-white/40">{desc}</span>
       {scope && (
-        <span className="text-xs px-1.5 py-0.5 rounded bg-[#00FF88]/10 text-[#00FF88]">{scope}</span>
+        <span className="text-xs px-1.5 py-0.5 rounded-sm bg-[#00FF88]/10 text-[#00FF88]">{scope}</span>
       )}
     </div>
   );

@@ -33,7 +33,7 @@ interface TokenBalance {
 }
 
 function RiskBadge({ score }: { score: number }) {
-  const color = score <= 20 ? "text-[#00FF88] bg-[#00FF88]/10" : score <= 50 ? "text-[#F4A524] bg-[#F4A524]/10" : "text-[#F04452] bg-[#F04452]/10";
+  const color = score <= 20 ? "text-[#00FF88] bg-[#00FF88]/10" : score <= 50 ? "text-sigil-warning bg-sigil-warning/10" : "text-sigil-error bg-sigil-error/10";
   return <span className={`text-xs px-2 py-0.5 rounded-md font-medium font-mono ${color}`}>Risk: {score}</span>;
 }
 
@@ -55,7 +55,7 @@ function CopyableAddress({ address, label, compact }: { address: string; label?:
     <div className="flex items-center gap-3">
       {label && <span className="text-xs text-white/40 shrink-0">{label}</span>}
       <code className="text-lg font-mono text-white break-all">{address}</code>
-      <button onClick={handleCopy} className="shrink-0 px-3 py-1.5 rounded-lg border border-white/5 bg-white/[0.03] text-xs font-medium hover:bg-white/[0.06] transition-colors">
+      <button onClick={handleCopy} className="shrink-0 px-3 py-1.5 rounded-lg border border-white/5 bg-white/3 text-xs font-medium hover:bg-white/6 transition-colors">
         {copied ? "✓ Copied!" : "📋 Copy"}
       </button>
     </div>
@@ -317,17 +317,17 @@ export default function DashboardOverview() {
     <div className="space-y-6">
       {/* ─── Frozen Banner ─── */}
       {frozenStatus && (
-        <div className="p-4 bg-[#F04452]/10 border border-[#F04452]/30 rounded-xl flex items-center gap-3">
+        <div className="p-4 bg-sigil-error/10 border border-sigil-error/30 rounded-xl flex items-center gap-3">
           <span className="text-2xl">🔒</span>
           <div>
-            <div className="font-bold text-[#F04452]">Wallet Frozen</div>
+            <div className="font-bold text-sigil-error">Wallet Frozen</div>
             <div className="text-sm text-white/40">All transactions are blocked. <Link href="/dashboard/emergency" className="text-[#00FF88] underline">Manage →</Link></div>
           </div>
         </div>
       )}
 
       {noAccount && !discovering && (
-        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-8 text-center">
+        <div className="rounded-xl border border-white/6 bg-white/2 p-8 text-center">
           <p className="text-white/40 mb-4">{isConnected ? "No Sigil Wallet found on this chain" : "Connect your wallet to get started"}</p>
           {isConnected && (
             <Link href="/onboarding" className="inline-flex px-6 py-2.5 bg-[#00FF88] text-[#050505] rounded-lg text-sm font-medium hover:brightness-110 transition-colors">
@@ -339,7 +339,7 @@ export default function DashboardOverview() {
 
       {/* ─── Wallet Identity Card ─── */}
       {!noAccount && accountAddress && (
-        <div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.03] to-transparent p-6">
+        <div className="rounded-2xl border border-white/6 bg-linear-to-br from-white/3 to-transparent p-6">
           <div className="flex items-start justify-between">
             <div>
               <EditableName chainId={chainId} address={accountAddress} />
@@ -347,8 +347,8 @@ export default function DashboardOverview() {
               <CopyableAddress address={accountAddress} />
             </div>
             <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${frozenStatus ? "bg-[#F04452]" : "bg-[#00FF88] animate-pulse"}`} />
-              <span className={`text-xs font-medium ${frozenStatus ? "text-[#F04452]" : "text-[#00FF88]"}`}>
+              <span className={`w-2 h-2 rounded-full ${frozenStatus ? "bg-sigil-error" : "bg-[#00FF88] animate-pulse"}`} />
+              <span className={`text-xs font-medium ${frozenStatus ? "text-sigil-error" : "text-[#00FF88]"}`}>
                 {frozenStatus ? "Frozen" : "Active"}
               </span>
             </div>
@@ -358,14 +358,14 @@ export default function DashboardOverview() {
 
       {/* ─── Getting Started (dismissable) ─── */}
       {!noAccount && accountAddress && showGettingStarted && (
-        <div className="rounded-xl border border-[#00FF88]/20 bg-[#00FF88]/[0.03] p-5">
+        <div className="rounded-xl border border-[#00FF88]/20 bg-[#00FF88]/3 p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-[#00FF88]">Setup Checklist</h2>
             <button onClick={dismissGettingStarted} className="text-white/30 hover:text-white text-sm">✕</button>
           </div>
           <div className="space-y-3">
             {/* Step 1: Fund Sigil Wallet */}
-            <div className="p-4 rounded-lg bg-white/[0.02] border border-white/[0.04]">
+            <div className="p-4 rounded-lg bg-white/2 border border-white/4">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-[#00FF88] font-bold text-sm">1</span>
                 <span className="font-medium text-sm">Fund your Sigil Wallet</span>
@@ -373,12 +373,12 @@ export default function DashboardOverview() {
               <p className="text-xs text-white/30 mb-2">Send {nativeToken} and tokens your agent will trade. This is your on-chain smart account — all agent transactions execute from here.</p>
               <div className="flex items-center gap-2 bg-[#050505] rounded-lg px-3 py-2 border border-white/5">
                 <code className="text-xs text-[#00FF88] break-all flex-1">{accountAddress}</code>
-                <button onClick={() => navigator.clipboard.writeText(accountAddress)} className="shrink-0 px-2 py-1 text-[10px] bg-white/5 hover:bg-white/10 rounded text-white/40 transition-colors">Copy</button>
+                <button onClick={() => navigator.clipboard.writeText(accountAddress)} className="shrink-0 px-2 py-1 text-[10px] bg-white/5 hover:bg-white/10 rounded-sm text-white/40 transition-colors">Copy</button>
               </div>
             </div>
 
             {/* Step 2: Fund Agent Wallet */}
-            <div className="p-4 rounded-lg bg-white/[0.02] border border-white/[0.04]">
+            <div className="p-4 rounded-lg bg-white/2 border border-white/4">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-[#00FF88] font-bold text-sm">2</span>
                 <span className="font-medium text-sm">Fund your Agent Wallet (gas)</span>
@@ -387,7 +387,7 @@ export default function DashboardOverview() {
               {agentKey ? (
                 <div className="flex items-center gap-2 bg-[#050505] rounded-lg px-3 py-2 border border-white/5">
                   <code className="text-xs text-white/50 break-all flex-1">{agentKey}</code>
-                  <button onClick={() => navigator.clipboard.writeText(agentKey)} className="shrink-0 px-2 py-1 text-[10px] bg-white/5 hover:bg-white/10 rounded text-white/40 transition-colors">Copy</button>
+                  <button onClick={() => navigator.clipboard.writeText(agentKey)} className="shrink-0 px-2 py-1 text-[10px] bg-white/5 hover:bg-white/10 rounded-sm text-white/40 transition-colors">Copy</button>
                 </div>
               ) : (
                 <p className="text-xs text-white/20">Agent key not yet configured — <Link href="/dashboard/agent-access" className="text-[#00FF88] hover:underline">set up first</Link></p>
@@ -396,17 +396,17 @@ export default function DashboardOverview() {
 
             {/* Step 3-5 compact row */}
             <div className="grid grid-cols-3 gap-3">
-              <Link href="/dashboard/agent-access" className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.04] hover:border-[#00FF88]/30 transition-colors block">
+              <Link href="/dashboard/agent-access" className="p-3 rounded-lg bg-white/2 border border-white/4 hover:border-[#00FF88]/30 transition-colors block">
                 <span className="text-[#00FF88] font-bold text-sm">3</span>
                 <div className="font-medium text-sm mt-1">Generate API Key</div>
                 <div className="text-white/30 text-xs mt-0.5">Agent needs this to call Guardian</div>
               </Link>
-              <Link href="/dashboard/policy" className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.04] hover:border-[#00FF88]/30 transition-colors block">
+              <Link href="/dashboard/policy" className="p-3 rounded-lg bg-white/2 border border-white/4 hover:border-[#00FF88]/30 transition-colors block">
                 <span className="text-[#00FF88] font-bold text-sm">4</span>
                 <div className="font-medium text-sm mt-1">Review Policies</div>
                 <div className="text-white/30 text-xs mt-0.5">Spending limits & whitelisted contracts</div>
               </Link>
-              <Link href="/dashboard/evaluate" className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.04] hover:border-[#00FF88]/30 transition-colors block">
+              <Link href="/dashboard/evaluate" className="p-3 rounded-lg bg-white/2 border border-white/4 hover:border-[#00FF88]/30 transition-colors block">
                 <span className="text-[#00FF88] font-bold text-sm">5</span>
                 <div className="font-medium text-sm mt-1">Test a Transaction</div>
                 <div className="text-white/30 text-xs mt-0.5">Evaluate through all 3 Guardian layers</div>
@@ -419,13 +419,13 @@ export default function DashboardOverview() {
       {/* ─── Portfolio + Stats Row ─── */}
       <div className="grid grid-cols-3 gap-4">
         {/* Native Balance */}
-        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+        <div className="rounded-xl border border-white/6 bg-white/2 p-5">
           <div className="text-xs text-white/40 uppercase tracking-wide mb-2">Sigil Wallet</div>
           <div className="text-3xl font-bold font-mono">
             {noAccount ? "—" : sigilBalance !== null ? <AnimatedValue value={sigilBalance.toFixed(4)} suffix={nativeToken} /> : "Loading..."}
           </div>
           {!noAccount && sigilBalance !== null && sigilBalance === 0 && (
-            <div className="text-xs text-[#F4A524] mt-2">⚠ Send {nativeToken} to your Sigil Wallet to get started</div>
+            <div className="text-xs text-sigil-warning mt-2">⚠ Send {nativeToken} to your Sigil Wallet to get started</div>
           )}
           {!noAccount && ownerBalance !== null && (
             <div className="text-xs text-white/30 mt-2 font-mono">
@@ -436,7 +436,7 @@ export default function DashboardOverview() {
         </div>
 
         {/* Today's Spend */}
-        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+        <div className="rounded-xl border border-white/6 bg-white/2 p-5">
           <div className="text-xs text-white/40 uppercase tracking-wide mb-2">Today&apos;s Spend</div>
           {noAccount ? (
             <div className="text-white/20 text-sm py-2">—</div>
@@ -455,17 +455,17 @@ export default function DashboardOverview() {
         </div>
 
         {/* Agent Wallet — gas funding notice */}
-        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+        <div className="rounded-xl border border-white/6 bg-white/2 p-5">
           <div className="text-xs text-white/40 uppercase tracking-wide mb-2">Agent Wallet <span className="text-white/20">(gas only)</span></div>
           {noAccount ? (
             <div className="text-white/20 text-sm py-2">—</div>
           ) : agentKey ? (
             <>
-              <div className={`text-3xl font-bold font-mono ${agentBal !== null && agentBal < 0.005 ? "text-[#F4A524]" : "text-[#00FF88]"}`}>
+              <div className={`text-3xl font-bold font-mono ${agentBal !== null && agentBal < 0.005 ? "text-sigil-warning" : "text-[#00FF88]"}`}>
                 {agentBal !== null ? <AnimatedValue value={agentBal.toFixed(4)} suffix={nativeToken} /> : "—"}
               </div>
               {agentBal !== null && agentBal < 0.005 && (
-                <div className="text-xs text-[#F4A524] mt-2 flex items-center gap-1">
+                <div className="text-xs text-sigil-warning mt-2 flex items-center gap-1">
                   ⚠ Low gas — fund your agent to submit txs
                 </div>
               )}
@@ -492,7 +492,7 @@ export default function DashboardOverview() {
         <div className="col-span-3 space-y-6">
           {/* Token Balances */}
           {!noAccount && (
-            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+            <div className="rounded-xl border border-white/6 bg-white/2 p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-semibold">Token Balances</h2>
                 {accountAddress && (
@@ -506,7 +506,7 @@ export default function DashboardOverview() {
                   <span className="text-white/30 text-sm ml-3">Scanning tokens...</span>
                 </div>
               ) : tokenBalances.length > 0 ? (
-                <div className="divide-y divide-white/[0.04]">
+                <div className="divide-y divide-white/4">
                   {tokenBalances.map(tb => (
                     <TokenRow key={tb.token.address} tb={tb} chainId={chainId} />
                   ))}
@@ -522,7 +522,7 @@ export default function DashboardOverview() {
           )}
 
           {/* Recent Activity */}
-          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+          <div className="rounded-xl border border-white/6 bg-white/2 p-5">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-semibold">Recent Activity</h2>
               <Link href="/dashboard/activity" className="text-[#00FF88] text-sm hover:text-[#00FF88]/80">View all →</Link>
@@ -544,7 +544,7 @@ export default function DashboardOverview() {
         {/* ─── Right Column (2/5) ─── */}
         <div className="col-span-2 space-y-6">
           {/* Active Policy */}
-          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+          <div className="rounded-xl border border-white/6 bg-white/2 p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold">Active Policy</h2>
               <Link href="/dashboard/policy" className="text-[#00FF88] text-sm hover:text-[#00FF88]/80">Edit →</Link>
@@ -562,18 +562,18 @@ export default function DashboardOverview() {
                       <span className="font-mono font-medium">{row.value}</span>
                     </div>
                   ))}
-                  <div className="flex items-center justify-between text-sm pt-2 border-t border-white/[0.04]">
+                  <div className="flex items-center justify-between text-sm pt-2 border-t border-white/4">
                     <span className="text-white/40">Status</span>
-                    <span className={`font-medium ${frozenStatus ? "text-[#F04452]" : "text-[#00FF88]"}`}>
+                    <span className={`font-medium ${frozenStatus ? "text-sigil-error" : "text-[#00FF88]"}`}>
                       {frozenStatus ? "🔒 Frozen" : "✓ Active"}
                     </span>
                   </div>
                 </div>
-                <div className="mt-4 pt-4 border-t border-white/[0.04]">
+                <div className="mt-4 pt-4 border-t border-white/4">
                   <div className="text-xs text-white/30 mb-2">Whitelisted</div>
                   <div className="flex flex-wrap gap-2">
                     {policyDisplay.whitelisted.map(w => (
-                      <Link key={w} href="/dashboard/policy" className="px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/[0.06] text-xs text-white/50 hover:text-[#00FF88] hover:border-[#00FF88]/30 transition-colors">{w}</Link>
+                      <Link key={w} href="/dashboard/policy" className="px-2.5 py-1 rounded-md bg-white/4 border border-white/6 text-xs text-white/50 hover:text-[#00FF88] hover:border-[#00FF88]/30 transition-colors">{w}</Link>
                     ))}
                   </div>
                 </div>
@@ -584,7 +584,7 @@ export default function DashboardOverview() {
           </div>
 
           {/* Guardian + Protection */}
-          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+          <div className="rounded-xl border border-white/6 bg-white/2 p-5">
             <h2 className="font-semibold mb-4">Protection Status</h2>
             <div className="space-y-3">
               {/* Guardian */}
@@ -593,8 +593,8 @@ export default function DashboardOverview() {
                 {noAccount ? (
                   <span className="text-white/20">—</span>
                 ) : (
-                  <span className={`flex items-center gap-1.5 ${guardianStatus ? "text-[#00FF88]" : "text-[#F04452]"}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${guardianStatus ? "bg-[#00FF88]" : "bg-[#F04452]"}`} />
+                  <span className={`flex items-center gap-1.5 ${guardianStatus ? "text-[#00FF88]" : "text-sigil-error"}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${guardianStatus ? "bg-[#00FF88]" : "bg-sigil-error"}`} />
                     {guardianStatus ? "Online" : "Offline"}
                   </span>
                 )}
@@ -604,8 +604,8 @@ export default function DashboardOverview() {
               {!noAccount && (
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-white/40">Circuit Breaker</span>
-                  <span className={`flex items-center gap-1.5 ${protectionData?.circuitBreaker?.tripped ? "text-[#F04452]" : "text-[#00FF88]"}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${protectionData?.circuitBreaker?.tripped ? "bg-[#F04452] animate-pulse" : "bg-[#00FF88]"}`} />
+                  <span className={`flex items-center gap-1.5 ${protectionData?.circuitBreaker?.tripped ? "text-sigil-error" : "text-[#00FF88]"}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${protectionData?.circuitBreaker?.tripped ? "bg-sigil-error animate-pulse" : "bg-[#00FF88]"}`} />
                     {protectionData?.circuitBreaker?.tripped ? "TRIPPED" : "Normal"}
                   </span>
                 </div>
@@ -620,7 +620,7 @@ export default function DashboardOverview() {
                     catch (e) { /* Circuit breaker reset failed */ } finally { setResettingCB(false); }
                   }}
                   disabled={resettingCB}
-                  className="w-full py-2 rounded-lg bg-[#F04452] text-white text-xs font-medium hover:brightness-110 transition-colors disabled:opacity-50"
+                  className="w-full py-2 rounded-lg bg-sigil-error text-white text-xs font-medium hover:brightness-110 transition-colors disabled:opacity-50"
                 >
                   {resettingCB ? "Resetting..." : "🔓 Reset Circuit Breaker"}
                 </button>
@@ -629,7 +629,7 @@ export default function DashboardOverview() {
 
             {/* Velocity bars */}
             {!noAccount && protectionData?.velocity && (
-              <div className="mt-4 pt-4 border-t border-white/[0.04] space-y-3">
+              <div className="mt-4 pt-4 border-t border-white/4 space-y-3">
                 {[
                   { label: "Hourly", spent: protectionData.velocity.hourlySpent, limit: protectionData.velocity.hourlyLimit, pct: protectionData.velocity.hourlyPercent },
                   { label: "Daily", spent: protectionData.velocity.dailySpent, limit: protectionData.velocity.dailyLimit, pct: protectionData.velocity.dailyPercent },
@@ -650,7 +650,7 @@ export default function DashboardOverview() {
           </div>
 
           {/* Network */}
-          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+          <div className="rounded-xl border border-white/6 bg-white/2 p-5">
             <h2 className="font-semibold mb-4">Network</h2>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between">
@@ -663,7 +663,7 @@ export default function DashboardOverview() {
               </div>
               {!noAccount && accountAddress && (
                 <>
-                  <div className="pt-3 border-t border-white/[0.04] flex items-center justify-between">
+                  <div className="pt-3 border-t border-white/4 flex items-center justify-between">
                     <span className="text-white/40">Wallet</span>
                     <a href={`${explorer.url}/address/${accountAddress}`} target="_blank" rel="noreferrer"
                       className="font-mono text-xs text-white/30 hover:text-[#00FF88]">{accountAddress.slice(0, 8)}...{accountAddress.slice(-4)} ↗</a>
@@ -679,16 +679,16 @@ export default function DashboardOverview() {
           </div>
 
           {/* Quick Actions */}
-          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+          <div className="rounded-xl border border-white/6 bg-white/2 p-5">
             <h2 className="font-semibold mb-4">Quick Actions</h2>
             <div className="space-y-2">
               <Link href="/dashboard/evaluate" className="block w-full py-2.5 rounded-lg border border-[#00FF88]/30 bg-[#00FF88]/5 text-[#00FF88] font-medium text-center text-sm hover:bg-[#00FF88]/10 transition-colors">
                 🔍 Evaluate Transaction
               </Link>
-              <Link href="/dashboard/policy" className="block w-full py-2.5 rounded-lg border border-white/10 bg-white/[0.02] text-white/60 font-medium text-center text-sm hover:bg-white/[0.04] transition-colors">
+              <Link href="/dashboard/policy" className="block w-full py-2.5 rounded-lg border border-white/10 bg-white/2 text-white/60 font-medium text-center text-sm hover:bg-white/4 transition-colors">
                 🛡️ Manage Policies
               </Link>
-              <Link href="/dashboard/emergency" className="block w-full py-2.5 rounded-lg border border-[#F04452]/30 bg-[#F04452]/5 text-[#F04452] font-medium text-center text-sm hover:bg-[#F04452]/10 transition-colors">
+              <Link href="/dashboard/emergency" className="block w-full py-2.5 rounded-lg border border-sigil-error/30 bg-sigil-error/5 text-sigil-error font-medium text-center text-sm hover:bg-sigil-error/10 transition-colors">
                 🚨 Emergency Controls
               </Link>
             </div>
