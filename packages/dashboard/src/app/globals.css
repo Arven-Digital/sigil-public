@@ -1,6 +1,45 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  --color-neon: #00ff88;
+
+  --color-sigil-bg-dark: #050505;
+  --color-sigil-bg-card: rgba(255, 255, 255, 0.02);
+  --color-sigil-bg-light: #f5f7fa;
+
+  --color-sigil-fg-light: #edeff2;
+  --color-sigil-fg-dark: #050505;
+
+  --color-sigil-muted: rgba(255, 255, 255, 0.4);
+  --color-sigil-divider: rgba(255, 255, 255, 0.05);
+  --color-sigil-accent: #00ff88;
+  --color-sigil-indigo: #00ff88;
+  --color-sigil-success: #00ff88;
+  --color-sigil-warning: #f4a524;
+  --color-sigil-error: #f04452;
+
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), monospace;
+  --font-display: var(--font-fraunces), serif;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 :root {
   --neon: #00FF88;
@@ -118,7 +157,7 @@ html {
   font-family: var(--font-jetbrains), monospace;
 }
 .prose-sigil .inline-code {
-  @apply px-1.5 py-0.5 rounded text-[13px];
+  @apply px-1.5 py-0.5 rounded-sm text-[13px];
   background: rgba(255,255,255,0.06);
   color: #00FF88;
   font-family: var(--font-jetbrains), monospace;

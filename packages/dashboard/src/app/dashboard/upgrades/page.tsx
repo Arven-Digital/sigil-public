@@ -22,7 +22,7 @@ function Countdown({ executeAfter }: { executeAfter: number }) {
   }, []);
 
   const remaining = executeAfter - now;
-  if (remaining <= 0) return <span className="text-[#F4A524] font-medium">Ready to execute</span>;
+  if (remaining <= 0) return <span className="text-sigil-warning font-medium">Ready to execute</span>;
 
   const h = Math.floor(remaining / 3600);
   const m = Math.floor((remaining % 3600) / 60);
@@ -95,13 +95,13 @@ export default function UpgradesPage() {
       </p>
 
       {upgradeError && (
-        <div className="p-3 bg-[#F04452]/10 border border-[#F04452]/30 rounded-lg text-sm text-[#F04452]">
+        <div className="p-3 bg-sigil-error/10 border border-sigil-error/30 rounded-lg text-sm text-sigil-error">
           ⚠ Failed to load upgrade status: {upgradeError.message || "API unreachable"}
         </div>
       )}
 
       {actionError && (
-        <div className="p-3 bg-[#F04452]/10 border border-[#F04452]/30 rounded-lg text-sm text-[#F04452]">
+        <div className="p-3 bg-sigil-error/10 border border-sigil-error/30 rounded-lg text-sm text-sigil-error">
           ⚠ {actionError}
         </div>
       )}
@@ -126,8 +126,8 @@ export default function UpgradesPage() {
 
       {/* Pending Upgrade */}
       {hasPending && (
-        <Card className="border-[#F4A524]/30 bg-[#F4A524]/5">
-          <h3 className="text-sm font-medium text-[#F4A524] mb-3">⏳ Pending Upgrade</h3>
+        <Card className="border-sigil-warning/30 bg-sigil-warning/5">
+          <h3 className="text-sm font-medium text-sigil-warning mb-3">⏳ Pending Upgrade</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <div className="text-xs text-white/40">New Implementation</div>
@@ -146,14 +146,14 @@ export default function UpgradesPage() {
               <Countdown executeAfter={upgradeStatus!.executeAfter} />
             </div>
           </div>
-          <div className="mt-4 pt-3 border-t border-[#F4A524]/20">
+          <div className="mt-4 pt-3 border-t border-sigil-warning/20">
             <button
               onClick={handleCancelUpgrade}
               disabled={cancelLoading || !address}
               className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors ${
                 cancelConfirm
-                  ? "bg-[#F04452] text-white animate-pulse"
-                  : "bg-[#F04452]/10 text-[#F04452] border border-[#F04452]/20 hover:bg-[#F04452] hover:text-white"
+                  ? "bg-sigil-error text-white animate-pulse"
+                  : "bg-sigil-error/10 text-sigil-error border border-sigil-error/20 hover:bg-sigil-error hover:text-white"
               } disabled:opacity-30`}
             >
               {cancelLoading ? <LoadingSpinner /> : cancelConfirm ? "Confirm Cancel Upgrade" : "Cancel Upgrade"}
@@ -174,7 +174,7 @@ export default function UpgradesPage() {
               value={newImpl}
               onChange={(e) => setNewImpl(e.target.value)}
               placeholder="New implementation address (0x...)"
-              className="flex-1 bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm font-mono focus:border-[#00FF88] outline-none"
+              className="flex-1 bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm font-mono focus:border-[#00FF88] outline-hidden"
             />
             <button
               onClick={handleRequestUpgrade}
@@ -215,7 +215,7 @@ export default function UpgradesPage() {
         ) : !historyError ? (
           <p className="text-sm text-white/40">No previous upgrades</p>
         ) : (
-          <p className="text-sm text-[#F04452]">Failed to load history</p>
+          <p className="text-sm text-sigil-error">Failed to load history</p>
         )}
       </Card>
     </div>

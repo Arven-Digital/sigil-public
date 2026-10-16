@@ -34,7 +34,7 @@ export default function ChainSelector({ chainId, onChange }: ChainSelectorProps)
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-colors text-sm"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/5 bg-white/2 hover:bg-white/5 transition-colors text-sm"
       >
         <span className="w-2 h-2 rounded-full" style={{ backgroundColor: current.color }} />
         <span className="text-white/70">{current.name}</span>
@@ -57,7 +57,7 @@ export default function ChainSelector({ chainId, onChange }: ChainSelectorProps)
                 chain.enabled
                   ? chain.id === chainId
                     ? "text-[#00FF88] bg-[#00FF88]/5"
-                    : "text-white/70 hover:bg-white/[0.05]"
+                    : "text-white/70 hover:bg-white/5"
                   : "text-white/20 cursor-not-allowed"
               }`}
             >

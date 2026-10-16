@@ -133,11 +133,11 @@ export default function EmergencyPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-[#F04452]">⚠ Emergency Controls</h1>
+      <h1 className="text-2xl font-bold text-sigil-error">⚠ Emergency Controls</h1>
       <p className="text-sm text-white/40">These actions interact directly with your smart contract. Use with caution.</p>
 
       {isDemo && (
-        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-8 text-center">
+        <div className="rounded-xl border border-white/6 bg-white/2 p-8 text-center">
           <p className="text-white/40">{!isConnected ? "Connect wallet to access emergency controls" : "No Sigil Wallet found on this chain"}</p>
           {!hasAccount && isConnected && <a href="/onboarding" className="inline-block mt-3 px-6 py-2.5 bg-[#00FF88] text-[#050505] rounded-lg text-sm font-medium hover:brightness-110">Deploy Wallet →</a>}
         </div>
@@ -150,7 +150,7 @@ export default function EmergencyPage() {
       )}
 
       {actionError && (
-        <div className="p-3 bg-[#F04452]/10 border border-[#F04452]/30 rounded-lg text-sm text-[#F04452]">
+        <div className="p-3 bg-sigil-error/10 border border-sigil-error/30 rounded-lg text-sm text-sigil-error">
           ⚠ {actionError}
           <button onClick={() => setActionError(null)} className="ml-2 underline text-xs">Dismiss</button>
         </div>
@@ -162,7 +162,7 @@ export default function EmergencyPage() {
           <div>
             <p className="text-sm">
               Current status:{" "}
-              <span className={frozen ? "text-[#F04452] font-bold" : "text-[#00FF88] font-bold"}>
+              <span className={frozen ? "text-sigil-error font-bold" : "text-[#00FF88] font-bold"}>
                 {frozen === undefined ? "Loading..." : frozen ? "🔒 FROZEN" : "✅ ACTIVE"}
               </span>
             </p>
@@ -175,10 +175,10 @@ export default function EmergencyPage() {
             disabled={anyPending || isDemo || frozen === undefined}
             className={`px-6 py-2 rounded-lg font-medium text-sm transition-colors ${
               confirmAction === "freeze"
-                ? "bg-[#F04452] hover:bg-[#F04452]/80 animate-pulse"
+                ? "bg-sigil-error hover:bg-sigil-error/80 animate-pulse"
                 : frozen
                 ? "bg-[#00FF88] hover:bg-[#00FF88]/80 text-[#050505]"
-                : "bg-[#F04452]/20 text-[#F04452] border border-[#F04452]/30 hover:bg-[#F04452] hover:text-white"
+                : "bg-sigil-error/20 text-sigil-error border border-sigil-error/30 hover:bg-sigil-error hover:text-white"
             } disabled:opacity-30`}
           >
             {freezePending || unfreezePending
@@ -200,15 +200,15 @@ export default function EmergencyPage() {
             onChange={e => setNewAgentKey(e.target.value)}
             placeholder="New Agent Wallet address (0x...)"
             disabled={isDemo}
-            className="flex-1 bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm font-mono focus:border-[#00FF88] outline-none disabled:opacity-50"
+            className="flex-1 bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm font-mono focus:border-[#00FF88] outline-hidden disabled:opacity-50"
           />
           <button
             onClick={() => handleAction("rotate", handleRotateKey)}
             disabled={!newAgentKey || anyPending || isDemo}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               confirmAction === "rotate"
-                ? "bg-[#F4A524] hover:bg-[#F4A524]/80 animate-pulse text-black"
-                : "bg-[#F4A524]/20 text-[#F4A524] border border-[#F4A524]/30 hover:bg-[#F4A524] hover:text-black"
+                ? "bg-sigil-warning hover:bg-sigil-warning/80 animate-pulse text-black"
+                : "bg-sigil-warning/20 text-sigil-warning border border-sigil-warning/30 hover:bg-sigil-warning hover:text-black"
             } disabled:opacity-30`}
           >
             {rotatePending
@@ -221,8 +221,8 @@ export default function EmergencyPage() {
       {/* Emergency Withdraw */}
       <Card title="Emergency Withdraw">
         <p className="text-xs text-white/40 mb-3">Withdraw <strong>ALL funds</strong> to a safe address. Origin Wallet-only contract call.</p>
-        <div className="p-3 bg-[#F04452]/5 border border-[#F04452]/20 rounded-lg mb-3">
-          <p className="text-xs text-[#F04452]">⚠ This withdraws the entire wallet balance. There is no partial withdrawal.</p>
+        <div className="p-3 bg-sigil-error/5 border border-sigil-error/20 rounded-lg mb-3">
+          <p className="text-xs text-sigil-error">⚠ This withdraws the entire wallet balance. There is no partial withdrawal.</p>
         </div>
         <div className="space-y-3">
           <div>
@@ -233,7 +233,7 @@ export default function EmergencyPage() {
               onChange={e => setWithdrawTo(e.target.value)}
               placeholder="0x..."
               disabled={isDemo}
-              className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm font-mono focus:border-[#00FF88] outline-none disabled:opacity-50"
+              className="w-full bg-[#050505] border border-white/5 rounded-lg px-3 py-2 text-sm font-mono focus:border-[#00FF88] outline-hidden disabled:opacity-50"
             />
           </div>
           <button
@@ -241,8 +241,8 @@ export default function EmergencyPage() {
             disabled={!withdrawTo || anyPending || isDemo}
             className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors ${
               confirmAction === "withdraw"
-                ? "bg-[#F04452] hover:bg-[#F04452]/80 animate-pulse"
-                : "bg-[#F04452]/20 text-[#F04452] border border-[#F04452]/30 hover:bg-[#F04452] hover:text-white"
+                ? "bg-sigil-error hover:bg-sigil-error/80 animate-pulse"
+                : "bg-sigil-error/20 text-sigil-error border border-sigil-error/30 hover:bg-sigil-error hover:text-white"
             } disabled:opacity-30`}
           >
             {withdrawPending

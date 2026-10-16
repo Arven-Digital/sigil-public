@@ -48,7 +48,7 @@ export default function RegistrationBanner() {
     "border-gray-500/30";
 
   return (
-    <div className={`relative overflow-hidden rounded-2xl border ${borderColor} bg-gradient-to-r from-[#050505] to-[#111820] p-8 mb-8`}>
+    <div className={`relative overflow-hidden rounded-2xl border ${borderColor} bg-linear-to-r from-[#050505] to-[#111820] p-8 mb-8`}>
       {/* Animated background glow */}
       <div className={`absolute top-0 right-0 w-64 h-64 ${barColor} opacity-5 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2`} />
 

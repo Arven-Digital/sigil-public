@@ -1,2 +1,6 @@
 packages:
   - "packages/*"
+
+# Web-only workspace: do not materialize React Native's optional peer tree.
+# Required browser peers (including CDP's eager x402 imports) are explicit.
+autoInstallPeers: false

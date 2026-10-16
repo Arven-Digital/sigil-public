@@ -56,7 +56,7 @@ export default function LandingPage() {
           />
         </div>
         {/* Gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050505] via-transparent to-[#050505]" />
+        <div className="absolute inset-0 bg-linear-to-b from-[#050505] via-transparent to-[#050505]" />
         <div className="absolute inset-0 bg-grid opacity-30" />
 
         <div className="relative max-w-3xl mx-auto text-center animate-fade-in-up">
@@ -174,8 +174,8 @@ export default function LandingPage() {
           {/* Code snippet */}
           <div className="mt-8 rounded-xl border border-white/5 bg-[#0A0A0A] p-5 max-w-2xl mx-auto">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#F04452]/60" />
-              <div className="w-2.5 h-2.5 rounded-full bg-[#F4A524]/60" />
+              <div className="w-2.5 h-2.5 rounded-full bg-sigil-error/60" />
+              <div className="w-2.5 h-2.5 rounded-full bg-sigil-warning/60" />
               <div className="w-2.5 h-2.5 rounded-full bg-[#00FF88]/60" />
               <span className="text-[11px] text-white/20 ml-2 font-mono">OpenClaw / Eliza / Any Agent</span>
             </div>
@@ -382,7 +382,7 @@ POST https://api.sigil.codes/v1/evaluate`}
           />
 
           <div className="mt-14 relative">
-            <div className="hidden md:block absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-y-1/2" />
+            <div className="hidden md:block absolute top-1/2 left-0 right-0 h-px bg-linear-to-r from-transparent via-white/10 to-transparent -translate-y-1/2" />
 
             <div className="grid md:grid-cols-3 gap-6 relative">
               {[

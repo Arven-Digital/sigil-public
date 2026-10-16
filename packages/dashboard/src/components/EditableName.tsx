@@ -50,7 +50,7 @@ export default function EditableName({ chainId, address }: EditableNameProps) {
           if (e.key === "Escape") cancel();
         }}
         onBlur={save}
-        className="text-xl font-semibold bg-transparent border-b border-[#00FF88]/50 outline-none text-white py-0.5 px-0"
+        className="text-xl font-semibold bg-transparent border-b border-[#00FF88]/50 outline-hidden text-white py-0.5 px-0"
         maxLength={40}
       />
     );

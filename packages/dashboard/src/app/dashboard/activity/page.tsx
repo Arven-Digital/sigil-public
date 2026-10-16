@@ -30,7 +30,7 @@ export default function ActivityPage() {
     return (
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">Activity Feed</h1>
-        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-8 text-center space-y-4">
+        <div className="bg-white/2 border border-white/5 rounded-xl p-8 text-center space-y-4">
           <p className="text-white/40">Connect your wallet to view transaction history</p>
         </div>
       </div>
@@ -41,7 +41,7 @@ export default function ActivityPage() {
     return (
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">Activity Feed</h1>
-        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-8 text-center space-y-4">
+        <div className="bg-white/2 border border-white/5 rounded-xl p-8 text-center space-y-4">
           <p className="text-white/40">Sign in with your wallet to view transaction history</p>
           <button
             onClick={signIn}
@@ -65,7 +65,7 @@ export default function ActivityPage() {
       <h1 className="text-2xl font-bold">Activity Feed</h1>
 
       {error && (
-        <div className="p-3 bg-[#F04452]/10 border border-[#F04452]/30 rounded-lg text-sm text-[#F04452]">
+        <div className="p-3 bg-sigil-error/10 border border-sigil-error/30 rounded-lg text-sm text-sigil-error">
           ⚠ Failed to load transactions: {error.message || "API unreachable"}
         </div>
       )}
@@ -111,21 +111,21 @@ export default function ActivityPage() {
                         <tr key={tx.id + "-detail"} className="bg-[#050505]/50">
                           <td colSpan={6} className="p-4">
                             <div className="grid grid-cols-3 gap-4 text-xs">
-                              <div className={`p-3 rounded-lg border ${tx.layers.layer1.pass ? "border-[#00FF88]/30 bg-[#00FF88]/5" : "border-[#F04452]/30 bg-[#F04452]/5"}`}>
+                              <div className={`p-3 rounded-lg border ${tx.layers.layer1.pass ? "border-[#00FF88]/30 bg-[#00FF88]/5" : "border-sigil-error/30 bg-sigil-error/5"}`}>
                                 <div className="font-medium mb-1">Layer 1 — Rules</div>
-                                <div className={tx.layers.layer1.pass ? "text-[#00FF88]" : "text-[#F04452]"}>
+                                <div className={tx.layers.layer1.pass ? "text-[#00FF88]" : "text-sigil-error"}>
                                   {tx.layers.layer1.pass ? "✓ Pass" : "✗ Fail"}: {tx.layers.layer1.reason}
                                 </div>
                               </div>
-                              <div className={`p-3 rounded-lg border ${tx.layers.layer2.pass ? "border-[#00FF88]/30 bg-[#00FF88]/5" : "border-[#F04452]/30 bg-[#F04452]/5"}`}>
+                              <div className={`p-3 rounded-lg border ${tx.layers.layer2.pass ? "border-[#00FF88]/30 bg-[#00FF88]/5" : "border-sigil-error/30 bg-sigil-error/5"}`}>
                                 <div className="font-medium mb-1">Layer 2 — Simulation</div>
-                                <div className={tx.layers.layer2.pass ? "text-[#00FF88]" : "text-[#F04452]"}>
+                                <div className={tx.layers.layer2.pass ? "text-[#00FF88]" : "text-sigil-error"}>
                                   {tx.layers.layer2.pass ? "✓ Pass" : "✗ Fail"}: {tx.layers.layer2.reason}
                                 </div>
                               </div>
-                              <div className={`p-3 rounded-lg border ${tx.layers.layer3.pass ? "border-[#00FF88]/30 bg-[#00FF88]/5" : "border-[#F04452]/30 bg-[#F04452]/5"}`}>
+                              <div className={`p-3 rounded-lg border ${tx.layers.layer3.pass ? "border-[#00FF88]/30 bg-[#00FF88]/5" : "border-sigil-error/30 bg-sigil-error/5"}`}>
                                 <div className="font-medium mb-1">Layer 3 — AI (Score: {tx.layers.layer3.score.toFixed(2)})</div>
-                                <div className={tx.layers.layer3.pass ? "text-[#00FF88]" : "text-[#F04452]"}>
+                                <div className={tx.layers.layer3.pass ? "text-[#00FF88]" : "text-sigil-error"}>
                                   {tx.layers.layer3.pass ? "✓ Pass" : "✗ Fail"}: {tx.layers.layer3.reason}
                                 </div>
                               </div>
@@ -143,7 +143,7 @@ export default function ActivityPage() {
               <button
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page === 1}
-                className="px-3 py-1 text-sm bg-white/5 rounded disabled:opacity-30 hover:bg-white/5/80"
+                className="px-3 py-1 text-sm bg-white/5 rounded-sm disabled:opacity-30 hover:bg-white/5/80"
               >
                 ← Previous
               </button>
@@ -153,7 +153,7 @@ export default function ActivityPage() {
               <button
                 onClick={() => setPage(Math.min(totalPages, page + 1))}
                 disabled={page === totalPages}
-                className="px-3 py-1 text-sm bg-white/5 rounded disabled:opacity-30 hover:bg-white/5/80"
+                className="px-3 py-1 text-sm bg-white/5 rounded-sm disabled:opacity-30 hover:bg-white/5/80"
               >
                 Next →
               </button>

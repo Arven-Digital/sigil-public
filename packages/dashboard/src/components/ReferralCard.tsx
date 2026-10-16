@@ -51,9 +51,9 @@ export default function ReferralCard() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-white/5 bg-white/[0.02] p-5 animate-pulse">
-        <div className="h-4 bg-white/5 rounded w-1/3 mb-4" />
-        <div className="h-8 bg-white/5 rounded w-2/3" />
+      <div className="rounded-xl border border-white/5 bg-white/2 p-5 animate-pulse">
+        <div className="h-4 bg-white/5 rounded-sm w-1/3 mb-4" />
+        <div className="h-8 bg-white/5 rounded-sm w-2/3" />
       </div>
     );
   }
@@ -80,7 +80,7 @@ export default function ReferralCard() {
 
       {/* Referral Code */}
       {referral && (
-        <div className="rounded-xl border border-white/5 bg-white/[0.02] p-5">
+        <div className="rounded-xl border border-white/5 bg-white/2 p-5">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold">Your Referral Code</h3>
             {referral.is_used ? (
@@ -113,7 +113,7 @@ export default function ReferralCard() {
 
       {/* Subscription Details */}
       {(plan === "monthly" || plan === "yearly") && subscription.subscription.expires_at && (
-        <div className="rounded-xl border border-white/5 bg-white/[0.02] p-5">
+        <div className="rounded-xl border border-white/5 bg-white/2 p-5">
           <h3 className="font-semibold mb-3">Subscription Details</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">

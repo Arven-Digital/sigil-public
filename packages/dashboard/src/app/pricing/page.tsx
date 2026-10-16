@@ -94,7 +94,7 @@ export default function PricingPage() {
         {/* Chain Fees */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {CHAIN_FEES.map(c => (
-            <div key={c.chain} className="rounded-xl border border-white/5 bg-white/[0.02] p-5 text-center hover:border-white/10 transition-colors">
+            <div key={c.chain} className="rounded-xl border border-white/5 bg-white/2 p-5 text-center hover:border-white/10 transition-colors">
               <div className="text-2xl mb-2">{c.icon}</div>
               <div className="font-semibold text-sm mb-1">{c.chain}</div>
               <div className="font-mono text-xl font-bold mb-1" style={{ color: NEON }}>{c.fee}</div>
@@ -104,7 +104,7 @@ export default function PricingPage() {
         </div>
 
         {/* Main Pricing Card */}
-        <div className="rounded-xl border bg-gradient-to-b from-[#00FF88]/5 to-white/[0.01] p-10 mb-8 text-center relative" style={{ borderColor: `${NEON}20` }}>
+        <div className="rounded-xl border bg-linear-to-b from-[#00FF88]/5 to-white/1 p-10 mb-8 text-center relative" style={{ borderColor: `${NEON}20` }}>
           <div
             className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-[#050505] text-xs rounded-full font-medium"
             style={{ backgroundColor: NEON }}
@@ -136,7 +136,7 @@ export default function PricingPage() {
         </div>
 
         {/* Why on-chain */}
-        <div className="rounded-xl border border-white/5 bg-white/[0.02] p-8 mb-8">
+        <div className="rounded-xl border border-white/5 bg-white/2 p-8 mb-8">
           <h2 className="text-xl font-bold mb-6">Why on-chain fees, not subscriptions?</h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div>
@@ -167,7 +167,7 @@ export default function PricingPage() {
         </div>
 
         {/* Cost Breakdown */}
-        <div className="rounded-xl border border-white/5 bg-white/[0.02] p-8 mb-8">
+        <div className="rounded-xl border border-white/5 bg-white/2 p-8 mb-8">
           <h2 className="text-xl font-bold mb-6">Cost breakdown</h2>
           <div className="space-y-4">
             {COST_BREAKDOWN.map(item => (
@@ -190,7 +190,7 @@ export default function PricingPage() {
         </div>
 
         {/* FAQ-style */}
-        <div className="rounded-xl border border-white/5 bg-white/[0.02] p-8">
+        <div className="rounded-xl border border-white/5 bg-white/2 p-8">
           <h2 className="text-xl font-bold mb-6">Common questions</h2>
           <div className="space-y-5">
             {[
@@ -220,7 +220,7 @@ export default function PricingPage() {
         </div>
 
         {/* Non-Custodial */}
-        <div className="rounded-xl border border-white/5 bg-white/[0.02] p-8 mt-8">
+        <div className="rounded-xl border border-white/5 bg-white/2 p-8 mt-8">
           <h2 className="text-xl font-bold mb-4">🔐 Non-custodial by design</h2>
           <p className="text-[13px] text-white/40 leading-relaxed mb-4">
             Your Origin Wallet key, Agent Wallet key, session keys, and recovery guardians are generated and stored entirely on your side. We never see, store, or have access to any of your private keys.

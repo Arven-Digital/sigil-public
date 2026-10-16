@@ -8,6 +8,9 @@ on:
 permissions:
   contents: read
 
+env:
+  TURBO_FORCE: "true"
+
 jobs:
   gate:
     name: install-audit-test-build-lint-proof

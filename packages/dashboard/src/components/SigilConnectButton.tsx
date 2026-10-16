@@ -52,7 +52,7 @@ export default function SigilConnectButton() {
                 <button
                   onClick={openAccountModal}
                   type="button"
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all hover:bg-white/[0.04]"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-all hover:bg-white/4"
                   style={{ borderColor: `${NEON}30`, color: NEON }}
                 >
                   <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: NEON }} />

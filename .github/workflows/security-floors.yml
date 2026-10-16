@@ -1,0 +1,22 @@
+name: Security floors
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  security-lock-roots:
+    name: security-lock-roots
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - name: Regression fixtures (vulnerable RED, safe GREEN)
+        run: python3 scripts/security-floor-test.py
+      - name: Every lock root — independent floors, frozen install, full audit
+        run: python3 scripts/security-floor.py --install-audit
